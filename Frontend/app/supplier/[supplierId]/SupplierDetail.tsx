@@ -125,16 +125,28 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
       Headline: "Company Expands Manufacturing Capacity",
       News: "The company has announced a significant expansion of its manufacturing facilities, increasing production capacity by 40% to meet growing demand. This expansion includes new state-of-the-art equipment and additional workforce hiring. The investment demonstrates the company's commitment to growth and customer satisfaction.",
       Date: "2024-01-15",
+      Source: {
+        name: "Reuters",
+        url: "https://example.com/news/expansion",
+      },
     },
     {
       Headline: "Sustainability Initiative Launched",
       News: "A comprehensive sustainability program has been launched focusing on reducing carbon footprint and implementing eco-friendly practices across all operations. The initiative includes renewable energy adoption, waste reduction strategies, and sustainable sourcing policies.",
       Date: "2024-01-10",
+      Source: {
+        name: "Bloomberg",
+        url: "https://example.com/news/sustainability",
+      },
     },
     {
       Headline: "Quality Certification Renewed",
       News: "The company has successfully renewed its ISO 9001 quality management certification, demonstrating continued commitment to maintaining the highest quality standards in manufacturing and service delivery.",
       Date: "2024-01-05",
+      Source: {
+        name: "Financial Times",
+        url: "https://example.com/news/certification",
+      },
     },
   ]);
 
@@ -319,7 +331,18 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
                     <h4 className="font-semibold text-base text-gray-900 dark:text-white">
                       📰 {news.Headline}
                     </h4>
+                    {news.Source && (
+                      <a
+                        href={news.Source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-black dark:text-white hover:underline hover:cursor-pointer"
+                      >
+                        {news.Source.name}
+                      </a>
+                    )}
                   </div>
+
                   <p className="text-sm leading-relaxed text-justify text-gray-700 dark:text-gray-300">
                     {isExpanded
                       ? news.News

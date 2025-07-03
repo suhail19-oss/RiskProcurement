@@ -21,6 +21,7 @@ export const suppliers: Supplier[] = [
     location: "Hamburg, Germany",
     contractValue: 1800000,
   },
+
   {
     id: "3",
     name: "Precision Components Inc",
@@ -31,6 +32,7 @@ export const suppliers: Supplier[] = [
     location: "Mumbai, India",
     contractValue: 3200000,
   },
+
   {
     id: "4",
     name: "EcoMaterials Co",

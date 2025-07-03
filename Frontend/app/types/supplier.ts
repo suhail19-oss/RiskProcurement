@@ -7,6 +7,7 @@ export interface Supplier {
   complianceScore: number;
   location: string;
   contractValue: number;
+  geminiRaw?: string;
 }
 
 export interface RiskViolation {
@@ -31,4 +32,7 @@ export interface SuggestedAction {
   recommendedBy: string;
   createdAt: string;
   status: "pending" | "approved" | "rejected" | "completed";
+  lastAssessedAt?: string;
+  violation?: string;
+  geminiRaw?: string;
 }

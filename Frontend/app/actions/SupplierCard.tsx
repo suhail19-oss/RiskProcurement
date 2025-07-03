@@ -13,11 +13,23 @@ import {
   AlertTriangle,
   Sparkles,
   Target,
+  AlertCircle,
 } from "lucide-react";
 import { Supplier, RiskViolation, SuggestedAction } from "../types/supplier";
 import { RiskBadge } from "./RiskBadge";
 import { PriorityBadge } from "./PriorityBadge";
 import { StatusBadge } from "./StatusBadge";
+
+const formatPriority = (
+  priority: string
+): "low" | "medium" | "high" | "urgent" => {
+  const normalized = priority.toLowerCase();
+  if (normalized.includes("high")) return "high";
+  if (normalized.includes("medium")) return "medium";
+  if (normalized.includes("low")) return "low";
+  if (normalized.includes("urgent")) return "urgent";
+  return "medium"; // Default fallback
+};
 
 interface SupplierCardProps {
   supplier: Supplier;
@@ -66,7 +78,6 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
 
   return (
     <div className="group relative bg-white/70 backdrop-blur-sm rounded-2xl border border-gray-200/60 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-      {/* Gradient Background */}
       <div
         className={`absolute inset-0 bg-gradient-to-br ${getRiskGradient(
           supplier.riskLevel
@@ -128,11 +139,11 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
 
               <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-gray-100">
                 <div className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-white" />
+                  <AlertCircle className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Compliance
+                    Penalties
                   </p>
                   <p className="text-sm font-bold text-gray-900">
                     {supplier.complianceScore}%
@@ -207,25 +218,11 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                               {violation.type}
                             </span>
                             <RiskBadge level={violation.severity} size="sm" />
-                            <StatusBadge status={violation.status} size="sm" />
                           </div>
                           <p className="text-red-800 mb-4 leading-relaxed">
                             {violation.description}
                           </p>
-                          <div className="flex items-center gap-6 text-sm text-red-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              <span className="font-medium">
-                                Detected: {formatDate(violation.detectedDate)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Target className="h-4 w-4" />
-                              <span className="font-medium">
-                                Source: {violation.source}
-                              </span>
-                            </div>
-                          </div>
+                          <div className="flex items-center gap-6 text-sm text-red-600"></div>
                         </div>
                       </div>
                     </div>
@@ -263,88 +260,101 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
 
             {actions.length > 0 ? (
               <div className="space-y-4">
-                {actions.map((action) => (
-                  <div
-                    key={action.id}
-                    className="group/action relative bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-2xl p-6 hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-2xl opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className="font-bold text-blue-900 text-lg">
-                              {action.title}
-                            </span>
-                            <PriorityBadge
-                              priority={action.priority}
-                              size="sm"
-                            />
-                            <StatusBadge status={action.status} size="sm" />
-                          </div>
-                          <p className="text-blue-800 mb-4 leading-relaxed">
-                            {action.description}
-                          </p>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
-                              <TrendingUp className="h-4 w-4" />
-                              <span className="font-medium">
-                                {action.estimatedImpact}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
-                              <Target className="h-4 w-4" />
-                              <span className="font-medium">
-                                {action.category}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
-                              <Sparkles className="h-4 w-4" />
-                              <span className="font-medium">
-                                {action.recommendedBy}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                {actions.map((action) => {
+                  const {
+                    id,
+                    title,
+                    description,
+                    estimatedImpact,
+                    category,
+                    recommendedBy,
+                    priority,
+                    status,
+                  } = action;
 
-                      {action.status === "pending" && (
-                        <div className="flex gap-3 pt-4 border-t border-blue-200/60">
-                          <button
-                            onClick={() =>
-                              onActionUpdate(action.id, "approved")
-                            }
-                            className="group/approve relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                          >
-                            <CheckCircle className="h-4 w-4 group-hover/approve:scale-110 transition-transform duration-300" />
-                            Approve Action
-                            <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/approve:opacity-100 transition-opacity duration-300"></div>
-                          </button>
-                          <button
-                            onClick={() =>
-                              onActionUpdate(action.id, "rejected")
-                            }
-                            className="group/reject relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-semibold rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                          >
-                            <XCircle className="h-4 w-4 group-hover/reject:scale-110 transition-transform duration-300" />
-                            Reject
-                            <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/reject:opacity-100 transition-opacity duration-300"></div>
-                          </button>
-                          <button
-                            onClick={() =>
-                              onActionUpdate(action.id, "completed")
-                            }
-                            className="group/complete relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                          >
-                            <Clock className="h-4 w-4 group-hover/complete:scale-110 transition-transform duration-300" />
-                            Mark Complete
-                            <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/complete:opacity-100 transition-opacity duration-300"></div>
-                          </button>
+                  return (
+                    <div
+                      key={id}
+                      className="group/action relative bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-2xl p-6 hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-2xl opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="font-bold text-blue-900 text-lg">
+                                {title}
+                              </span>
+                              <PriorityBadge
+                                priority={formatPriority(priority)}
+                                size="sm"
+                              />
+                              <StatusBadge status={status} size="sm" />
+                            </div>
+                            <p className="text-blue-800 mb-4 leading-relaxed">
+                              {description}
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              {estimatedImpact && (
+                                <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                                  <TrendingUp className="h-4 w-4" />
+                                  <span className="font-medium">
+                                    {estimatedImpact}
+                                  </span>
+                                </div>
+                              )}
+                              {category && (
+                                <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                                  <Target className="h-4 w-4" />
+                                  <span className="font-medium">
+                                    {category}
+                                  </span>
+                                </div>
+                              )}
+                              {recommendedBy && (
+                                <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                                  <Sparkles className="h-4 w-4" />
+                                  <span className="font-medium">
+                                    {recommendedBy}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      )}
+
+                        {status === "pending" && (
+                          <div className="flex gap-3 pt-4 border-t border-blue-200/60">
+                            <button
+                              onClick={() => onActionUpdate(id, "approved")}
+                              className="group/approve relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                              <CheckCircle className="h-4 w-4 group-hover/approve:scale-110 transition-transform duration-300" />
+                              Approve Action
+                              <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/approve:opacity-100 transition-opacity duration-300"></div>
+                            </button>
+                            <button
+                              onClick={() => onActionUpdate(id, "rejected")}
+                              className="group/reject relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-semibold rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                              <XCircle className="h-4 w-4 group-hover/reject:scale-110 transition-transform duration-300" />
+                              Reject
+                              <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/reject:opacity-100 transition-opacity duration-300"></div>
+                            </button>
+                            <button
+                              onClick={() => onActionUpdate(id, "completed")}
+                              className="group/complete relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                              <Clock className="h-4 w-4 group-hover/complete:scale-110 transition-transform duration-300" />
+                              Mark Complete
+                              <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/complete:opacity-100 transition-opacity duration-300"></div>
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-8 bg-white/60 rounded-2xl border border-gray-200/60">
