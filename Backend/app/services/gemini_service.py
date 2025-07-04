@@ -185,3 +185,169 @@ Document text:
                 "error": str(e),
                 "status": "error"
             }
+
+    async def extract_ci_data(self, file_content: bytes, filename: str) -> Dict[str, Any]:
+            logger.info("Starting Gemini 1.5 Flash Cost Efficiency data extraction...")
+            try:
+                document_text = self.extract_text_from_pdf(file_content)
+                if not document_text.strip():
+                    raise ValueError("No text could be extracted from the document.")
+
+                prompt = """You are an procurement expert data extraction specialist.
+
+    From the following report, extract as much **numerical cost efficiency related data** as possible to help derive key indicators. Focus on retrieving **exact values** for the following fields **if they are directly reported**. Use this strict JSON structure and field names if available. Return your response as a JSON object containing top-level key: `result`:
+    keep this json name as result. In result , must include the units of numerical values also along with value, add reporting_year as 2024
+    {
+    "company_name": "string",
+    "reporting_year": "integer",
+    "unit_price_benchmarking": "float",
+    "volume_dicsount_potential": "float", 
+    "payment_terms_flexibility": "float",
+    "FPY_Normalized": "float",
+    "legal_disputes_last_6_months": "float",
+    "legal_dispute_score": "integer",
+    "contract_value": "float",
+    "war_zone_norm": "float",
+    "trade_policy_norm": "float",
+    "labor_violation_risk": "integer",
+    "recall_score_out_of_100": "float",
+    "govt_sanctions_penalties": "bool",
+    "war_zone_flag": "integer",
+    "labor_violations": "string",
+    "trade_policy_changes": "string",
+    "sanction_score": "float",
+    "in_transit_delays_days":"float"
+    }
+
+    ---
+
+   
+    Return format:
+    {
+    "result": { ... }, 
+    }
+
+    ONLY return the JSON object above. Do not include explanations or extra text.
+
+    Document text:
+
+    """ + document_text
+
+                response = self.model.generate_content(prompt)
+                raw_response = response.text.strip()
+                logger.info(f"Gemini raw response: {raw_response}")
+
+                if raw_response.startswith("```json"):
+                    raw_response = raw_response.strip("`")  # Remove backticks
+                    raw_response = raw_response.lstrip("json").strip()
+                elif raw_response.startswith("```"):
+                    raw_response = raw_response.strip("`").strip()
+                
+                try:
+                    extracted_data = json.loads(raw_response)
+                    if isinstance(extracted_data, dict):
+                        result = extracted_data.get("result", {})
+                      
+                    else:
+                        raise ValueError("Parsed data is not a JSON object.")
+                except Exception as e:
+                    logger.warning(f"Non-JSON response from Gemini, returning raw text. Reason: {e}")
+                    result = raw_response
+                   
+
+
+                
+                return {
+                    "result": result,
+                    "status": "success"
+                }
+
+            except Exception as e:
+                logger.error(f"Error during extraction: {e}")
+                return {
+                    "result": {},
+                    "error": str(e),
+                    "status": "error"
+                }
+            
+    async def extract_reliability_data(self, file_content: bytes, filename: str) -> Dict[str, Any]:
+        logger.info("Starting Gemini 1.5 Flash Reliability data extraction...")
+        
+        try:
+            document_text = self.extract_text_from_pdf(file_content)
+            
+            if not document_text.strip():
+                raise ValueError("No text could be extracted from the document.")
+            
+            prompt = """You are an expert reliability data extraction specialist.
+
+    From the following reliability report, extract **numerical reliability-related data** to help derive key operational reliability indicators. Focus on retrieving **exact values** for the following fields **if they are directly reported**. Return your response as a JSON object containing two top-level keys: `result` and `overall_data`:
+
+    ### Primary Reliability Metrics (include in "result"):
+
+    "company_name": "string",
+    "reporting_year": "integer",
+    "on_time_deliveries": "integer",
+    "total_deliveries": "integer", 
+    "supplier_lead_time_days": "float",
+    "defective_units": "integer",
+    "total_units_shipped": "integer",
+    "quality_certificates_obtained": "integer",
+    "downtime_events": "integer",
+    "total_operational_days": "integer",
+    "disrupted_orders": "integer",
+    "total_orders": "integer",
+    "average_response_time_hours": "float",
+    "system_uptime_percentage": "float",
+    "mean_time_between_failures_hours": "float",
+    "mean_time_to_repair_hours": "float"
+
+ 
+    Return format:
+    {
+        "result": { ... },
+        
+    }
+
+    ONLY return the JSON object above. Do not include explanations or extra text.
+
+    Document text:
+    """ + document_text
+
+            response = self.model.generate_content(prompt)
+            raw_response = response.text.strip()
+            
+            logger.info(f"Gemini raw response: {raw_response}")
+            
+            # Clean response
+            if raw_response.startswith("```"):
+                raw_response = raw_response.strip("`")
+                raw_response = raw_response.lstrip("json").strip()
+            elif raw_response.startswith("```"):
+                raw_response = raw_response.strip("`").strip()
+            
+            try:
+                extracted_data = json.loads(raw_response)
+                if isinstance(extracted_data, dict):
+                    result = extracted_data.get("result", {})
+                    overall_data = extracted_data.get("overall_data", {})
+                else:
+                    raise ValueError("Parsed data is not a JSON object.")
+            except Exception as e:
+                logger.warning(f"Non-JSON response from Gemini, returning raw text. Reason: {e}")
+                result = raw_response
+                overall_data = {}
+            
+            return {
+                "result": result,
+                "status": "success"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error during reliability extraction: {e}")
+            return {
+                "result": {},
+                "error": str(e),
+                "status": "error"
+            }
+
