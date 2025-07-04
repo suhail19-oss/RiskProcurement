@@ -27,7 +27,7 @@ from fpdf import FPDF
 
 # App internals
 from app.database import db
-from app.routes import test, auth, esg, recommendations, reportGeneration
+from app.routes import test, auth, esg, recommendations, reportGeneration, costEfficiency, reliability
 from app.services.gemini_service import gemini_service
 
 # Load environment variables
@@ -57,6 +57,8 @@ app.include_router(esg.router, prefix="/api")
 app.include_router(recommendations.router)
 app.include_router(reportGeneration.router)
 app.include_router(profile.router)
+app.include_router(costEfficiency.router)
+app.include_router(reliability.router)
 
 # ------------------- Custom Exception Handler -------------------
 @app.exception_handler(RequestValidationError)
