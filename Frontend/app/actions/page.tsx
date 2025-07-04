@@ -393,6 +393,7 @@ export default function HomePage() {
                   onClick={async () => {
                     try {
                       const id = uuidv4();
+                      const now = new Date().toISOString();
                       const newSupplier = {
                         id,
                         name: newAction.supplierName,
@@ -408,6 +409,7 @@ export default function HomePage() {
                         phone: "",
                         email: "",
                         website: "",
+                        lastAssessment: now,
                       };
 
                       // Get the response from Gemini

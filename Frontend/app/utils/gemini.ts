@@ -33,11 +33,21 @@ export async function getGeminiRecommendation(
   const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
   try {
+    const riskTone =
+      riskCategory.toLowerCase() === "high"
+        ? "Use a serious and urgent tone. Recommend strong actions like audits, suspensions, or policy overhauls."
+        : riskCategory.toLowerCase() === "medium"
+        ? "Use a balanced tone. Recommend practical improvements like monitoring systems, internal reviews, or corrective plans."
+        : "Use a light tone. Recommend low-impact actions like regular reviews, documentation improvements, or soft engagement steps.";
+
     const prompt = `Analyze the supplier's risk based on the information below. Respond ONLY in the strict JSON format provided, without any extra text.
 
 Supplier: ${supplierName}
 Risk Category: ${riskCategory}
 Details: "${articleSummary}"
+
+INSTRUCTION BASED ON RISK LEVEL:
+${riskTone}
 
 REQUIRED JSON OUTPUT:
 {
@@ -66,8 +76,7 @@ RULES:
 4. Vary recommendation priorities — do NOT default all to 'Low Priority'.
 5. Use precise, short, business-relevant language.
 6. If the input is empty or irrelevant, return 0 violations and general risk-reduction recommendations.
-7. Each violation **must be 1 full sentence** (≥ 70 characters).
-`;
+7. Each violation must be 1 full sentence (≥ 70 characters).`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,

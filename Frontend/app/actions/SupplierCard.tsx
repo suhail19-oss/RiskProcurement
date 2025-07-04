@@ -28,7 +28,7 @@ const formatPriority = (
   if (normalized.includes("medium")) return "medium";
   if (normalized.includes("low")) return "low";
   if (normalized.includes("urgent")) return "urgent";
-  return "medium"; // Default fallback
+  return "medium";
 };
 
 interface SupplierCardProps {
@@ -77,7 +77,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
   };
 
   return (
-    <div className="group relative bg-white/70 backdrop-blur-sm rounded-2xl border border-gray-200/60 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
+    <div className="group relative bg-white/70 dark:bg-zinc-900 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-zinc-700 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
       <div
         className={`absolute inset-0 bg-gradient-to-br ${getRiskGradient(
           supplier.riskLevel
@@ -85,7 +85,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
       ></div>
 
       {/* Header */}
-      <div className="relative p-8 border-b border-gray-100/60">
+      <div className="relative p-8 border-b border-gray-100/60 dark:border-zinc-700">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-4 mb-4">
@@ -96,11 +96,11 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                   {supplier.name}
                 </h3>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-zinc-800 px-3 py-1 rounded-full">
                     {supplier.category}
                   </span>
                   <RiskBadge level={supplier.riskLevel} />
@@ -109,120 +109,110 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-gray-100">
-                <div className="h-10 w-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center">
-                  <MapPin className="h-5 w-5 text-white" />
+              {/* Card items */}
+              {[
+                {
+                  icon: <MapPin className="h-5 w-5 text-white" />,
+                  label: "Location",
+                  value: supplier.location,
+                  gradient: "from-emerald-500 to-green-600",
+                },
+                {
+                  icon: <DollarSign className="h-5 w-5 text-white" />,
+                  label: "Contract Value",
+                  value: formatCurrency(supplier.contractValue),
+                  gradient: "from-blue-500 to-indigo-600",
+                },
+                {
+                  icon: <AlertCircle className="h-5 w-5 text-white" />,
+                  label: "Penalties",
+                  value: `${supplier.complianceScore}%`,
+                  gradient: "from-purple-500 to-pink-600",
+                },
+                {
+                  icon: <Calendar className="h-5 w-5 text-white" />,
+                  label: "Last Assessment",
+                  value: formatDate(supplier.lastAssessment),
+                  gradient: "from-amber-500 to-orange-600",
+                },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 p-3 bg-white/60 dark:bg-zinc-800 rounded-xl border border-gray-100 dark:border-zinc-700"
+                >
+                  <div
+                    className={`h-10 w-10 bg-gradient-to-br ${item.gradient} rounded-lg flex items-center justify-center`}
+                  >
+                    {item.icon}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      {item.label}
+                    </p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      {item.value}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Location
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {supplier.location}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-gray-100">
-                <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Contract Value
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {formatCurrency(supplier.contractValue)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-gray-100">
-                <div className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-                  <AlertCircle className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Penalties
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {supplier.complianceScore}%
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-gray-100">
-                <div className="h-10 w-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Last Assessment
-                  </p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {formatDate(supplier.lastAssessment)}
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="relative ml-6 p-3 hover:bg-white/60 rounded-xl transition-all duration-300 group/btn"
+            className="relative ml-6 p-3 hover:bg-white/60 dark:hover:bg-white/10 rounded-xl transition-all duration-300 group/btn"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
             <div className="relative">
               {isExpanded ? (
-                <ChevronUp className="h-6 w-6 text-gray-600 group-hover/btn:text-blue-600 transition-colors duration-300" />
+                <ChevronUp className="h-6 w-6 text-gray-600 dark:text-gray-300" />
               ) : (
-                <ChevronDown className="h-6 w-6 text-gray-600 group-hover/btn:text-blue-600 transition-colors duration-300" />
+                <ChevronDown className="h-6 w-6 text-gray-600 dark:text-gray-300" />
               )}
             </div>
           </button>
         </div>
       </div>
 
-      {/* Expanded Content */}
+      {/* Expanded Section */}
       {isExpanded && (
-        <div className="relative p-8 space-y-8 bg-white/30 backdrop-blur-sm">
-          {/* Recent Violations */}
+        <div className="relative p-8 space-y-8 bg-white/30 dark:bg-zinc-800/60 backdrop-blur-sm">
+          {/* Violations */}
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="h-10 w-10 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
                 <AlertTriangle className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h4 className="text-lg font-bold text-gray-900">
+                <h4 className="text-lg font-bold text-gray-900 dark:text-white">
                   Recent Violations
                 </h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {violations.length} active issues requiring attention
                 </p>
               </div>
             </div>
 
             {violations.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {violations.map((violation) => (
                   <div
                     key={violation.id}
-                    className="group/violation relative bg-white/80 backdrop-blur-sm border border-red-200/60 rounded-2xl p-6 hover:shadow-lg transition-all duration-300"
+                    className="group/violation relative bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-red-200/60 dark:border-red-400/20 rounded-2xl p-4 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-500/5 rounded-2xl opacity-0 group-hover/violation:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-500/5 dark:from-red-500/10 dark:to-pink-500/10 rounded-2xl opacity-0 group-hover/violation:opacity-100 transition-opacity duration-300"></div>
                     <div className="relative">
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="font-bold text-red-900 text-lg">
+                          <div className="flex items-center gap-3">
+                            <span className="font-bold text-red-900 dark:text-red-300 text-lg">
                               {violation.type}
                             </span>
                             <RiskBadge level={violation.severity} size="sm" />
                           </div>
-                          <p className="text-red-800 mb-4 leading-relaxed">
+                          <p className="text-red-800 dark:text-red-200 leading-relaxed">
                             {violation.description}
                           </p>
-                          <div className="flex items-center gap-6 text-sm text-red-600"></div>
                         </div>
                       </div>
                     </div>
@@ -230,28 +220,28 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 bg-white/60 rounded-2xl border border-gray-200/60">
+              <div className="text-center py-8 bg-white/60 dark:bg-zinc-800 rounded-2xl border border-gray-200/60 dark:border-zinc-700">
                 <div className="h-12 w-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-3">
                   <CheckCircle className="h-6 w-6 text-white" />
                 </div>
-                <p className="text-gray-600 font-medium">
+                <p className="text-gray-600 dark:text-gray-300 font-medium">
                   No recent violations - excellent compliance record!
                 </p>
               </div>
             )}
           </div>
 
-          {/* AI Suggested Actions */}
+          {/* AI Suggestions */}
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h4 className="text-lg font-bold text-gray-900">
+                <h4 className="text-lg font-bold text-gray-900 dark:text-white">
                   AI-Powered Recommendations
                 </h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {actions.length} intelligent actions to optimize risk
                   management
                 </p>
@@ -275,14 +265,14 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                   return (
                     <div
                       key={id}
-                      className="group/action relative bg-white/80 backdrop-blur-sm border border-blue-200/60 rounded-2xl p-6 hover:shadow-lg transition-all duration-300"
+                      className="group/action relative bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-blue-200/60 dark:border-blue-400/20 rounded-2xl p-6 hover:shadow-lg transition-all duration-300"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-2xl opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10 rounded-2xl opacity-0 group-hover/action:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-3">
-                              <span className="font-bold text-blue-900 text-lg">
+                              <span className="font-bold text-blue-900 dark:text-blue-300 text-lg">
                                 {title}
                               </span>
                               <PriorityBadge
@@ -291,12 +281,12 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                               />
                               <StatusBadge status={status} size="sm" />
                             </div>
-                            <p className="text-blue-800 mb-4 leading-relaxed">
+                            <p className="text-blue-800 dark:text-blue-200 mb-4 leading-relaxed">
                               {description}
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                               {estimatedImpact && (
-                                <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                                <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg">
                                   <TrendingUp className="h-4 w-4" />
                                   <span className="font-medium">
                                     {estimatedImpact}
@@ -304,7 +294,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                                 </div>
                               )}
                               {category && (
-                                <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                                <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg">
                                   <Target className="h-4 w-4" />
                                   <span className="font-medium">
                                     {category}
@@ -312,7 +302,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                                 </div>
                               )}
                               {recommendedBy && (
-                                <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                                <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg">
                                   <Sparkles className="h-4 w-4" />
                                   <span className="font-medium">
                                     {recommendedBy}
@@ -324,7 +314,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                         </div>
 
                         {status === "pending" && (
-                          <div className="flex gap-3 pt-4 border-t border-blue-200/60">
+                          <div className="flex gap-3 pt-4 border-t border-blue-200/60 dark:border-blue-300/20">
                             <button
                               onClick={() => onActionUpdate(id, "approved")}
                               className="group/approve relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -357,11 +347,11 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                 })}
               </div>
             ) : (
-              <div className="text-center py-8 bg-white/60 rounded-2xl border border-gray-200/60">
+              <div className="text-center py-8 bg-white/60 dark:bg-zinc-800 rounded-2xl border border-gray-200/60 dark:border-zinc-700">
                 <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
-                <p className="text-gray-600 font-medium">
+                <p className="text-gray-600 dark:text-gray-300 font-medium">
                   No AI recommendations at this time - supplier performing
                   optimally!
                 </p>
