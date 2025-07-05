@@ -582,21 +582,8 @@ const fetchRecommendations = async (supplier_name: string) => {
         )}
       </motion.div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 p-1 bg-background/50 backdrop-blur-sm">
-            <TabsTrigger
-              value="esg-analysis"
-              className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300"
-            >
-              ESG Analysis
-            </TabsTrigger>
-            <TabsTrigger
-              value="supplier-ranking"
-              className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all duration-300"
-            >
-              Supplier Ranking
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="">
+         
 
           <TabsContent value="esg-analysis" className="space-y-6">
             <motion.div

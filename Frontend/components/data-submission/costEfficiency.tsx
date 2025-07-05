@@ -20,18 +20,26 @@ const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 const email = userData.email;
 
 export default function CostEfficiency() {
-  // Cost state variables
-  const [productionCostPerUnit, setProductionCostPerUnit] = useState("");
-  const [logisticsCostPerUnit, setLogisticsCostPerUnit] = useState("");
-  const [overheadCostPercentage, setOverheadCostPercentage] = useState("");
-  const [employeeCostPercentage, setEmployeeCostPercentage] = useState("");
-  
-  // Efficiency state variables
-  const [energyCostPerUnit, setEnergyCostPerUnit] = useState("");
-  const [materialUtilizationRate, setMaterialUtilizationRate] = useState("");
-  const [equipmentUtilizationRate, setEquipmentUtilizationRate] = useState("");
-  const [laborProductivity, setLaborProductivity] = useState("");
-  const [wasteReductionPercentage, setWasteReductionPercentage] = useState("");
+  // Cost Factors
+const [unitPriceBenchmarking, setUnitPriceBenchmarking] = useState("");
+const [volumeDiscountPotential, setVolumeDiscountPotential] = useState("");
+const [paymentTermsFlexibility, setPaymentTermsFlexibility] = useState("");
+const [contractValue, setContractValue] = useState("");
+const [tradePolicyNorm, setTradePolicyNorm] = useState("");
+const [sanctionScore, setSanctionScore] = useState("");
+const [warZoneNorm, setWarZoneNorm] = useState("");
+const [tradePolicyChanges, setTradePolicyChanges] = useState("");
+const [govtSanctionsPenalties, setGovtSanctionsPenalties] = useState("");
+
+// Efficiency Factors
+const [fpyNormalized, setFpyNormalized] = useState("");
+const [inTransitDelaysDays, setInTransitDelaysDays] = useState("");
+const [recallScoreOutOf100, setRecallScoreOutOf100] = useState("");
+const [legalDisputesLast6Months, setLegalDisputesLast6Months] = useState("");
+const [legalDisputeScore, setLegalDisputeScore] = useState("");
+const [laborViolationRisk, setLaborViolationRisk] = useState("");
+const [warZoneFlag, setWarZoneFlag] = useState("");
+const [laborViolations, setLaborViolations] = useState("");
   
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -132,29 +140,45 @@ export default function CostEfficiency() {
             <CardContent className="space-y-6 animate-fade-in">
               {section.id === "costs" && (
                 <CostMetricsSection
-                  productionCostPerUnit={productionCostPerUnit}
-                  setProductionCostPerUnit={setProductionCostPerUnit}
-                  logisticsCostPerUnit={logisticsCostPerUnit}
-                  setLogisticsCostPerUnit={setLogisticsCostPerUnit}
-                  overheadCostPercentage={overheadCostPercentage}
-                  setOverheadCostPercentage={setOverheadCostPercentage}
-                  employeeCostPercentage={employeeCostPercentage}
-                  setEmployeeCostPercentage={setEmployeeCostPercentage}
+                  unitPriceBenchmarking={unitPriceBenchmarking}
+                  setUnitPriceBenchmarking={setUnitPriceBenchmarking}
+                  volumeDiscountPotential={volumeDiscountPotential}
+                  setVolumeDiscountPotential={setVolumeDiscountPotential}
+                  paymentTermsFlexibility={paymentTermsFlexibility}
+                  setPaymentTermsFlexibility={setPaymentTermsFlexibility}
+                  contractValue={contractValue}
+                  setContractValue={setContractValue}
+                  tradePolicyNorm={tradePolicyNorm}
+                  setTradePolicyNorm={setTradePolicyNorm}
+                  sanctionScore={sanctionScore}
+                  setSanctionScore={setSanctionScore}
+                  warZoneNorm={warZoneNorm}
+                  setWarZoneNorm={setWarZoneNorm}
+                  tradePolicyChanges={tradePolicyChanges}
+                  setTradePolicyChanges={setTradePolicyChanges}
+                  govtSanctionsPenalties={govtSanctionsPenalties}
+                  setGovtSanctionsPenalties={setGovtSanctionsPenalties}
                 />
               )}
 
               {section.id === "efficiency" && (
                 <EfficiencyMetricsSection
-                  energyCostPerUnit={energyCostPerUnit}
-                  setEnergyCostPerUnit={setEnergyCostPerUnit}
-                  materialUtilizationRate={materialUtilizationRate}
-                  setMaterialUtilizationRate={setMaterialUtilizationRate}
-                  equipmentUtilizationRate={equipmentUtilizationRate}
-                  setEquipmentUtilizationRate={setEquipmentUtilizationRate}
-                  laborProductivity={laborProductivity}
-                  setLaborProductivity={setLaborProductivity}
-                  wasteReductionPercentage={wasteReductionPercentage}
-                  setWasteReductionPercentage={setWasteReductionPercentage}
+                  fpyNormalized={fpyNormalized}
+                  setFpyNormalized={setFpyNormalized}
+                  inTransitDelaysDays={inTransitDelaysDays}
+                  setInTransitDelaysDays={setInTransitDelaysDays}
+                  recallScoreOutOf100={recallScoreOutOf100}
+                  setRecallScoreOutOf100={setRecallScoreOutOf100}
+                  legalDisputesLast6Months={legalDisputesLast6Months}
+                  setLegalDisputesLast6Months={setLegalDisputesLast6Months}
+                  legalDisputeScore={legalDisputeScore}
+                  setLegalDisputeScore={setLegalDisputeScore}
+                  laborViolationRisk={laborViolationRisk}
+                  setLaborViolationRisk={setLaborViolationRisk}
+                  warZoneFlag={warZoneFlag}
+                  setWarZoneFlag={setWarZoneFlag}
+                  laborViolations={laborViolations}
+                  setLaborViolations={setLaborViolations}
                 />
               )}
 
