@@ -106,7 +106,7 @@ class CIResult(BaseModel):
     trade_policy_changes: Optional[str]
     sanction_score: float
     in_transit_delays_days: float
-
+    
 @router.get("/calculate-ci-score")
 async def calculate_ci_score_from_db(request: Request):
     try:
@@ -122,47 +122,53 @@ async def calculate_ci_score_from_db(request: Request):
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
 
-        if "ci_upload_result" not in supplier or "ci_upload_status" not in supplier:
-            raise HTTPException(status_code=404, detail="No CI data found for this supplier")
+        # ✅ Instead of ci_upload_result, get cost_subfactors
+        if "cost_subfactors" not in supplier or "cost_upload_status" not in supplier:
+            raise HTTPException(status_code=404, detail="No cost subfactor data found for this supplier")
 
-        # 3) Extract result dict and status
-        result_data = supplier["ci_upload_result"]
-        status = supplier["ci_upload_status"]
-
-        averages = COST_EFFICIENCY_INDUSTRY_AVERAGES["automotive"]
+        cost_data = supplier["cost_subfactors"]
+        status = supplier["cost_upload_status"]
 
         # Fill missing or null values with industry averages
-        def get_value(key):
-            val = result_data.get(key, None)
-            return averages[key] if val is None else val
+        averages = COST_EFFICIENCY_INDUSTRY_AVERAGES["automotive"]
 
+        def get_value(key):
+            val = cost_data.get(key, None)
+            return averages[key] if val is None else val
+        
+        _raw_sanctions = cost_data.get("govt_sanctions", averages["govt_sanctions_penalties"])
+        govt_sanctions_penalties = (
+            bool(_raw_sanctions) if isinstance(_raw_sanctions, (bool, int)) else None
+        )
+
+        # ✅ Build CIResult using cost_subfactors instead of ci_upload_result
         r = CIResult(
             company_name=supplier.get("company_name", "Unknown"),
-            reporting_year=result_data.get("reporting_year"),
+            reporting_year=None,  # You can remove or keep if you wish
             unit_price_benchmarking=float(get_value("unit_price_benchmarking")),
-            volume_dicsount_potential=float(get_value("volume_dicsount_potential")),
+            volume_dicsount_potential=float(get_value("volume_discount_potential")),
             payment_terms_flexibility=float(get_value("payment_terms_flexibility")),
-            FPY_Normalized=float(get_value("FPY_Normalized")),
-            legal_disputes_last_6_months=float(get_value("legal_disputes_last_6_months")),
+            FPY_Normalized=float(get_value("first_pass_yield")),
+            legal_disputes_last_6_months=float(get_value("legal_disputes")),
             legal_dispute_score=float(get_value("legal_dispute_score")),
             contract_value=float(get_value("contract_value")),
             war_zone_norm=float(get_value("war_zone_norm")),
             trade_policy_norm=float(get_value("trade_policy_norm")),
             labor_violation_risk=float(get_value("labor_violation_risk")),
-            recall_score_out_of_100=float(get_value("recall_score_out_of_100")),
-            govt_sanctions_penalties=result_data.get("govt_sanctions_penalties", averages["govt_sanctions_penalties"]),
-            war_zone_flag=result_data.get("war_zone_flag", averages["war_zone_flag"]),
-            labor_violations=result_data.get("labor_violations", averages["labor_violations"]),
-            trade_policy_changes=result_data.get("trade_policy_changes", averages["trade_policy_changes"]),
+            recall_score_out_of_100=float(get_value("recall_score")),
+            govt_sanctions_penalties=govt_sanctions_penalties,
+            war_zone_flag=cost_data.get("war_zone_flag", averages["war_zone_flag"]),
+            labor_violations=cost_data.get("labor_violations", averages["labor_violations"]),
+            trade_policy_changes=cost_data.get("trade_policy_changes", averages["trade_policy_changes"]),
             sanction_score=float(get_value("sanction_score")),
-            in_transit_delays_days=float(get_value("in_transit_delays_days")),
+            in_transit_delays_days=float(get_value("in_transit_delay_days")),
         )
 
-        # 5) Compute normalized scores
+        # ✅ Compute normalized scores
         unit_price_score = r.unit_price_benchmarking * 100
         volume_discount_score = r.volume_dicsount_potential * 100
         payment_terms_score = r.payment_terms_flexibility * 100
-        transit_delay_score = (1 - r.in_transit_delays_days) * 100
+        transit_delay_score = (1 - r.in_transit_delays_days / 30) * 100  # Example normalization
         fpy_score = r.FPY_Normalized * 100
         recall_score = 100 - r.recall_score_out_of_100
         legal_dispute_score = (1 - r.legal_dispute_score) * 100
@@ -172,7 +178,7 @@ async def calculate_ci_score_from_db(request: Request):
         war_zone_score = (1 - r.war_zone_norm) * 100
         contract_value_score = ((r.contract_value - 100_000_000) / 700_000_000) * 100
 
-        # 6) Compute final Cost Efficiency Score
+        # ✅ Compute final Cost Efficiency Score
         cost_efficiency_score = (
             (unit_price_score * 0.20) +
             (volume_discount_score * 0.10) +
@@ -188,13 +194,38 @@ async def calculate_ci_score_from_db(request: Request):
             (contract_value_score * 0.05)
         )
 
-        # 7) Return
+        # ✅ Save normalized scores and replace cost_score
+        await db.suppliers.update_one(
+            {"email_domain": email_domain},
+            {
+                "$set": {
+                    "cost_score": round(cost_efficiency_score, 2),
+                    "cost_efficiency_normalized_scores": {
+                        "unit_price_score": round(unit_price_score, 2),
+                        "volume_discount_score": round(volume_discount_score, 2),
+                        "payment_terms_score": round(payment_terms_score, 2),
+                        "transit_delay_score": round(transit_delay_score, 2),
+                        "fpy_score": round(fpy_score, 2),
+                        "recall_score": round(recall_score, 2),
+                        "legal_dispute_score": round(legal_dispute_score, 2),
+                        "sanctions_score": round(sanctions_score, 2),
+                        "labor_violation_score": round(labor_violation_score, 2),
+                        "trade_policy_score": round(trade_policy_score, 2),
+                        "war_zone_score": round(war_zone_score, 2),
+                        "contract_value_score": round(contract_value_score, 2)
+                    }
+                }
+            }
+        )
+
+
+        # ✅ Return
         return {
             "company_name": r.company_name,
             "reporting_year": r.reporting_year,
             "ci_upload_status": status,
             "cost_efficiency_score": round(cost_efficiency_score, 2),
-            "normalized_scores": {
+            "cost_efficiency_normalized_scores": {
                 "unit_price_score": round(unit_price_score, 2),
                 "volume_discount_score": round(volume_discount_score, 2),
                 "payment_terms_score": round(payment_terms_score, 2),

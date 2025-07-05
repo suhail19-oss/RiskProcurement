@@ -130,19 +130,19 @@ export function Navigation() {
               ESG Analysis
             </Link>
             <Link
-              href="/"
+              href="/risk-analysis"
               className="px-4 py-2 hover:bg-accent text-sm"
             >
               Risk Analysis
             </Link>
             <Link
-              href="/"
+              href="/costEfficiency-analysis"
               className="px-4 py-2 hover:bg-accent text-sm"
             >
               Cost Efficiency Analysis
             </Link>
             <Link
-              href="/"
+              href="/reliability-analysis"
               className="px-4 py-2 hover:bg-accent text-sm"
             >
               Reliability Analysis

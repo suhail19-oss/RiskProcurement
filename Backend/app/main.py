@@ -1,5 +1,3 @@
-# main.py
-
 import os
 import json
 import logging
@@ -42,9 +40,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ------------------- CORS Middleware -------------------
+# IMPORTANT:
+# When using allow_credentials=True, you CANNOT use allow_origins=["*"]
+# So specify your frontend origin explicitly:
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with specific origins in production
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -88,18 +92,33 @@ async def ping_db():
     return {"msg": "Pretend MongoDB is connected (DB removed in this version)"}
 
 # ------------------- Supplier Endpoint -------------------
+import math
+
 @app.get("/api/suppliers")
 async def get_all_suppliers():
     try:
         cursor = db.suppliers.find({}, {"_id": 0})
         suppliers = await cursor.to_list(length=None)
-        return {"suppliers": suppliers}
+
+        # Sanitize: replace NaN/Infinity with None
+        def sanitize(d):
+            if isinstance(d, dict):
+                return {k: sanitize(v) for k, v in d.items()}
+            elif isinstance(d, list):
+                return [sanitize(i) for i in d]
+            elif isinstance(d, float):
+                if math.isnan(d) or math.isinf(d):
+                    return None
+                return d
+            else:
+                return d
+
+        sanitized_suppliers = [sanitize(s) for s in suppliers]
+
+        return {"suppliers": sanitized_suppliers}
     except Exception as e:
         logger.exception("Error fetching suppliers")
-        return {"error": str(e)}
-
-
-
-
-
-
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)},
+        )
