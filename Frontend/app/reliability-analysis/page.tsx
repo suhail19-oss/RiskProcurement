@@ -242,7 +242,7 @@ export default function ReliabilityAnalysis() {
                     className="flex justify-center"
                 >
 
-                    {activeTab === "reliabilityEfficiency-analysis" && (
+                    {activeTab === "reliability-analysis" && (
                         <Select
                             value={selectedSupplier}
                             onValueChange={setSelectedSupplier}
@@ -350,8 +350,8 @@ export default function ReliabilityAnalysis() {
                                                     ]}
                                                     cx="50%"
                                                     cy="50%"
-                                                    innerRadius={80}
-                                                    outerRadius={120}
+                                                    innerRadius={100}
+                                                    outerRadius={140}
                                                     paddingAngle={2}
                                                     dataKey="value"
                                                     animationBegin={500}
@@ -376,13 +376,13 @@ export default function ReliabilityAnalysis() {
                                                             <text
                                                                 x={x}
                                                                 y={y}
-                                                                fill="white"
+                                                                fill="black"
                                                                 textAnchor="middle"
                                                                 dominantBaseline="central"
                                                                 style={{
                                                                     fontSize: '12px',
                                                                     fontWeight: 'bold',
-                                                                    filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))'
+                                                                   
                                                                 }}
                                                             >
                                                                 {`${name}`}
@@ -422,7 +422,7 @@ export default function ReliabilityAnalysis() {
                                                                     {payload[0].name}
                                                                 </p>
                                                                 <p>Value: {payload[0].value}</p>
-                                                                <p>{(payload[0].payload.percent * 100).toFixed(1)}%</p>
+                                                               
                                                             </motion.div>
                                                         );
                                                     }}
@@ -465,51 +465,6 @@ export default function ReliabilityAnalysis() {
                                             ))}
                                         </motion.div>
 
-                                        <div className="flex justify-center mt-6">
-                                            <motion.details
-                                                className="w-full max-w-2xl"
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ delay: 0.8 }}
-                                            >
-                                                <summary className="cursor-pointer px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm font-medium flex items-center justify-between">
-                                                    <span>Detailed Score Breakdown</span>
-                                                    <svg className="w-4 h-4 transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                    </svg>
-                                                </summary>
-                                                <motion.div
-                                                    className="mt-2 p-4 space-y-3 border border-gray-200 rounded-md bg-white"
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    transition={{ duration: 0.3 }}
-                                                >
-                                                    {[
-                                                        { name: "Adjusted On time Delievery Rate", value: Number(adjustedOnTimeDeliveryRate) || 0, color: "#22c55e" },
-                                                        { name: "Average Lead Time Delay Score", value: Number(averageLeadTimeDaysScore) || 0, color: "#3b82f6" },
-                                                        { name: "Product Defect rate", value: Number(productDefectRate) || 0, color: "#f59e0b" },
-                                                        { name: "ISO Certification Score", value: Number(isoCertificationScore) || 0, color: "#ec4899" },
-                                                        { name: "Infrastructure Disruption Severity Score", value: Number(infrastructureDisruptionSeverityScore) || 0, color: "#8b5cf6" },
-                                                        { name: "Combined Disruption Score", value: Number(combinedDisruption) || 0, color: "#ef4444" },
-                                                    ].map((entry, index) => (
-                                                        <div key={index} className="flex items-center justify-between">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div
-                                                                    className="w-3 h-3 rounded-full"
-                                                                    style={{ backgroundColor: entry.color }}
-                                                                />
-                                                                <span className="text-sm font-medium">
-                                                                    {entry.name}
-                                                                </span>
-                                                            </div>
-                                                            <span className="text-sm font-semibold">
-                                                                {entry.value}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </motion.div>
-                                            </motion.details>
-                                        </div>
                                     </motion.div>
                                 </CardContent>
                             </Card>

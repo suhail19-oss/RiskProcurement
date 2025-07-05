@@ -75,44 +75,33 @@ function getStatusColor(score: number) {
 
 
 
-export default function ReliabilityAnalysis() {
+export default function RiskAnalysis() {
     const [selectedSupplier, setSelectedSupplier] = useState("")
-    const [activeTab, setActiveTab] = useState("reliabilityEfficiency-analysis")
-    const [adjustedOnTimeDeliveryRate, setAdjustedOnTimeDeliveryRate] = useState("");
-    const [averageLeadTimeDaysScore, setAverageLeadTimeDaysScore] = useState("");
-    const [productDefectRate, setProductDefectRate] = useState("");
-    const [isoCertificationScore, setIsoCertificationScore] = useState("");
-    const [infrastructureDisruptionSeverityScore, setInfrastructureDisruptionSeverityScore] = useState("");
-    const [combinedDisruption, setCombinedDisruption] = useState("");
+    const [activeTab, setActiveTab] = useState("riskEfficiency-analysis")
+    const [qualityRiskScore, setQualityRiskScore] = useState("");
+    const [logisticsRiskScore, setLogisticsRiskScore] = useState("");
+    const [operationalRiskScore, setOperationalRiskScore] = useState("");
+    const [legalRiskScore, setLegalRiskScore] = useState("");
+    const [esgRiskScore, setEsgRiskScore] = useState("");
+    const [geoPoliticalRiskScore, setGeoPoliticalRiskScore] = useState("");
 
-    const [reliabilityScore, setReliabilityScore] = useState<number | null>(null);
+    const [riskScore, setRiskScore] = useState<number | null>(null);
 
     type Supplier = {
         product_id: number;
         company_name: string;
         email_domain: string;
         location: string;
-        reliability_score: number;
-        reliability_upload_status: "success" | "pending" | "failed";
-        reliability_subfactors: {
-            adjusted_on_time_delivery_rate: number;
-            average_lead_time_days: number;
-            product_defect_rate: number;
-            iso_certification_score: number;
-            infrastructure_disruption_severity_score: number;
-            strike_days: number;
-            natural_disaster_frequency: number;
-            reporting_year: number;
+        risk_score: number;
+        risk_upload_status: "success" | "pending" | "failed";
+        risk_subfactors: {
+            quality_risk_score: number;
+            logistics_risk_score: number;
+            esg_risk_score: number;
+            operational_risk_score: number;
+            geopolitical_risk_score: number;
+            compliance_legal_risk_score: number;
         };
-        reliability_normalized_scores: {
-            adjusted_on_time_delivery_rate: number;
-            average_lead_time_days_score: number;
-            product_defect_rate: number;
-            iso_certification_score: number;
-            infrastructure_disruption_severity_score: number;
-            combined_disruption: number;
-        }
-
     };
 
     //fetchins suppliers
@@ -133,9 +122,9 @@ export default function ReliabilityAnalysis() {
         if (selectedSupplier) {
             // Find the full supplier data including ESG score
             const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
-            setReliabilityScore(supplierWithScore?.reliability_score ?? null);
+            setRiskScore(supplierWithScore?.risk_score ?? null);
         } else {
-            setReliabilityScore(0);
+            setRiskScore(0);
         }
     }, [selectedSupplier, suppliers]);
 
@@ -149,10 +138,10 @@ export default function ReliabilityAnalysis() {
                 const supplier = suppliers.find(s => s.company_name === selectedSupplier);
 
                 if (supplier) {
-                    setReliabilityScore(supplier.reliability_score || 0);
+                    setRiskScore(supplier.risk_score || 0);
 
                 } else {
-                    setReliabilityScore(0);
+                    setRiskScore(0);
                 }
             } catch (err) {
 
@@ -165,16 +154,16 @@ export default function ReliabilityAnalysis() {
     useEffect(() => {
         const supplier = suppliers.find(s => s.company_name === selectedSupplier);
 
-        if (!supplier || !supplier.reliability_normalized_scores) return;
+        if (!supplier || !supplier.risk_subfactors) return;
 
-        const reliability = supplier.reliability_normalized_scores;
+        const risk = supplier.risk_subfactors;
 
-        setAdjustedOnTimeDeliveryRate(reliability.adjusted_on_time_delivery_rate?.toString() ?? "");
-        setAverageLeadTimeDaysScore(reliability.average_lead_time_days_score?.toString() ?? "");
-        setProductDefectRate(reliability.product_defect_rate?.toString() ?? "");
-        setIsoCertificationScore(reliability.iso_certification_score?.toString() ?? "");
-        setInfrastructureDisruptionSeverityScore(reliability.infrastructure_disruption_severity_score?.toString() ?? "");
-        setCombinedDisruption(reliability.combined_disruption?.toString() ?? "");
+        setQualityRiskScore(risk.quality_risk_score?.toString() ?? "");
+        setLogisticsRiskScore(risk.operational_risk_score?.toString() ?? "");
+        setOperationalRiskScore(risk.operational_risk_score?.toString() ?? "");
+        setLegalRiskScore(risk.compliance_legal_risk_score?.toString() ?? "");
+        setEsgRiskScore(risk.esg_risk_score?.toString() ?? "");
+        setGeoPoliticalRiskScore(risk.geopolitical_risk_score?.toString() ?? "");
 
     }, [selectedSupplier, suppliers]);
 
@@ -193,27 +182,27 @@ export default function ReliabilityAnalysis() {
             return;
         }
 
-        // Set reliability Subfactors
-        if (supplier.reliability_subfactors) {
-            const reliability = supplier.reliability_normalized_scores;
+        // Set risk Subfactors
+        if (supplier.risk_subfactors) {
+            const risk = supplier.risk_subfactors;
 
-            setAdjustedOnTimeDeliveryRate(reliability.adjusted_on_time_delivery_rate?.toString() ?? "");
-            setAverageLeadTimeDaysScore(reliability.average_lead_time_days_score?.toString() ?? "");
-            setProductDefectRate(reliability.product_defect_rate?.toString() ?? "");
-            setIsoCertificationScore(reliability.iso_certification_score?.toString() ?? "");
-            setInfrastructureDisruptionSeverityScore(reliability.infrastructure_disruption_severity_score?.toString() ?? "");
-            setCombinedDisruption(reliability.combined_disruption?.toString() ?? "");
+            setQualityRiskScore(risk.quality_risk_score?.toString() ?? "");
+            setLogisticsRiskScore(risk.operational_risk_score?.toString() ?? "");
+            setOperationalRiskScore(risk.operational_risk_score?.toString() ?? "");
+            setLegalRiskScore(risk.compliance_legal_risk_score?.toString() ?? "");
+            setEsgRiskScore(risk.esg_risk_score?.toString() ?? "");
+            setGeoPoliticalRiskScore(risk.geopolitical_risk_score?.toString() ?? "");
         }
     }, [selectedSupplier, suppliers]);
 
 
     const resetAllScores = () => {
-        setAdjustedOnTimeDeliveryRate("");
-        setAverageLeadTimeDaysScore("");
-        setProductDefectRate("");
-        setIsoCertificationScore("");
-        setInfrastructureDisruptionSeverityScore("");
-        setCombinedDisruption("");
+        setQualityRiskScore("");
+        setLogisticsRiskScore("");
+        setOperationalRiskScore("");
+        setLegalRiskScore("");
+        setEsgRiskScore("");
+        setGeoPoliticalRiskScore("");
     };
 
     const [open, setOpen] = useState(false);
@@ -228,10 +217,10 @@ export default function ReliabilityAnalysis() {
                     className="text-center space-y-4"
                 >
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
-                        Reliability Analysis
+                        Risk Analysis
                     </h1>
                     <p className="text-xl text-muted-foreground">
-                        Comprehensive reliability evaluation of the supplier
+                        Comprehensive risk evaluation of the supplier
                     </p>
                 </motion.div>
 
@@ -242,7 +231,7 @@ export default function ReliabilityAnalysis() {
                     className="flex justify-center"
                 >
 
-                    {activeTab === "reliabilityEfficiency-analysis" && (
+                    {activeTab === "riskEfficiency-analysis" && (
                         <Select
                             value={selectedSupplier}
                             onValueChange={setSelectedSupplier}
@@ -257,7 +246,7 @@ export default function ReliabilityAnalysis() {
                                     <SelectItem
                                         key={`${supplier.company_name}_${supplier.email_domain}_${supplier.product_id}`}
                                         value={String(supplier.company_name)}
-                                        disabled={supplier.reliability_upload_status !== "success"}
+                                        disabled={supplier.risk_upload_status !== "success"}
                                     >
                                         {supplier.company_name}
                                     </SelectItem>
@@ -268,7 +257,7 @@ export default function ReliabilityAnalysis() {
                 </motion.div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="">
-                    <TabsContent value="reliabilityEfficiency-analysis" className="space-y-6">
+                    <TabsContent value="riskEfficiency-analysis" className="space-y-6">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -278,7 +267,7 @@ export default function ReliabilityAnalysis() {
                             { /* overall score component */}
                             <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
                                 <CardHeader>
-                                    <CardTitle>Overall Reliability Score</CardTitle>
+                                    <CardTitle>Overall Risk Score</CardTitle>
                                     <CardDescription>
                                         {selectedSupplier
                                             ? `For ${selectedSupplier}`
@@ -294,28 +283,28 @@ export default function ReliabilityAnalysis() {
                                             transition={{ duration: 0.5, delay: 0.4 }}
                                             className="text-6xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
                                         >
-                                            {reliabilityScore !== null ? reliabilityScore.toFixed(1) : "N/A"}
+                                            {riskScore !== null ? riskScore.toFixed(1) : "N/A"}
                                         </motion.div>
                                         <div className="text-lg text-muted-foreground">out of 100</div>
                                         <Badge
                                             variant="outline"
                                             className={cn(
                                                 "text-md px-5 py-1.5 rounded-full transition-all duration-300",
-                                                reliabilityScore !== null && reliabilityScore >= 85
+                                                riskScore !== null && riskScore >= 85
                                                     ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
-                                                    : reliabilityScore !== null && reliabilityScore >= 70
+                                                    : riskScore !== null && riskScore >= 70
                                                         ? "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200"
-                                                        : reliabilityScore !== null && reliabilityScore >= 50
+                                                        : riskScore !== null && riskScore >= 50
                                                             ? "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
                                                             : "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
                                             )}
                                         >
-                                            {reliabilityScore !== null
-                                                ? reliabilityScore >= 85
+                                            {riskScore !== null
+                                                ? riskScore >= 85
                                                     ? "Excellent"
-                                                    : reliabilityScore >= 70
+                                                    : riskScore >= 70
                                                         ? "Good"
-                                                        : reliabilityScore >= 50
+                                                        : riskScore >= 50
                                                             ? "Fair"
                                                             : "Poor"
                                                 : "N/A"}{" "}
@@ -327,7 +316,7 @@ export default function ReliabilityAnalysis() {
 
                             <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
                                 <CardHeader>
-                                    <CardTitle>Reliability Score Breakdown</CardTitle>
+                                    <CardTitle>Risk Score Breakdown</CardTitle>
                                     <CardDescription>Score distribution across pillars</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -341,17 +330,17 @@ export default function ReliabilityAnalysis() {
                                             <PieChart>
                                                 <Pie
                                                     data={[
-                                                        { name: "Adjusted On time Delievery Rate", value: Number(adjustedOnTimeDeliveryRate), color: "#22c55e" },
-                                                        { name: "Average Lead Time Delay Score", value: Number(averageLeadTimeDaysScore), color: "#3b82f6" },
-                                                        { name: "Product Defect rate", value: Number(productDefectRate), color: "#f59e0b" },
-                                                        { name: "ISO Certification Score", value: Number(isoCertificationScore), color: "#ec4899" },
-                                                        { name: "Infrastructure Disruption Severity Score", value: Number(infrastructureDisruptionSeverityScore), color: "#8b5cf6" },
-                                                        { name: "Combined Disruption Score", value: Number(combinedDisruption), color: "#ef4444" },
+                                                        { name: "Quality Risk Score", value: Number(qualityRiskScore), color: "#22c55e" },
+                                                        { name: "Logistics Risk Score", value: Number(logisticsRiskScore), color: "#3b82f6" },
+                                                        { name: "Operational Risk Score", value: Number(operationalRiskScore), color: "#f59e0b" },
+                                                        { name: "Legal Risk Score", value: Number(legalRiskScore), color: "#ec4899" },
+                                                        { name: "ESG Risk Score", value: Number(esgRiskScore), color: "#8b5cf6" },
+                                                        { name: "GeoPolitical Risk Score", value: Number(geoPoliticalRiskScore), color: "#ef4444" },
                                                     ]}
                                                     cx="50%"
                                                     cy="50%"
                                                     innerRadius={80}
-                                                    outerRadius={120}
+                                                    outerRadius={140}
                                                     paddingAngle={2}
                                                     dataKey="value"
                                                     animationBegin={500}
@@ -376,13 +365,13 @@ export default function ReliabilityAnalysis() {
                                                             <text
                                                                 x={x}
                                                                 y={y}
-                                                                fill="white"
+                                                                fill="black"
                                                                 textAnchor="middle"
                                                                 dominantBaseline="central"
                                                                 style={{
                                                                     fontSize: '12px',
                                                                     fontWeight: 'bold',
-                                                                    filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.5))'
+                                                                 
                                                                 }}
                                                             >
                                                                 {`${name}`}
@@ -422,7 +411,7 @@ export default function ReliabilityAnalysis() {
                                                                     {payload[0].name}
                                                                 </p>
                                                                 <p>Value: {payload[0].value}</p>
-                                                                <p>{(payload[0].payload.percent * 100).toFixed(1)}%</p>
+                                                                
                                                             </motion.div>
                                                         );
                                                     }}
@@ -437,12 +426,14 @@ export default function ReliabilityAnalysis() {
                                             transition={{ delay: 0.5, duration: 0.5 }}
                                         >
                                             {[
-                                                { name: "Adjusted On time Delievery Rate", value: Number(adjustedOnTimeDeliveryRate), color: "#22c55e" },
-                                                { name: "Average Lead Time Delay Score", value: Number(averageLeadTimeDaysScore), color: "#3b82f6" },
-                                                { name: "Product Defect rate", value: Number(productDefectRate), color: "#f59e0b" },
-                                                { name: "ISO Certification Score", value: Number(isoCertificationScore), color: "#ec4899" },
-                                                { name: "Infrastructure Disruption Severity Score", value: Number(infrastructureDisruptionSeverityScore), color: "#8b5cf6" },
-                                                { name: "Combined Disruption Score", value: Number(combinedDisruption), color: "#ef4444" },
+                                                { name: "Quality Risk Score", value: Number(qualityRiskScore), color: "#22c55e" },
+                                                { name: "Logistics Risk Score", value: Number(logisticsRiskScore), color: "#3b82f6" },
+                                                { name: "Operational Risk Score", value: Number(operationalRiskScore), color: "#f59e0b" },
+                                                { name: "Legal Risk Score", value: Number(legalRiskScore), color: "#ec4899" },
+                                                { name: "ESG Risk Score", value: Number(esgRiskScore), color: "#8b5cf6" },
+                                                { name: "GeoPolitical Risk Score", value: Number(geoPoliticalRiskScore), color: "#ef4444" },
+
+
                                             ].map((entry, index) => (
                                                 <motion.div
                                                     key={`legend-${index}`}
@@ -465,51 +456,7 @@ export default function ReliabilityAnalysis() {
                                             ))}
                                         </motion.div>
 
-                                        <div className="flex justify-center mt-6">
-                                            <motion.details
-                                                className="w-full max-w-2xl"
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ delay: 0.8 }}
-                                            >
-                                                <summary className="cursor-pointer px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm font-medium flex items-center justify-between">
-                                                    <span>Detailed Score Breakdown</span>
-                                                    <svg className="w-4 h-4 transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                    </svg>
-                                                </summary>
-                                                <motion.div
-                                                    className="mt-2 p-4 space-y-3 border border-gray-200 rounded-md bg-white"
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    transition={{ duration: 0.3 }}
-                                                >
-                                                    {[
-                                                        { name: "Adjusted On time Delievery Rate", value: Number(adjustedOnTimeDeliveryRate) || 0, color: "#22c55e" },
-                                                        { name: "Average Lead Time Delay Score", value: Number(averageLeadTimeDaysScore) || 0, color: "#3b82f6" },
-                                                        { name: "Product Defect rate", value: Number(productDefectRate) || 0, color: "#f59e0b" },
-                                                        { name: "ISO Certification Score", value: Number(isoCertificationScore) || 0, color: "#ec4899" },
-                                                        { name: "Infrastructure Disruption Severity Score", value: Number(infrastructureDisruptionSeverityScore) || 0, color: "#8b5cf6" },
-                                                        { name: "Combined Disruption Score", value: Number(combinedDisruption) || 0, color: "#ef4444" },
-                                                    ].map((entry, index) => (
-                                                        <div key={index} className="flex items-center justify-between">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div
-                                                                    className="w-3 h-3 rounded-full"
-                                                                    style={{ backgroundColor: entry.color }}
-                                                                />
-                                                                <span className="text-sm font-medium">
-                                                                    {entry.name}
-                                                                </span>
-                                                            </div>
-                                                            <span className="text-sm font-semibold">
-                                                                {entry.value}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </motion.div>
-                                            </motion.details>
-                                        </div>
+                                      
                                     </motion.div>
                                 </CardContent>
                             </Card>
@@ -521,14 +468,14 @@ export default function ReliabilityAnalysis() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: 0.4 }}
                             >
-                                <AccordionItem value="reliability" className="border rounded-lg px-4 transition-all duration-300 hover:shadow-lg">
+                                <AccordionItem value="risk" className="border rounded-lg px-4 transition-all duration-300 hover:shadow-lg">
                                     <AccordionTrigger className="hover:no-underline">
                                         <div className="flex items-center space-x-4">
                                             <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full transition-all duration-300 hover:scale-110">
                                                 <Leaf className="h-6 w-6 text-green-600" />
                                             </div>
                                             <div className="text-left">
-                                                <h3 className="text-xl font-semibold">Reliability Analysis </h3>
+                                                <h3 className="text-xl font-semibold">Risk Analysis </h3>
                                                 <p className="text-sm text-muted-foreground">Financial impact and resource utilization</p>
                                             </div>
                                         </div>
@@ -538,36 +485,37 @@ export default function ReliabilityAnalysis() {
 
                                             {[
                                                 {
-                                                    name: "Adjusted On time Delivery Rate",
-                                                    score: Number(adjustedOnTimeDeliveryRate),
-                                                    description: "Performance relative to agreed delivery timelines"
+                                                    name: "Quality Risk Score",
+                                                    score: Number(qualityRiskScore),
+                                                    description: "Likelihood of quality failures, product defects, and non-conformance to specifications"
                                                 },
                                                 {
-                                                    name: "Average Lead Time Delay Score",
-                                                    score: Number(averageLeadTimeDaysScore),
-                                                    description: "Assessment of average delays in lead times"
+                                                    name: "Logistics Risk Score",
+                                                    score: Number(logisticsRiskScore),
+                                                    description: "Potential for delays, disruptions, or inefficiencies in transportation and warehousing"
                                                 },
                                                 {
-                                                    name: "Product Defect Rate",
-                                                    score: Number(productDefectRate),
-                                                    description: "Frequency of defects identified in delivered products"
+                                                    name: "Operational Risk Score",
+                                                    score: Number(operationalRiskScore),
+                                                    description: "Vulnerability to internal process failures, system breakdowns, or resource shortages"
                                                 },
                                                 {
-                                                    name: "ISO Certification Score",
-                                                    score: Number(isoCertificationScore),
-                                                    description: "Compliance with ISO quality and process standards"
+                                                    name: "Legal Risk Score",
+                                                    score: Number(legalRiskScore),
+                                                    description: "Exposure to regulatory penalties, contract breaches, and legal disputes"
                                                 },
                                                 {
-                                                    name: "Infrastructure Disruption Severity Score",
-                                                    score: Number(infrastructureDisruptionSeverityScore),
-                                                    description: "Impact of infrastructure-related disruptions"
+                                                    name: "ESG Risk Score",
+                                                    score: Number(esgRiskScore),
+                                                    description: "Risks related to environmental, social, and governance factors affecting sustainability"
                                                 },
                                                 {
-                                                    name: "Combined Disruption Score",
-                                                    score: Number(combinedDisruption),
-                                                    description: "Overall exposure to operational and supply disruptions"
+                                                    name: "GeoPolitical Risk Score",
+                                                    score: Number(geoPoliticalRiskScore),
+                                                    description: "Impact of political instability, conflict, or trade restrictions in relevant regions"
                                                 }
                                             ]
+
 
                                                 .map((item, index) => (
                                                     <motion.div
