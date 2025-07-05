@@ -535,6 +535,7 @@ const fetchRecommendations = async (supplier_name: string) => {
 
   return (
     <div className="relative pt-20 min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      
       <div className="container mx-auto p-6 space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

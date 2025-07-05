@@ -77,7 +77,7 @@ function getStatusColor(score: number) {
 
 export default function ReliabilityAnalysis() {
     const [selectedSupplier, setSelectedSupplier] = useState("")
-    const [activeTab, setActiveTab] = useState("reliabilityEfficiency-analysis")
+    const [activeTab, setActiveTab] = useState("reliability-analysis")
     const [adjustedOnTimeDeliveryRate, setAdjustedOnTimeDeliveryRate] = useState("");
     const [averageLeadTimeDaysScore, setAverageLeadTimeDaysScore] = useState("");
     const [productDefectRate, setProductDefectRate] = useState("");
