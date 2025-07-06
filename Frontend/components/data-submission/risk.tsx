@@ -5,14 +5,23 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Upload, CheckCircle, AlertTriangle, Shield, Activity, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
-import { RiskOverviewSection } from "@/components/data-submission/sections/RiskOverviewSection"
-import { RiskMitigationSection } from "@/components/data-submission/sections/RiskMitigationSection"
+import { OperationalRiskSection } from "@/components/data-submission/sections/OperationalRiskSection"
+import { ComplianceLegalRiskSection } from "@/components/data-submission/sections/ComplianceLegalRiskSection"
+import { QualityRiskSection } from "@/components/data-submission/sections/QualityRiskSection"
+import { ESGRiskSection } from "@/components/data-submission/sections/ESGRiskSection"
+import { GeopoliticalRiskSection } from "@/components/data-submission/sections/GeopoliticalRiskSection"
+import { LogisticsRiskSection } from "@/components/data-submission/sections/LogisticsRiskSection"
+import { DatabaseSync } from "node:sqlite"
 
-type SectionId = 'overview' | 'mitigation' | 'documents';
+type SectionId = 'operational' | 'compliance' | 'quality' | 'esg' | 'geopolitical' | 'logistics' | 'documents';
 
 const sections = [
-  { id: "overview", title: "Risk Overview", icon: AlertCircle, description: "Key risk indicators and exposures" },
-  { id: "mitigation", title: "Risk Mitigation", icon: Shield, description: "Risk control measures and strategies" },
+  { id: "operational", title: "Operational Risk", icon: Activity, description: "Operational performance metrics" },
+  { id: "compliance", title: "Compliance & Legal Risk", icon: Shield, description: "Legal and regulatory compliance metrics" },
+  { id: "quality", title: "Quality Risk", icon: CheckCircle, description: "Product quality and safety metrics" },
+  { id: "esg", title: "ESG Risk", icon: AlertCircle, description: "Environmental, Social, and Governance factors" },
+  { id: "geopolitical", title: "Geopolitical Risk", icon: AlertTriangle, description: "Political and trade-related risks" },
+  { id: "logistics", title: "Logistics Risk", icon: Activity, description: "Supply chain and delivery metrics" },
   { id: "documents", title: "Documents", icon: Upload, description: "Supporting documentation" }
 ]
 
@@ -20,29 +29,78 @@ const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 const email = userData.email;
 
 export default function Risk() {
-  // Risk state variables
-  const [financialRiskScore, setFinancialRiskScore] = useState("");
+  // Operational Risk State
+  const [firstPassYield, setFirstPassYield] = useState("");
+  const [fpyNormalized, setFpyNormalized] = useState("");
+  const [onTimeDeliveryRate, setOnTimeDeliveryRate] = useState("");
+  const [oldOnTimeDeliveryRate, setOldOnTimeDeliveryRate] = useState("");
+  const [onTimeDeliveryNorm, setOnTimeDeliveryNorm] = useState("");
+  const [strikeDays, setStrikeDays] = useState("");
+  const [strikeIntensityNorm, setStrikeIntensityNorm] = useState("");
   const [operationalRiskScore, setOperationalRiskScore] = useState("");
+  const [operationalRisk, setOperationalRisk] = useState("");
+
+  // Compliance & Legal Risk State
+  const [legalDisputes, setLegalDisputes] = useState("");
+  const [legalDisputeScore, setLegalDisputeScore] = useState("");
+  const [govtSanctions, setGovtSanctions] = useState("");
+  const [sanctionScore, setSanctionScore] = useState("");
   const [complianceRiskScore, setComplianceRiskScore] = useState("");
-  const [reputationRiskScore, setReputationRiskScore] = useState("");
-  const [cyberRiskScore, setCyberRiskScore] = useState("");
-  const [supplyChainRiskScore, setSupplyChainRiskScore] = useState("");
-  
-  // Mitigation state variables
-  const [riskMitigationBudget, setRiskMitigationBudget] = useState("");
-  const [riskTrainingHours, setRiskTrainingHours] = useState("");
-  const [incidentsLastYear, setIncidentsLastYear] = useState("");
-  const [insuranceCoverageAmount, setInsuranceCoverageAmount] = useState("");
-  const [businessContinuityPlans, setBusinessContinuityPlans] = useState("");
-  
+  const [complianceLegalRisk, setComplianceLegalRisk] = useState("");
+
+  // Quality Risk State
+  const [productDefectRate, setProductDefectRate] = useState("");
+  const [productDefectRateNorm, setProductDefectRateNorm] = useState("");
+  const [newReturnRate, setNewReturnRate] = useState("");
+  const [recallIncidents, setRecallIncidents] = useState("");
+  const [recallScore, setRecallScore] = useState("");
+  const [qualityRiskScore, setQualityRiskScore] = useState("");
+  const [totalUnitsSold, setTotalUnitsSold] = useState("");
+
+  // ESG Risk State
+  const [environmentScore, setEnvironmentScore] = useState("");
+  const [socialScore, setSocialScore] = useState("");
+  const [governanceScore, setGovernanceScore] = useState("");
+  const [esgScore, setEsgScore] = useState("");
+  const [laborViolations, setLaborViolations] = useState("");
+  const [laborViolationRisk, setLaborViolationRisk] = useState("");
+  const [newsSentiment, setNewsSentiment] = useState("");
+  const [sentimentRisk, setSentimentRisk] = useState("");
+  const [esgRiskScore, setEsgRiskScore] = useState("");
+  const [esgRisk, setEsgRisk] = useState("");
+
+  // Geopolitical Risk State
+  const [naturalDisasterFrequency, setNaturalDisasterFrequency] = useState("");
+  const [naturalDisasterNorm, setNaturalDisasterNorm] = useState("");
+  const [tradePolicyChanges, setTradePolicyChanges] = useState("");
+  const [tradePolicyNorm, setTradePolicyNorm] = useState("");
+  const [warZoneFlag, setWarZoneFlag] = useState("");
+  const [warZoneNorm, setWarZoneNorm] = useState("");
+  const [geopoliticalRiskScore, setGeopoliticalRiskScore] = useState("");
+
+  // Logistics Risk State
+  const [inTransitDelays, setInTransitDelays] = useState("");
+  const [inTransitDelayFactor, setInTransitDelayFactor] = useState("");
+  const [inTransitDelayFactorNorm, setInTransitDelayFactorNorm] = useState("");
+  const [infrastructureDisruption, setInfrastructureDisruption] = useState("");
+  const [logisticsRiskScore, setLogisticsRiskScore] = useState("");
+
+  // Certification & Contract
+  const [isoCertificationScore, setIsoCertificationScore] = useState("");
+  const [contractValue, setContractValue] = useState("");
+
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasData, setHasData] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{ riskDocument?: File }>({});
 
   const [expandedSections, setExpandedSections] = useState({
-    overview: true,
-    mitigation: false,
+    operational: true,
+    compliance: false,
+    quality: false,
+    esg: false,
+    geopolitical: false,
+    logistics: false,
     documents: false
   });
 
@@ -53,7 +111,92 @@ export default function Risk() {
     }))
   };
 
-  // Placeholder for data prefilling
+  const updateRiskFormFields = (data: any) => {
+    // Operational Risk
+    setFirstPassYield(data.first_pass_yield?.toString() || "");
+    setFpyNormalized(data.fpy_normalized?.toString() || "");
+    setOnTimeDeliveryRate(data.adjusted_on_time_delivery_rate?.toString() || "");
+    setOldOnTimeDeliveryRate(data.old_on_time_delivery_rate?.toString() || "");
+    setOnTimeDeliveryNorm(data.ontime_deliver_norm?.toString() || "");
+    setStrikeDays(data.strike_days?.toString() || "");
+    setStrikeIntensityNorm(data.strike_intensity_norm?.toString() || "");
+    setOperationalRiskScore(data.operational_risk_score?.toString() || "");
+    setOperationalRisk(data.operational_risk?.toString() || "");
+
+    // Compliance & Legal Risk
+    setLegalDisputes(data.legal_disputes_last_6_months?.toString() || "");
+    setLegalDisputeScore(data.legal_dispute_score?.toString() || "");
+    setGovtSanctions(data.govt_sanctions_penalties?.toString() || "0");
+    setSanctionScore(data.sanction_score?.toString() || "0");
+    setComplianceRiskScore(data.compliance_legal_risk_score?.toString() || "");
+    setComplianceLegalRisk(data.compliance_legal_risk?.toString() || "");
+
+    // Quality Risk
+    setProductDefectRate(data.product_defect_rate?.toString() || "");
+    setProductDefectRateNorm(data.product_defect_rate_norm?.toString() || "");
+    setNewReturnRate(data.new_return_rate?.toString() || "");
+    setRecallIncidents(data.product_recall_incidents?.toString() || "");
+    setRecallScore(data.recall_score_out_of_100?.toString() || "");
+    setQualityRiskScore(data.quality_risk_score?.toString() || "");
+    setTotalUnitsSold(data.total_units_sold?.toString() || "");
+
+    // ESG Risk
+    setEnvironmentScore(data.environment?.toString() || "");
+    setSocialScore(data.social?.toString() || "");
+    setGovernanceScore(data.governance?.toString() || "");
+    setEsgScore(data.esg?.toString() || "");
+    setLaborViolations(data['labor_violations_(6_months)'] || "");
+    setLaborViolationRisk(data.labor_violation_risk?.toString() || "");
+    setNewsSentiment(data.news_sentiment_score?.toString() || "");
+    setSentimentRisk(data.sentiment_risk?.toString() || "");
+    setEsgRiskScore(data.esg_risk_score?.toString() || "");
+    setEsgRisk(data.esg_risk?.toString() || "");
+
+    // Geopolitical Risk
+    setNaturalDisasterFrequency(data['natural_disaster_frequency_(last_6_months)']?.toString() || "");
+    setNaturalDisasterNorm(data.natural_disaster_norm?.toString() || "");
+    setTradePolicyChanges(data['trade_policy_changes_(tariffs,_bans)'] || "");
+    setTradePolicyNorm(data.trade_policy_norm?.toString() || "");
+    setWarZoneFlag(data.war_zone_flag?.toString() || "");
+    setWarZoneNorm(data.war_zone_norm?.toString() || "");
+    setGeopoliticalRiskScore(data.geopolitical_risk_score?.toString() || "");
+
+    // Logistics Risk
+    setInTransitDelays(data.in_transit_delays_days?.toString() || "");
+    setInTransitDelayFactor(data.new_in_transit_delay_factor?.toString() || "");
+    setInTransitDelayFactorNorm(data.in_transit_delay_factor_norm?.toString() || "");
+    setInfrastructureDisruption(data.infrastructure_disruption_severity?.toString() || "");
+    setLogisticsRiskScore(data.logistics_risk_score?.toString() || "");
+
+    // Certification & Contract
+    setIsoCertificationScore(data.iso_certification_score?.toString() || "");
+    setContractValue(data.contract_value?.toString() || "");
+  };
+
+  useEffect(() => {
+    const checkData = async () => {
+      try {
+        const dbResponse = await fetch('http://localhost:8000/get-risk-prefill', 
+        {
+          headers: { "email": email }
+        });
+        
+        if (dbResponse.ok) {
+          const dbData = await dbResponse.json();
+          console.log("Prefilled from DB:", dbData.result);
+          setHasData(true);
+          updateRiskFormFields(dbData.result);
+          console.log( dbData.result )
+          return;
+        }
+        
+        setHasData(false);
+      } catch (err) {
+        console.error("error:", err);
+      }
+    }
+    checkData();
+  }, [])
 
   const handleFileUpload = async (key: string, file: File) => {
     // Placeholder implementation
@@ -134,35 +277,125 @@ export default function Risk() {
 
           {expandedSections[section.id as SectionId] && (
             <CardContent className="space-y-6 animate-fade-in">
-              {section.id === "overview" && (
-                <RiskOverviewSection
-                  financialRiskScore={financialRiskScore}
-                  setFinancialRiskScore={setFinancialRiskScore}
+              {section.id === "operational" && (
+                <OperationalRiskSection
+                  firstPassYield={firstPassYield}
+                  setFirstPassYield={setFirstPassYield}
+                  fpyNormalized={fpyNormalized}
+                  setFpyNormalized={setFpyNormalized}
+                  onTimeDeliveryRate={onTimeDeliveryRate}
+                  setOnTimeDeliveryRate={setOnTimeDeliveryRate}
+                  oldOnTimeDeliveryRate={oldOnTimeDeliveryRate}
+                  setOldOnTimeDeliveryRate={setOldOnTimeDeliveryRate}
+                  onTimeDeliveryNorm={onTimeDeliveryNorm}
+                  setOnTimeDeliveryNorm={setOnTimeDeliveryNorm}
+                  strikeDays={strikeDays}
+                  setStrikeDays={setStrikeDays}
+                  strikeIntensityNorm={strikeIntensityNorm}
+                  setStrikeIntensityNorm={setStrikeIntensityNorm}
                   operationalRiskScore={operationalRiskScore}
                   setOperationalRiskScore={setOperationalRiskScore}
-                  complianceRiskScore={complianceRiskScore}
-                  setComplianceRiskScore={setComplianceRiskScore}
-                  reputationRiskScore={reputationRiskScore}
-                  setReputationRiskScore={setReputationRiskScore}
-                  cyberRiskScore={cyberRiskScore}
-                  setCyberRiskScore={setCyberRiskScore}
-                  supplyChainRiskScore={supplyChainRiskScore}
-                  setSupplyChainRiskScore={setSupplyChainRiskScore}
+                  operationalRisk={operationalRisk}
+                  setOperationalRisk={setOperationalRisk}
                 />
               )}
 
-              {section.id === "mitigation" && (
-                <RiskMitigationSection
-                  riskMitigationBudget={riskMitigationBudget}
-                  setRiskMitigationBudget={setRiskMitigationBudget}
-                  riskTrainingHours={riskTrainingHours}
-                  setRiskTrainingHours={setRiskTrainingHours}
-                  incidentsLastYear={incidentsLastYear}
-                  setIncidentsLastYear={setIncidentsLastYear}
-                  insuranceCoverageAmount={insuranceCoverageAmount}
-                  setInsuranceCoverageAmount={setInsuranceCoverageAmount}
-                  businessContinuityPlans={businessContinuityPlans}
-                  setBusinessContinuityPlans={setBusinessContinuityPlans}
+              {section.id === "compliance" && (
+                <ComplianceLegalRiskSection
+                  legalDisputes={legalDisputes}
+                  setLegalDisputes={setLegalDisputes}
+                  legalDisputeScore={legalDisputeScore}
+                  setLegalDisputeScore={setLegalDisputeScore}
+                  govtSanctions={govtSanctions}
+                  setGovtSanctions={setGovtSanctions}
+                  sanctionScore={sanctionScore}
+                  setSanctionScore={setSanctionScore}
+                  complianceRiskScore={complianceRiskScore}
+                  setComplianceRiskScore={setComplianceRiskScore}
+                  complianceLegalRisk={complianceLegalRisk}
+                  setComplianceLegalRisk={setComplianceLegalRisk}
+                />
+              )}
+
+              {section.id === "quality" && (
+                <QualityRiskSection
+                  productDefectRate={productDefectRate}
+                  setProductDefectRate={setProductDefectRate}
+                  productDefectRateNorm={productDefectRateNorm}
+                  setProductDefectRateNorm={setProductDefectRateNorm}
+                  newReturnRate={newReturnRate}
+                  setNewReturnRate={setNewReturnRate}
+                  recallIncidents={recallIncidents}
+                  setRecallIncidents={setRecallIncidents}
+                  recallScore={recallScore}
+                  setRecallScore={setRecallScore}
+                  qualityRiskScore={qualityRiskScore}
+                  setQualityRiskScore={setQualityRiskScore}
+                  totalUnitsSold={totalUnitsSold}
+                  setTotalUnitsSold={setTotalUnitsSold}
+                />
+              )}
+
+              {section.id === "esg" && (
+                <ESGRiskSection
+                  environmentScore={environmentScore}
+                  setEnvironmentScore={setEnvironmentScore}
+                  socialScore={socialScore}
+                  setSocialScore={setSocialScore}
+                  governanceScore={governanceScore}
+                  setGovernanceScore={setGovernanceScore}
+                  esgScore={esgScore}
+                  setEsgScore={setEsgScore}
+                  laborViolations={laborViolations}
+                  setLaborViolations={setLaborViolations}
+                  laborViolationRisk={laborViolationRisk}
+                  setLaborViolationRisk={setLaborViolationRisk}
+                  newsSentiment={newsSentiment}
+                  setNewsSentiment={setNewsSentiment}
+                  sentimentRisk={sentimentRisk}
+                  setSentimentRisk={setSentimentRisk}
+                  esgRiskScore={esgRiskScore}
+                  setEsgRiskScore={setEsgRiskScore}
+                  esgRisk={esgRisk}
+                  setEsgRisk={setEsgRisk}
+                />
+              )}
+
+              {section.id === "geopolitical" && (
+                <GeopoliticalRiskSection
+                  naturalDisasterFrequency={naturalDisasterFrequency}
+                  setNaturalDisasterFrequency={setNaturalDisasterFrequency}
+                  naturalDisasterNorm={naturalDisasterNorm}
+                  setNaturalDisasterNorm={setNaturalDisasterNorm}
+                  tradePolicyChanges={tradePolicyChanges}
+                  setTradePolicyChanges={setTradePolicyChanges}
+                  tradePolicyNorm={tradePolicyNorm}
+                  setTradePolicyNorm={setTradePolicyNorm}
+                  warZoneFlag={warZoneFlag}
+                  setWarZoneFlag={setWarZoneFlag}
+                  warZoneNorm={warZoneNorm}
+                  setWarZoneNorm={setWarZoneNorm}
+                  geopoliticalRiskScore={geopoliticalRiskScore}
+                  setGeopoliticalRiskScore={setGeopoliticalRiskScore}
+                />
+              )}
+
+              {section.id === "logistics" && (
+                <LogisticsRiskSection
+                  inTransitDelays={inTransitDelays}
+                  setInTransitDelays={setInTransitDelays}
+                  inTransitDelayFactor={inTransitDelayFactor}
+                  setInTransitDelayFactor={setInTransitDelayFactor}
+                  inTransitDelayFactorNorm={inTransitDelayFactorNorm}
+                  setInTransitDelayFactorNorm={setInTransitDelayFactorNorm}
+                  infrastructureDisruption={infrastructureDisruption}
+                  setInfrastructureDisruption={setInfrastructureDisruption}
+                  logisticsRiskScore={logisticsRiskScore}
+                  setLogisticsRiskScore={setLogisticsRiskScore}
+                  isoCertificationScore={isoCertificationScore}
+                  setIsoCertificationScore={setIsoCertificationScore}
+                  contractValue={contractValue}
+                  setContractValue={setContractValue}
                 />
               )}
 

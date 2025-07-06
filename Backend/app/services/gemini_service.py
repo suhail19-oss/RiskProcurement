@@ -279,75 +279,108 @@ Document text:
             if not document_text.strip():
                 raise ValueError("No text could be extracted from the document.")
             
-            prompt = """You are an expert reliability data extraction specialist.
+            prompt = """You are an expert reliability data extraction specialist. Extract the following EXACT fields from the report:
 
-    From the following reliability report, extract **numerical reliability-related data** to help derive key operational reliability indicators. Focus on retrieving **exact values** for the following fields **if they are directly reported**. Return your response as a JSON object containing two top-level keys: `result` and `overall_data`:
+            ### Required Fields (must include all):
+            {
+                "company_name": "string",
+                "reporting_year": 2024,
+                "adjusted_on_time_delivery_rate": "float",
+                "product_defect_rate": "float",
+                "iso_certification_score": "float",
+                "infrastructure_disruption_severity": "float",
+                "average_lead_time_days": "float",
+                "strike_days": "integer",
+                "natural_disaster_frequency": "integer"
+            }
 
-    ### Primary Reliability Metrics (include in "result"):
+            ### Extraction Rules:
+            1. Convert all percentages to decimals (e.g., 89.444% → 0.89444)
+            2. For lead time, use days as the unit
+            3. For certification score, convert to 0-1 scale if needed
+            4. Include ALL fields even if null (use null value)
 
-    "company_name": "string",
-    "reporting_year": "integer",
-    "on_time_deliveries": "integer",
-    "total_deliveries": "integer", 
-    "supplier_lead_time_days": "float",
-    "defective_units": "integer",
-    "total_units_shipped": "integer",
-    "quality_certificates_obtained": "integer",
-    "downtime_events": "integer",
-    "total_operational_days": "integer",
-    "disrupted_orders": "integer",
-    "total_orders": "integer",
-    "average_response_time_hours": "float",
-    "system_uptime_percentage": "float",
-    "mean_time_between_failures_hours": "float",
-    "mean_time_to_repair_hours": "float"
+            ### Data Sources:
+            1. Use direct values where available
+            2. Calculate derived fields:
+               - adjusted_on_time_delivery_rate = on_time_deliveries / total_deliveries
+               - product_defect_rate = defective_units / total_units_shipped
 
- 
-    Return format:
-    {
-        "result": { ... },
-        
-    }
+            ### Return Format (STRICT JSON):
+            {
+                "result": {
+                    "company_name": "Hyundai Motor Company",
+                    "reporting_year": 2024,
+                    "adjusted_on_time_delivery_rate": 0.95,
+                    "product_defect_rate": 0.006,
+                    "iso_certification_score": 0.666,
+                    "infrastructure_disruption_severity": 0.37,
+                    "average_lead_time_days": 15,
+                    "strike_days": 6,
+                    "natural_disaster_frequency": 2
+                },
+                "source_metrics": {
+                    "on_time_deliveries": 9500,
+                    "total_deliveries": 10000,
+                    "defective_units": 3000,
+                    "total_units_shipped": 500000,
+                    "certificates_obtained": 5
+                }
+            }
 
-    ONLY return the JSON object above. Do not include explanations or extra text.
-
-    Document text:
-    """ + document_text
+            Document text:
+            """ + document_text
 
             response = self.model.generate_content(prompt)
             raw_response = response.text.strip()
             
-            logger.info(f"Gemini raw response: {raw_response}")
+            # Response cleaning with enhanced pattern matching
+            patterns = [
+                r'```json(.*?)```',  # ```json {...} ```
+                r'```(.*?)```',      # ``` {...} ```
+                r'{(.*?)}'           # raw {...}
+            ]
             
-            # Clean response
-            if raw_response.startswith("```"):
-                raw_response = raw_response.strip("`")
-                raw_response = raw_response.lstrip("json").strip()
-            elif raw_response.startswith("```"):
-                raw_response = raw_response.strip("`").strip()
-            
+            for pattern in patterns:
+                match = re.search(pattern, raw_response, re.DOTALL)
+                if match:
+                    raw_response = match.group(1).strip()
+                    break
+
             try:
                 extracted_data = json.loads(raw_response)
-                if isinstance(extracted_data, dict):
-                    result = extracted_data.get("result", {})
-                    overall_data = extracted_data.get("overall_data", {})
-                else:
-                    raise ValueError("Parsed data is not a JSON object.")
+                if not isinstance(extracted_data, dict):
+                    raise ValueError("Top-level response is not a dictionary")
+                
+                # Validation
+                required_fields = [
+                    "adjusted_on_time_delivery_rate",
+                    "product_defect_rate",
+                    "average_lead_time_days"
+                ]
+                
+                for field in required_fields:
+                    if field not in extracted_data.get("result", {}):
+                        raise ValueError(f"Missing required field: {field}")
+                        
+                return {
+                    "result": extracted_data.get("result", {}),
+                    "source_metrics": extracted_data.get("source_metrics", {}),
+                    "status": "success"
+                }
+                
             except Exception as e:
-                logger.warning(f"Non-JSON response from Gemini, returning raw text. Reason: {e}")
-                result = raw_response
-                overall_data = {}
-            
-            return {
-                "result": result,
-                "status": "success"
-            }
+                logger.error(f"JSON parsing failed: {e}\nRaw response: {raw_response}")
+                return {
+                    "result": {},
+                    "error": f"Data parsing error: {str(e)}",
+                    "status": "error"
+                }
             
         except Exception as e:
-            logger.error(f"Error during reliability extraction: {e}")
+            logger.error(f"Extraction failed: {e}")
             return {
                 "result": {},
                 "error": str(e),
                 "status": "error"
             }
-
