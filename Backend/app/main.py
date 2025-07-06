@@ -99,7 +99,3 @@ async def get_all_suppliers():
         return {"error": str(e)}
 
 
-
-
-
-
