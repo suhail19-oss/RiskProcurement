@@ -23,6 +23,7 @@ const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 const email = userData.email;
 
 export default function CostEfficiency() {
+
   // Cost Metrics State
   const [unitPriceBenchmarking, setUnitPriceBenchmarking] = useState("");
   const [volumeDiscountPotential, setVolumeDiscountPotential] = useState("");

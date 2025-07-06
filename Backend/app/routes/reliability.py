@@ -153,14 +153,24 @@ async def calculate_reliability_score_from_db(request: Request):
             (r6_score * 0.15)
         )
 
-        #upload result to database
-        update_result = await supplier.update_one( 
-            { "email_domain" : email_domain } , 
-            { "$set" : { "reliability_score": round(reliability_score, 2) }}
+        # ✅ Save normalized scores and replace cost_score
+        await db.suppliers.update_one(
+            {"email_domain": email_domain},
+            {
+                "$set": {
+                    "reliability_score": round(reliability_score, 2),
+                    "reliability_normalized_scores": {
+                        "adjusted_on_time_delivery_rate": round(r1_score, 2),
+                        "average_lead_time_days_score": round(r2_score, 2),
+                        "product_defect_rate": round(r3_score, 2),
+                        "iso_certification_score": round(r4_score, 2),
+                        "infrastructure_disruption_severity_score": round(r5_score, 2),
+                        "combined_disruption": round(r6_score, 2),
+                    }
+                }
+            }
         )
-        
-        if update_result.modified_count == 0:
-            raise HTTPException(status_code=500, detail="Failed to update supplier record")
+
         # 7) Return
         return {
             "reliability_upload_status": status,
