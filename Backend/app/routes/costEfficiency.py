@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr , Field
 from typing import Dict, Any
 import os, json, re, logging
 import requests
@@ -11,6 +11,7 @@ from app.services.gemini_service import gemini_service
 import google.generativeai as genai
 import traceback
 from datetime import datetime  
+from fastapi.responses import ORJSONResponse
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 load_dotenv()
 
@@ -74,8 +75,8 @@ async def submit_ci_report(file: UploadFile = File(...), email: str = Form(...))
             raise HTTPException(status_code=404, detail="Supplier not found")
 
         update_fields = {
-            "ci_upload_result": result.get("result"),
-            "ci_upload_status": result.get("status")
+            "cost_subfactors": result.get("result"),
+            "cost_upload_status": result.get("status")
         }
 
         await db.suppliers.update_one({"email_domain": email_domain}, {"$set": update_fields})
@@ -110,7 +111,6 @@ class CIResult(BaseModel):
 @router.get("/calculate-ci-score")
 async def calculate_ci_score_from_db(request: Request):
     try:
-        # 1) Read email header
         email = request.headers.get("email")
         if not email or "@" not in email:
             raise HTTPException(status_code=400, detail="Invalid or missing email header")
@@ -121,6 +121,7 @@ async def calculate_ci_score_from_db(request: Request):
         supplier = await db.suppliers.find_one({"email_domain": email_domain})
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
+
 
         # ✅ Instead of ci_upload_result, get cost_subfactors
         if "cost_subfactors" not in supplier or "cost_upload_status" not in supplier:
@@ -194,6 +195,7 @@ async def calculate_ci_score_from_db(request: Request):
             (contract_value_score * 0.05)
         )
 
+
         # ✅ Save normalized scores and replace cost_score
         await db.suppliers.update_one(
             {"email_domain": email_domain},
@@ -221,8 +223,6 @@ async def calculate_ci_score_from_db(request: Request):
 
         # ✅ Return
         return {
-            "company_name": r.company_name,
-            "reporting_year": r.reporting_year,
             "ci_upload_status": status,
             "cost_efficiency_score": round(cost_efficiency_score, 2),
             "cost_efficiency_normalized_scores": {
@@ -243,3 +243,21 @@ async def calculate_ci_score_from_db(request: Request):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating CI score: {str(e)}")
+
+@router.get("/get-cost-prefill")
+async def get_cost_prefill(request: Request):
+    email = request.headers.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email header is required")
+
+    email_domain = email.split('@')[1]
+    supplier = await db.suppliers.find_one({"email_domain": email_domain})
+
+    if not supplier or "cost_subfactors" not in supplier:
+        raise HTTPException(status_code=404, detail="No ESG data found")
+
+    return ORJSONResponse(content={
+    "status": "success",
+    "result": supplier["cost_subfactors"],
+    })
+

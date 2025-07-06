@@ -1,153 +1,94 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { HelpCircle } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
+const shouldDisableField = (fieldValue: string) => {
+  return !fieldValue;
+};
 
 export function EfficiencyMetricsSection({
-  fpyNormalized,
-  setFpyNormalized,
-  inTransitDelaysDays,
-  setInTransitDelaysDays,
-  recallScoreOutOf100,
-  setRecallScoreOutOf100,
-  legalDisputesLast6Months,
-  setLegalDisputesLast6Months,
-  legalDisputeScore,
-  setLegalDisputeScore,
-  laborViolationRisk,
-  setLaborViolationRisk,
-  warZoneFlag,
-  setWarZoneFlag,
-  laborViolations,
-  setLaborViolations
+  inTransitDelayDays,
+  setInTransitDelayDays,
+  inTransitDelayFactor,
+  setInTransitDelayFactor,
+  normalizedInTransitDelayFactor,
+  setNormalizedInTransitDelayFactor,
+  firstPassYield,
+  setFirstPassYield
 }: {
-  fpyNormalized: string;
-  setFpyNormalized: (value: string) => void;
-  inTransitDelaysDays: string;
-  setInTransitDelaysDays: (value: string) => void;
-  recallScoreOutOf100: string;
-  setRecallScoreOutOf100: (value: string) => void;
-  legalDisputesLast6Months: string;
-  setLegalDisputesLast6Months: (value: string) => void;
-  legalDisputeScore: string;
-  setLegalDisputeScore: (value: string) => void;
-  laborViolationRisk: string;
-  setLaborViolationRisk: (value: string) => void;
-  warZoneFlag: string;
-  setWarZoneFlag: (value: string) => void;
-  laborViolations: string;
-  setLaborViolations: (value: string) => void;
+  inTransitDelayDays: string;
+  setInTransitDelayDays: (value: string) => void;
+  inTransitDelayFactor: string;
+  setInTransitDelayFactor: (value: string) => void;
+  normalizedInTransitDelayFactor: string;
+  setNormalizedInTransitDelayFactor: (value: string) => void;
+  firstPassYield: string;
+  setFirstPassYield: (value: string) => void;
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* FPY Normalized */}
+      {/* In-Transit Delay Days */}
       <div className="space-y-2">
-        <Label htmlFor="fpyNormalized">First Pass Yield (Normalized, 0-1)</Label>
+        <Label htmlFor="inTransitDelayDays">In-Transit Delay Days</Label>
         <Input
-          id="fpyNormalized"
+          id="inTransitDelayDays"
+          type="number"
+          min="0"
+          value={inTransitDelayDays}
+          onChange={(e) => setInTransitDelayDays(e.target.value)}
+          placeholder="Number of days"
+          disabled={shouldDisableField(inTransitDelayDays)}
+        />
+      </div>
+
+      {/* In-Transit Delay Factor */}
+      <div className="space-y-2">
+        <Label htmlFor="inTransitDelayFactor">In-Transit Delay Factor</Label>
+        <Input
+          id="inTransitDelayFactor"
           type="number"
           min="0"
           max="1"
-          step="0.01"
-          value={fpyNormalized}
-          onChange={(e) => setFpyNormalized(e.target.value)}
-          placeholder="e.g., 0.93"
+          step="0.001"
+          value={inTransitDelayFactor}
+          onChange={(e) => setInTransitDelayFactor(e.target.value)}
+          placeholder="0-1 scale"
+          disabled={shouldDisableField(inTransitDelayFactor)}
         />
       </div>
 
-      {/* In Transit Delays */}
+      {/* Normalized In-Transit Delay Factor */}
       <div className="space-y-2">
-        <Label htmlFor="inTransitDelaysDays">In-Transit Delays (Days)</Label>
+        <Label htmlFor="normalizedInTransitDelayFactor">Normalized Delay Factor</Label>
         <Input
-          id="inTransitDelaysDays"
-          type="number"
-          min="0"
-          value={inTransitDelaysDays}
-          onChange={(e) => setInTransitDelaysDays(e.target.value)}
-          placeholder="e.g., 0.05"
-        />
-      </div>
-
-      {/* Recall Score */}
-      <div className="space-y-2">
-        <Label htmlFor="recallScoreOutOf100">Recall Score (Out of 100)</Label>
-        <Input
-          id="recallScoreOutOf100"
-          type="number"
-          min="0"
-          max="100"
-          value={recallScoreOutOf100}
-          onChange={(e) => setRecallScoreOutOf100(e.target.value)}
-          placeholder="e.g., 8"
-        />
-      </div>
-
-      {/* Legal Disputes Count */}
-      <div className="space-y-2">
-        <Label htmlFor="legalDisputesLast6Months">Legal Disputes (Last 6 Months)</Label>
-        <Input
-          id="legalDisputesLast6Months"
-          type="number"
-          min="0"
-          value={legalDisputesLast6Months}
-          onChange={(e) => setLegalDisputesLast6Months(e.target.value)}
-          placeholder="e.g., 3"
-        />
-      </div>
-
-      {/* Legal Dispute Score */}
-      <div className="space-y-2">
-        <Label htmlFor="legalDisputeScore">Legal Dispute Score (0-1)</Label>
-        <Input
-          id="legalDisputeScore"
+          id="normalizedInTransitDelayFactor"
           type="number"
           min="0"
           max="1"
-          step="0.01"
-          value={legalDisputeScore}
-          onChange={(e) => setLegalDisputeScore(e.target.value)}
-          placeholder="e.g., 0.10"
+          step="0.001"
+          value={normalizedInTransitDelayFactor}
+          onChange={(e) => setNormalizedInTransitDelayFactor(e.target.value)}
+          placeholder="0-1 scale"
+          disabled={shouldDisableField(normalizedInTransitDelayFactor)}
         />
       </div>
 
-      {/* Labor Violation Risk */}
+      {/* First Pass Yield */}
       <div className="space-y-2">
-        <Label htmlFor="laborViolationRisk">Labor Violation Risk (0-1)</Label>
+        <Label htmlFor="firstPassYield">First Pass Yield</Label>
         <Input
-          id="laborViolationRisk"
+          id="firstPassYield"
           type="number"
           min="0"
           max="1"
-          step="0.01"
-          value={laborViolationRisk}
-          onChange={(e) => setLaborViolationRisk(e.target.value)}
-          placeholder="e.g., 0.12"
-        />
-      </div>
-
-      {/* War Zone Flag */}
-      <div className="space-y-2">
-        <Label htmlFor="warZoneFlag">War Zone Flag (0/1)</Label>
-        <Input
-          id="warZoneFlag"
-          type="number"
-          min="0"
-          max="1"
-          value={warZoneFlag}
-          onChange={(e) => setWarZoneFlag(e.target.value)}
-          placeholder="0 or 1"
-        />
-      </div>
-
-      {/* Labor Violations Description */}
-      <div className="space-y-2 md:col-span-2">
-        <Label htmlFor="laborViolations">Labor Violations</Label>
-        <Input
-          id="laborViolations"
-          type="text"
-          value={laborViolations}
-          onChange={(e) => setLaborViolations(e.target.value)}
-          placeholder="e.g., None, Minor, Major"
+          step="0.001"
+          value={firstPassYield}
+          onChange={(e) => setFirstPassYield(e.target.value)}
+          placeholder="0-1 scale"
+          disabled={shouldDisableField(firstPassYield)}
         />
       </div>
     </div>

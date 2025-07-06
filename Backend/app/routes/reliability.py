@@ -66,7 +66,7 @@ async def submit_reliability_report(file: UploadFile = File(...), email: str = F
         
         # Store ONLY the required fields
         update_fields = {
-            "reliability_upload_result": result.get("result"),
+            "reliability_subfactors": result.get("result"),
             "reliability_upload_status": result.get("status")
         }
         
@@ -79,8 +79,6 @@ async def submit_reliability_report(file: UploadFile = File(...), email: str = F
 
 # ---------- 2. CALCULATE RELIABILITY SCORE FROM DATABASE ----------
 class ReliabilityResult(BaseModel):
-    company_name: str
-    reporting_year: Optional[int] = None
     adjusted_on_time_delivery_rate: float
     average_lead_time_days: float
     product_defect_rate: float
@@ -105,7 +103,7 @@ async def calculate_reliability_score_from_db(request: Request):
             raise HTTPException(status_code=404, detail="Supplier not found")
 
         # 3) Extract result dict and status
-        result_data = supplier.get("reliability_upload_result")
+        result_data = supplier.get("reliability_subfactors")
         status = supplier.get("reliability_upload_status")
 
         # Fallback to industry averages if missing
@@ -115,7 +113,6 @@ async def calculate_reliability_score_from_db(request: Request):
 
         # 4) Validate result_data against ReliabilityResult
         r = ReliabilityResult(
-            company_name=supplier.get("company_name", "Unknown"),
             adjusted_on_time_delivery_rate=float(result_data.get("adjusted_on_time_delivery_rate", averages["adjusted_on_time_delivery_rate"])),
             average_lead_time_days=float(result_data.get("average_lead_time_days", averages["average_lead_time_days"])),
             product_defect_rate=float(result_data.get("product_defect_rate", averages["product_defect_rate"])),
@@ -174,10 +171,8 @@ async def calculate_reliability_score_from_db(request: Request):
             }
         )
 
-
         # 7) Return
         return {
-            "company_name": r.company_name,
             "reliability_upload_status": status,
             "reliability_score": round(reliability_score, 2),
             "normalized_scores": {
@@ -192,3 +187,42 @@ async def calculate_reliability_score_from_db(request: Request):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating reliability score: {str(e)}")
+    
+    
+# function to prefill input feilds 
+@router.get("/get-reliability-prefill")
+async def get_reliability_prefill(request: Request):
+    email = request.headers.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email header is required")
+
+    email_domain = email.split('@')[1]
+    supplier = await db.suppliers.find_one({"email_domain": email_domain})
+
+    if not supplier or "reliability_subfactors" not in supplier:
+        raise HTTPException(status_code=404, detail="No ESG data found")
+
+    return {
+        "status": "success",
+        "result": supplier["reliability_subfactors"],
+    }
+    
+    
+# function to prefill datasets for risk 
+@router.get("/get-risk-prefill")
+async def get_risk_prefill(request: Request):
+    email = request.headers.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email header is required")
+
+    email_domain = email.split('@')[1]
+    supplier = await db.suppliers.find_one({"email_domain": email_domain})
+
+    if not supplier or "risk_subfactors" not in supplier:
+        raise HTTPException(status_code=404, detail="No ESG data found")
+
+    return {
+        "status": "success",
+        "result": supplier["risk_subfactors"],
+    }
+    

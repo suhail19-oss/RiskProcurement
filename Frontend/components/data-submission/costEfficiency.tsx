@@ -7,12 +7,15 @@ import { Progress } from "@/components/ui/progress"
 import { Upload, CheckCircle, AlertTriangle, DollarSign, TrendingDown, BarChart2, ChevronDown, ChevronUp } from "lucide-react"
 import { CostMetricsSection } from "@/components/data-submission/sections/CostMetricsSection"
 import { EfficiencyMetricsSection } from "@/components/data-submission/sections/EfficiencyMetricsSection"
+import { ComplianceMetricsSection } from "@/components/data-submission/sections/ComplianceMetricsSection"
+import Loading from "./loading"
 
-type SectionId = 'costs' | 'efficiency' | 'documents';
+type SectionId = 'costs' | 'efficiency' | 'compliance' | 'documents';
 
 const sections = [
   { id: "costs", title: "Cost Metrics", icon: DollarSign, description: "Direct and indirect cost measurements" },
   { id: "efficiency", title: "Efficiency Metrics", icon: TrendingDown, description: "Operational efficiency indicators" },
+  { id: "compliance", title: "Compliance Metrics", icon: BarChart2, description: "Regulatory and legal compliance factors" },
   { id: "documents", title: "Documents", icon: Upload, description: "Supporting documentation" }
 ]
 
@@ -20,27 +23,32 @@ const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 const email = userData.email;
 
 export default function CostEfficiency() {
-  // Cost Factors
-const [unitPriceBenchmarking, setUnitPriceBenchmarking] = useState("");
-const [volumeDiscountPotential, setVolumeDiscountPotential] = useState("");
-const [paymentTermsFlexibility, setPaymentTermsFlexibility] = useState("");
-const [contractValue, setContractValue] = useState("");
-const [tradePolicyNorm, setTradePolicyNorm] = useState("");
-const [sanctionScore, setSanctionScore] = useState("");
-const [warZoneNorm, setWarZoneNorm] = useState("");
-const [tradePolicyChanges, setTradePolicyChanges] = useState("");
-const [govtSanctionsPenalties, setGovtSanctionsPenalties] = useState("");
 
-// Efficiency Factors
-const [fpyNormalized, setFpyNormalized] = useState("");
-const [inTransitDelaysDays, setInTransitDelaysDays] = useState("");
-const [recallScoreOutOf100, setRecallScoreOutOf100] = useState("");
-const [legalDisputesLast6Months, setLegalDisputesLast6Months] = useState("");
-const [legalDisputeScore, setLegalDisputeScore] = useState("");
-const [laborViolationRisk, setLaborViolationRisk] = useState("");
-const [warZoneFlag, setWarZoneFlag] = useState("");
-const [laborViolations, setLaborViolations] = useState("");
-  
+  // Cost Metrics State
+  const [unitPriceBenchmarking, setUnitPriceBenchmarking] = useState("");
+  const [volumeDiscountPotential, setVolumeDiscountPotential] = useState("");
+  const [paymentTermsFlexibility, setPaymentTermsFlexibility] = useState("");
+  const [contractValue, setContractValue] = useState("");
+
+  // Efficiency Metrics State
+  const [inTransitDelayDays, setInTransitDelayDays] = useState("");
+  const [inTransitDelayFactor, setInTransitDelayFactor] = useState("");
+  const [normalizedInTransitDelayFactor, setNormalizedInTransitDelayFactor] = useState("");
+  const [firstPassYield, setFirstPassYield] = useState("");
+
+  // Compliance Metrics State
+  const [legalDisputes, setLegalDisputes] = useState("");
+  const [legalDisputeScore, setLegalDisputeScore] = useState("");
+  const [warZoneFlag, setWarZoneFlag] = useState("");
+  const [warZoneNorm, setWarZoneNorm] = useState("");
+  const [tradePolicyChanges, setTradePolicyChanges] = useState("");
+  const [tradePolicyNorm, setTradePolicyNorm] = useState("");
+  const [laborViolations, setLaborViolations] = useState("");
+  const [laborViolationRisk, setLaborViolationRisk] = useState("");
+  const [recallScore, setRecallScore] = useState("");
+  const [govtSanctions, setGovtSanctions] = useState("");
+  const [sanctionScore, setSanctionScore] = useState("");
+
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasData, setHasData] = useState(false);
@@ -49,6 +57,7 @@ const [laborViolations, setLaborViolations] = useState("");
   const [expandedSections, setExpandedSections] = useState({
     costs: true,
     efficiency: false,
+    compliance: false,
     documents: false
   });
 
@@ -59,13 +68,141 @@ const [laborViolations, setLaborViolations] = useState("");
     }))
   };
 
+  const updateCostFormFields = (data: any) => {
+    // Cost Metrics
+    setUnitPriceBenchmarking(data.unit_price_benchmarking?.toString() || "");
+    setVolumeDiscountPotential(data.volume_discount_potential?.toString() || "");
+    setPaymentTermsFlexibility(data.payment_terms_flexibility?.toString() || "");
+    setContractValue(data.contract_value?.toString() || "");
+
+    // Efficiency Metrics
+    setInTransitDelayDays(data.in_transit_delay_days?.toString() || "");
+    setInTransitDelayFactor(data.new_in_transit_delay_factor?.toString() || "");
+    setNormalizedInTransitDelayFactor(data.normalized_in_transit_delay_factor?.toString() || "");
+    setFirstPassYield(data.first_pass_yield?.toString() || "");
+
+    // Compliance Metrics
+    setLegalDisputes(data.legal_disputes?.toString() || "");
+    setLegalDisputeScore(data.legal_dispute_score?.toString() || "");
+    setWarZoneFlag(data.war_zone_flag?.toString() || "");
+    setWarZoneNorm(data.war_zone_norm?.toString() || "");
+    setTradePolicyChanges(data.trade_policy_changes || "");
+    setTradePolicyNorm(data.trade_policy_norm?.toString() || "");
+    setLaborViolations(data.labor_violations || "");
+    setLaborViolationRisk(data.labor_violation_risk?.toString() || "");
+    setRecallScore(data.recall_score?.toString() || "");
+    setGovtSanctions(data.govt_sanctions?.toString() || "0");
+    setSanctionScore(data.sanction_score?.toString() || "0");
+  };
+
+  useEffect(() => {
+    const checkData = async () => {
+      try {
+        const dbResponse = await fetch('http://localhost:8000/get-cost-prefill', 
+        {
+          headers: { "email": email }
+        });
+        
+        if (dbResponse.ok) {
+          const dbData = await dbResponse.json();
+          console.log("Prefilled from DB:", dbData.result);
+          setHasData(true);
+          updateCostFormFields(dbData.result);
+          return;
+        }
+        
+        setHasData(false);
+      } catch (err) {
+        console.error("error:", err);
+      }
+    }
+    checkData();
+  }, [])
+
+  const handleFinalCostSubmit = async () => {
+    try {
+        const response = await fetch("http://localhost:8000/calculate-ci-score", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }), // Send as JSON
+        });
+
+        if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Failed to calculate ESG score");
+        }
+
+        const data = await response.json();
+        
+        console.log("ESG scores calculated:", data);
+        return data;
+    } catch (err: any) {
+        console.error("ESG Calculation Error:", err);
+        throw err;
+    }
+    };
+
+      // <---- Handles file uploads ---->
   const handleFileUpload = async (key: string, file: File) => {
-    // Placeholder implementation
-    return;
+  try {
+    setIsLoading(true);
+    setUploadedFiles((prev) => ({ ...prev, [key]: file }));
+    setUploadProgress(10);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Get email from localStorage (or any other auth provider)
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+    const email = userData.email || "";
+    formData.append("email", email);
+
+    console.log("Uploading file:", file.name);
+
+    setUploadProgress(30);
+    const response = await fetch("http://localhost:8000/submit-ci-report", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to upload ESG report.");
+    }
+
+    const data = await response.json();
+    updateCostFormFields( data.result)
+    setUploadProgress(50);
+    console.log("Upload and extraction successful:", data);
+
+    // Optionally: you can store result in state or trigger a re-fetch of prefill
+    setHasData( true ); 
+
+    // calling function to 
+    try {
+      await handleFinalCostSubmit();
+      setUploadProgress(100);
+    } catch (err) {
+    console.error("Final submission failed (non-blocking):", err);
+    } 
+
+    setUploadProgress(100);
+    setIsLoading(false);
+  } catch (err) {
+    setIsLoading(false);
+    setUploadProgress(0);
+    console.error("Upload error:", err);
+    alert("Failed to upload ESG report. Please try again.");
+  }
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+
+      <Loading isLoading = {isLoading} uploadProgress= {uploadProgress} />
+
       {/* Progress Bar with Status Message */}
       <div className="max-w-6xl mx-auto mb-8 animate-slide-up">
         <div className="flex justify-between items-center mb-4">
@@ -148,37 +285,46 @@ const [laborViolations, setLaborViolations] = useState("");
                   setPaymentTermsFlexibility={setPaymentTermsFlexibility}
                   contractValue={contractValue}
                   setContractValue={setContractValue}
-                  tradePolicyNorm={tradePolicyNorm}
-                  setTradePolicyNorm={setTradePolicyNorm}
-                  sanctionScore={sanctionScore}
-                  setSanctionScore={setSanctionScore}
-                  warZoneNorm={warZoneNorm}
-                  setWarZoneNorm={setWarZoneNorm}
-                  tradePolicyChanges={tradePolicyChanges}
-                  setTradePolicyChanges={setTradePolicyChanges}
-                  govtSanctionsPenalties={govtSanctionsPenalties}
-                  setGovtSanctionsPenalties={setGovtSanctionsPenalties}
                 />
               )}
 
               {section.id === "efficiency" && (
                 <EfficiencyMetricsSection
-                  fpyNormalized={fpyNormalized}
-                  setFpyNormalized={setFpyNormalized}
-                  inTransitDelaysDays={inTransitDelaysDays}
-                  setInTransitDelaysDays={setInTransitDelaysDays}
-                  recallScoreOutOf100={recallScoreOutOf100}
-                  setRecallScoreOutOf100={setRecallScoreOutOf100}
-                  legalDisputesLast6Months={legalDisputesLast6Months}
-                  setLegalDisputesLast6Months={setLegalDisputesLast6Months}
+                  inTransitDelayDays={inTransitDelayDays}
+                  setInTransitDelayDays={setInTransitDelayDays}
+                  inTransitDelayFactor={inTransitDelayFactor}
+                  setInTransitDelayFactor={setInTransitDelayFactor}
+                  normalizedInTransitDelayFactor={normalizedInTransitDelayFactor}
+                  setNormalizedInTransitDelayFactor={setNormalizedInTransitDelayFactor}
+                  firstPassYield={firstPassYield}
+                  setFirstPassYield={setFirstPassYield}
+                />
+              )}
+
+              {section.id === "compliance" && (
+                <ComplianceMetricsSection
+                  legalDisputes={legalDisputes}
+                  setLegalDisputes={setLegalDisputes}
                   legalDisputeScore={legalDisputeScore}
                   setLegalDisputeScore={setLegalDisputeScore}
-                  laborViolationRisk={laborViolationRisk}
-                  setLaborViolationRisk={setLaborViolationRisk}
                   warZoneFlag={warZoneFlag}
                   setWarZoneFlag={setWarZoneFlag}
+                  warZoneNorm={warZoneNorm}
+                  setWarZoneNorm={setWarZoneNorm}
+                  tradePolicyChanges={tradePolicyChanges}
+                  setTradePolicyChanges={setTradePolicyChanges}
+                  tradePolicyNorm={tradePolicyNorm}
+                  setTradePolicyNorm={setTradePolicyNorm}
                   laborViolations={laborViolations}
                   setLaborViolations={setLaborViolations}
+                  laborViolationRisk={laborViolationRisk}
+                  setLaborViolationRisk={setLaborViolationRisk}
+                  recallScore={recallScore}
+                  setRecallScore={setRecallScore}
+                  govtSanctions={govtSanctions}
+                  setGovtSanctions={setGovtSanctions}
+                  sanctionScore={sanctionScore}
+                  setSanctionScore={setSanctionScore}
                 />
               )}
 
