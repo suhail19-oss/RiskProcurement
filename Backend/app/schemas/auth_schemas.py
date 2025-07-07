@@ -28,3 +28,5 @@ class ProfileUpdate(BaseModel):
     
     class Config:
         from_attributes = True
+
+        

@@ -12,7 +12,7 @@ export const products: Product[] = [
     reviews: 156,
   },
   {
-    id: "2",
+    id: "9",
     name: "Electrical and Electronic Components",
     category: "Electronics",
     description:
@@ -24,7 +24,7 @@ export const products: Product[] = [
     reviews: 203,
   },
   {
-    id: "3",
+    id: "2",
     name: "Lighting Systems",
     category: "Lighting",
     description: "LED panels & smart lighting solutions",
@@ -35,7 +35,7 @@ export const products: Product[] = [
     reviews: 89,
   },
   {
-    id: "4",
+    id: "3",
     name: "Oils, Lubricants and Coolants",
     category: "Automotive",
     description: "Premium engine oils & industrial coolants",
@@ -46,7 +46,7 @@ export const products: Product[] = [
     reviews: 134,
   },
   {
-    id: "5",
+    id: "4",
     name: "Transmissions and Gearboxes",
     category: "Automotive",
     description: "Vehicle gearboxes & transmission units",
@@ -57,7 +57,7 @@ export const products: Product[] = [
     reviews: 67,
   },
   {
-    id: "6",
+    id: "5",
     name: "Vehicle Chassis and Body Parts",
     category: "Automotive",
     description: "Chassis frames & automotive body panels",
@@ -68,7 +68,7 @@ export const products: Product[] = [
     reviews: 298,
   },
   {
-    id: "7",
+    id: "6",
     name: "Wiring Harness",
     category: "Electrical",
     description: "Automotive & industrial wiring harness assemblies",
@@ -78,7 +78,7 @@ export const products: Product[] = [
     reviews: 445,
   },
   {
-    id: "8",
+    id: "7",
     name: "Batteries",
     category: "Energy",
     description: "Li‑ion & lead‑acid battery solutions",
@@ -89,7 +89,7 @@ export const products: Product[] = [
     reviews: 178,
   },
   {
-    id: "9",
+    id: "8",
     name: "Composite and Lightweight Material",
     category: "Materials",
     description: "Carbon‑fiber composite panels and lightweight materials",

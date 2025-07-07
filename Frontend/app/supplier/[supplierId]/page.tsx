@@ -1,37 +1,33 @@
-import React from "react";
-import { suppliers } from "../../data/products";
+"use client";
+
+import React, { use, useEffect, useState } from "react";
 import SupplierDetailClient from "./SupplierDetail";
 
-// Generate static params for all suppliers - this runs on the server
-export async function generateStaticParams() {
-  const allSuppliers = [];
-
-  // Collect all suppliers from all product categories
-  for (const productSuppliers of Object.values(suppliers)) {
-    for (const supplier of productSuppliers) {
-      allSuppliers.push({
-        supplierId: supplier.id,
-      });
-    }
-  }
-
-  return allSuppliers;
-}
-
-// Server component that fetches data and renders the client component
 export default function SupplierPage({
   params,
 }: {
-  params: { supplierId: string };
+  params: Promise<{ supplierId: number }>;
 }) {
-  const supplierId = params.supplierId;
+  const { supplierId } = use(params); // 👈 unwrap the promise
 
-  // Find supplier across all product categories
-  let supplier = null;
-  for (const productSuppliers of Object.values(suppliers)) {
-    supplier = productSuppliers.find((s) => s.id === supplierId);
-    if (supplier) break;
-  }
+  const [supplier, setSupplier] = useState({});
+
+  useEffect(() => {
+    const getSuppliers = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/suppliers`,
+        {
+          method: "GET",
+        }
+      );
+      const data = await res.json();
+      const s = data.suppliers[supplierId] // safer lookup
+      setSupplier(s);
+      console.log('supplier', s);
+    };
+
+    getSuppliers();
+  }, [supplierId]);
 
   return <SupplierDetailClient supplier={supplier} supplierId={supplierId} />;
 }

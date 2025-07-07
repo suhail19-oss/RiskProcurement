@@ -29,6 +29,17 @@ from fpdf import FPDF
 from app.database import db
 from app.routes import test, auth, esg, recommendations, reportGeneration
 from app.services.gemini_service import gemini_service
+import math
+# suppliers api was giving mongoDB documents and before sending them to server we need to sanitize them otherwise it gives error
+def sanitize(obj):
+    if isinstance(obj, dict):
+        return {k: sanitize(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize(i) for i in obj]
+    elif isinstance(obj, float):
+        return None if math.isnan(obj) or math.isinf(obj) else obj
+    else:
+        return obj
 
 # Load environment variables
 load_dotenv()
@@ -44,7 +55,7 @@ logger = logging.getLogger(__name__)
 # ------------------- CORS Middleware -------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with specific origins in production
+    allow_origins=["http://localhost:3000"],  # Replace with specific origins in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -90,7 +101,11 @@ async def ping_db():
 async def get_all_suppliers():
     try:
         cursor = db.suppliers.find({}, {"_id": 0})
+        
         suppliers = await cursor.to_list(length=None)
+        # here we sanitize the suppliers to remove any Nan and other values apparently
+        suppliers = sanitize(suppliers)
+        print(suppliers)
         return {"suppliers": suppliers}
     except Exception as e:
         logger.exception("Error fetching suppliers")

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
 import {
   Building,
   Package,
@@ -12,6 +13,7 @@ import {
   CheckCircle,
   ShieldAlert,
 } from "lucide-react";
+import { products } from "@/app/data/products";
 
 interface Supplier {
   id: string;
@@ -35,10 +37,6 @@ interface Supplier {
   In_Transit_Delays_Days: number;
   Product_Defect_Rate: number;
   product: string;
-}
-
-interface SupplierDetailProps {
-  supplier?: Supplier;
 }
 
 const BarChart: React.FC<{ data: any[] }> = ({ data }) => {
@@ -93,7 +91,7 @@ const BarChart: React.FC<{ data: any[] }> = ({ data }) => {
   );
 };
 
-export default function SupplierDetail({ supplier }: SupplierDetailProps) {
+export default function SupplierDetail({ supplier }: any) {
   const mockSupplier: Supplier = {
     id: "1",
     name: "TechFlow Industries",
@@ -117,6 +115,10 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
     Product_Defect_Rate: 0.03,
     product: "Advanced Electronics & IoT Solutions",
   };
+
+  const product = products.find((p: any) => p.id == supplier.product_id);
+
+  supplier.product_name = product?.name || "Default";
 
   const currentSupplier = supplier || mockSupplier;
 
@@ -163,37 +165,37 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
   const individualRisks = [
     {
       name: "Quality Risk",
-      score: Math.round(currentSupplier.Quality_Risk_Score),
-      category: calculateRiskLevel(currentSupplier.Quality_Risk_Score),
+      score: Math.round(currentSupplier.risk_subfactors?.quality_risk_score ?? 30),
+      category: calculateRiskLevel(currentSupplier.risk_subfactors?.quality_risk_score ?? 30),
     },
     {
       name: "Logistics Risk",
-      score: Math.round(currentSupplier.Logistics_Risk_Score),
-      category: calculateRiskLevel(currentSupplier.Logistics_Risk_Score),
+      score: Math.round(currentSupplier.risk_subfactors?.logistics_risk_score ?? 30),
+      category: calculateRiskLevel(currentSupplier.risk_subfactors?.logistics_risk_score ?? 30),
     },
     {
       name: "Operational Risk",
-      score: Math.round(currentSupplier.Operational_Risk_Score),
-      category: calculateRiskLevel(currentSupplier.Operational_Risk_Score),
+      score: Math.round(currentSupplier.risk_subfactors?.operational_risk_score ?? 30),
+      category: calculateRiskLevel(currentSupplier.risk_subfactors?.operational_risk_score ?? 30),
     },
     {
       name: "Legal Risk",
-      score: Math.round(currentSupplier.Legal_Risk_Score),
-      category: calculateRiskLevel(currentSupplier.Legal_Risk_Score),
+      score: Math.round(currentSupplier.risk_subfactors?.legal_dispute_score ?? 30),
+      category: calculateRiskLevel(currentSupplier.risk_subfactors?.legal_dispute_score ?? 30),
     },
     {
       name: "ESG Risk",
-      score: Math.round(currentSupplier.ESG_Risk_Score),
-      category: calculateRiskLevel(currentSupplier.ESG_Risk_Score),
+      score: Math.round(currentSupplier.risk_subfactors?.esg_risk_score ?? 30),
+      category: calculateRiskLevel(currentSupplier.risk_subfactors?.esg_risk_score ?? 30),
     },
     {
       name: "Geo Location Risk",
-      score: Math.round(currentSupplier.Geo_Location_Risk_Score),
-      category: calculateRiskLevel(currentSupplier.Geo_Location_Risk_Score),
+      score: Math.round(currentSupplier.risk_subfactors?.geopolitical_risk_score ?? 30),
+      category: calculateRiskLevel(currentSupplier.risk_subfactors?.geopolitical_risk_score ?? 30),
     },
   ];
 
-  const score = Math.round(currentSupplier.Overall_Risk_Score);
+  const score = Math.round(currentSupplier.risk_score);
   let Icon = CheckCircle;
   let iconColor = "text-green-600";
   let bgColor = "bg-green-50 dark:bg-green-900/50";
@@ -218,11 +220,11 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {currentSupplier.Company_Name}
+              {currentSupplier.company_name}
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
               <MapPin className="inline w-4 h-4 mr-1" />
-              {currentSupplier.Headquarter_Location}
+              {currentSupplier.location}
             </p>
           </div>
         </div>
@@ -231,7 +233,7 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
         <div className="flex items-center space-x-2">
           <Package className="w-10 h-10 text-purple-600 dark:text-purple-400" />
           <p className="text-xl font-medium text-gray-800 dark:text-gray-200">
-            {currentSupplier.product}
+            {currentSupplier.product_name}
           </p>
         </div>
       </div>
@@ -272,7 +274,7 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
             <Clock className="w-7 h-7 text-orange-600 dark:text-orange-400" />
           </div>
           <h3 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1">
-            {currentSupplier.In_Transit_Delays_Days}
+            {currentSupplier.risk_subfactors?.in_transit_delays_days && 5}
           </h3>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             In Transit Delay Days
@@ -298,7 +300,7 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
             <Star className="w-7 h-7 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1">
-            {Math.floor(currentSupplier.Product_Defect_Rate * 100)}
+            {Math.floor(currentSupplier.risk_subfactors?.product_defect_rate * 100 && 50)}
           </h3>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Defect Rate
@@ -317,7 +319,7 @@ export default function SupplierDetail({ supplier }: SupplierDetailProps) {
 
         <div className="rounded-2xl shadow-sm border p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold mb-6 text-gray-900 dark:text-white">
-            Latest News About {currentSupplier.Company_Name}
+            Latest News About {currentSupplier.company_name}
           </h3>
           <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
             {supplierNews.map((news, index) => {
