@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { HelpCircle } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const shouldDisableField = (fieldValue: string) => {
   return !fieldValue;
@@ -38,7 +38,9 @@ export function CostMetricsSection({
             <Tooltip>
               <TooltipTrigger><HelpCircle className="h-4 w-4 text-muted-foreground" /></TooltipTrigger>
               <TooltipContent>
+
                 <p>Comparison to market average (0-1 scale)</p>
+
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -51,8 +53,10 @@ export function CostMetricsSection({
           step="0.01"
           value={unitPriceBenchmarking}
           onChange={(e) => setUnitPriceBenchmarking(e.target.value)}
+
           placeholder="0-1 scale"
           disabled={shouldDisableField(unitPriceBenchmarking)}
+
         />
       </div>
 
@@ -67,6 +71,7 @@ export function CostMetricsSection({
           step="0.01"
           value={volumeDiscountPotential}
           onChange={(e) => setVolumeDiscountPotential(e.target.value)}
+
           placeholder="0-1 scale"
           disabled={shouldDisableField(volumeDiscountPotential)}
         />

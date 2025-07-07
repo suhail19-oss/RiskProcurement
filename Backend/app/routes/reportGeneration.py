@@ -16,111 +16,98 @@ from reportlab.platypus import (
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from email.mime.text import MIMEText
+import smtplib
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+router = APIRouter( ) 
 
 class ESGReportInput(BaseModel):
     company_name: str
-    esg_category_scores: Dict[str, float]
-    esg_final_subfactor_scores: Dict[str, Dict[str, float]]
-    recommendations: Optional[List[str]] = None  # Flat list of strings
+    esg_score: float
     cost_score: float
     risk_score: float
     reliability_score: float
 
-router = APIRouter( ) 
-
 @router.post("/generate-esg-report")
 async def generate_esg_report(data: ESGReportInput):
+    # 1. Create PDF buffer
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     styles = getSampleStyleSheet()
     elements = []
 
-    # Title
+    # 2. Title
     title_style = ParagraphStyle(
         name="TitleStyle",
         fontSize=20,
         leading=24,
         spaceAfter=20,
-        alignment=1,  # Center
+        alignment=1,  # Centered
         textColor=colors.HexColor("#0B3954"),
     )
     elements.append(Paragraph(f"ESG Evaluation Report - {data.company_name}", title_style))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 20))
 
-    # Category Scores Table
-    elements.append(Paragraph("1. ESG Category Scores", styles["Heading2"]))
-    cat_table_data = [["Category", "Score"]]
-    for category, score in data.esg_category_scores.items():
-        cat_table_data.append([category, f"{score:.2f} / 100"])
-
-    
-
-    cat_table = Table(cat_table_data, hAlign='LEFT', colWidths=[200, 200])
-    cat_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#0B3954")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('GRID', (0, 0), (-1, -1), 0.8, colors.grey),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-    ]))
-    elements.append(cat_table)
-    elements.append(Spacer(1, 16))
-
-    elements.append(Spacer(1, 12))
-    elements.append(Paragraph("2. Additional Scores", styles["Heading2"]))
-    additional_table_data = [
-        ["Score Type", "Score"],
-        ["Cost Efficiency Score", f"{data.cost_score:.2f} / 100"],
-        ["Risk Score", f"{data.risk_score:.2f} / 100"],
-        ["Reliability Score", f"{data.reliability_score:.2f} / 100"],
+    # 3. Scores Table
+    elements.append(Paragraph("Overall Scores", styles["Heading2"]))
+    scores_table_data = [
+        ["Metric", "Score (/100)"],
+        ["ESG Score", f"{data.esg_score:.2f}"],
+        ["Cost Efficiency Score", f"{data.cost_score:.2f}"],
+        ["Risk Score", f"{data.risk_score:.2f}"],
+        ["Reliability Score", f"{data.reliability_score:.2f}"],
     ]
-
-    add_table = Table(additional_table_data, hAlign='LEFT', colWidths=[200, 200])
-    add_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#0B3954")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('GRID', (0, 0), (-1, -1), 0.8, colors.grey),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+    table = Table(scores_table_data, hAlign='LEFT', colWidths=[220, 150])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0B3954")),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
     ]))
-    elements.append(add_table)
-    elements.append(Spacer(1, 16))
-    
+    elements.append(table)
+    elements.append(Spacer(1, 20))
 
-    # Subfactor Scores
-    elements.append(Paragraph("2. ESG Subfactor Scores", styles["Heading2"]))
-    for category, subfactors in data.esg_final_subfactor_scores.items():
-        elements.append(Paragraph(f"{category}", styles["Heading3"]))
-        sub_table_data = [["Subfactor", "Score"]]
-        for subfactor, score in subfactors.items():
-            sub_table_data.append([subfactor, f"{score:.2f} / 100"])
-
-        sub_table = Table(sub_table_data, hAlign='LEFT', colWidths=[250, 150])
-        sub_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ]))
-        elements.append(sub_table)
-        elements.append(Spacer(1, 12))
-
-    # Recommendations
-    if data.recommendations:
-        elements.append(Paragraph("3. Recommended Improvements", styles["Heading2"]))
-        for tip in data.recommendations:
-            elements.append(Paragraph(tip, styles["BodyText"]))
-        elements.append(Spacer(1, 16))
-
-    # Footer
+    # 4. Footer
     elements.append(Spacer(1, 20))
     elements.append(Paragraph("Generated by ProcurePro", styles["Italic"]))
 
-    # Build PDF
+    # 5. Build PDF
     doc.build(elements)
     buffer.seek(0)
-    return StreamingResponse(buffer, media_type='application/pdf', headers={
-        "Content-Disposition": f"attachment; filename={data.company_name}_ESG_Report.pdf"
-    })
+    pdf_bytes = buffer.getvalue()
+
+    # 6. Prepare and send email
+    msg = MIMEMultipart()
+    msg["From"] = "ayukumar242004@gmail.com"
+    msg["To"] = "tbsingh4249@gmail.com"
+    msg["Subject"] = f"ESG Report for {data.company_name}"
+    msg.attach(MIMEText("Hello,\n\nPlease find attached the ESG report.\n\nRegards,\nProcurePro"))
+
+    part = MIMEApplication(pdf_bytes, Name=f"{data.company_name}_ESG_Report.pdf")
+    part["Content-Disposition"] = f'attachment; filename="{data.company_name}_ESG_Report.pdf"'
+    msg.attach(part)
+
+    smtp = smtplib.SMTP("smtp.gmail.com", 587)
+    smtp.starttls()
+    smtp_email = os.environ["SMTP_EMAIL"]
+    smtp_password = os.environ["SMTP_PASSWORD"]
+    smtp.login(smtp_email, smtp_password)
+    smtp.sendmail(msg["From"], [msg["To"]], msg.as_string())
+    smtp.quit()
+
+    # 7. Return PDF to frontend
+    buffer.seek(0)
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{data.company_name}_ESG_Report.pdf"'
+        },
+    )
