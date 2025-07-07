@@ -419,44 +419,6 @@ export default function RiskAnalysis() {
                                             </PieChart>
                                         </ResponsiveContainer>
 
-                                        <motion.div
-                                            className="flex flex-wrap justify-center gap-2 mt-6"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.5, duration: 0.5 }}
-                                        >
-                                            {[
-                                                { name: "Quality Risk Score", value: Number(qualityRiskScore), color: "#22c55e" },
-                                                { name: "Logistics Risk Score", value: Number(logisticsRiskScore), color: "#3b82f6" },
-                                                { name: "Operational Risk Score", value: Number(operationalRiskScore), color: "#f59e0b" },
-                                                { name: "Legal Risk Score", value: Number(legalRiskScore), color: "#ec4899" },
-                                                { name: "ESG Risk Score", value: Number(esgRiskScore), color: "#8b5cf6" },
-                                                { name: "GeoPolitical Risk Score", value: Number(geoPoliticalRiskScore), color: "#ef4444" },
-
-
-                                            ].map((entry, index) => (
-                                                <motion.div
-                                                    key={`legend-${index}`}
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    className="flex items-center px-3 py-1 rounded-full cursor-pointer"
-                                                    style={{
-                                                        backgroundColor: `${entry.color}20`,
-                                                        border: `1px solid ${entry.color}`,
-                                                    }}
-                                                >
-                                                    <div
-                                                        className="w-3 h-3 rounded-full mr-2"
-                                                        style={{ backgroundColor: entry.color }}
-                                                    />
-                                                    <span className="text-sm font-medium">
-                                                        {entry.name}: {entry.value}
-                                                    </span>
-                                                </motion.div>
-                                            ))}
-                                        </motion.div>
-
-                                      
                                     </motion.div>
                                 </CardContent>
                             </Card>
