@@ -122,3 +122,83 @@ async def get_all_suppliers():
             status_code=500,
             content={"error": str(e)},
         )
+
+@app.get("/api/suppliers-with-products")
+async def get_suppliers_with_products():
+    try:
+        # Use MongoDB aggregation to join suppliers with products
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "products",
+                    "localField": "product_id", 
+                    "foreignField": "id",
+                    "as": "product_info"
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$product_info",
+                    "preserveNullAndEmptyArrays": True
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "company_name": 1,
+                    "email_domain": 1,
+                    "industry": 1,
+                    "product_id": 1,
+                    "product_name": "$product_info.product",
+                    "risk_upload_status": 1,
+                    "cost_upload_status": 1,
+                    "reliability_upload_status": 1,
+                    "esg_upload_status": 1
+                }
+            }
+        ]
+        
+        suppliers = await db.suppliers.aggregate(pipeline).to_list(length=None)
+        
+        # Clean NaN values
+        cleaned_suppliers = clean_nan_values(suppliers)
+        
+        # Calculate document status for each supplier
+        for supplier in cleaned_suppliers:
+            # Ensure all status fields exist
+            supplier["risk_upload_status"] = supplier.get("risk_upload_status")
+            supplier["cost_upload_status"] = supplier.get("cost_upload_status") 
+            supplier["reliability_upload_status"] = supplier.get("reliability_upload_status")
+            supplier["esg_upload_status"] = supplier.get("esg_upload_status")
+            
+            # Count missing documents
+            missing_count = 0
+            if supplier.get("risk_upload_status") != "success":
+                missing_count += 1
+            if supplier.get("cost_upload_status") != "success":
+                missing_count += 1
+            if supplier.get("reliability_upload_status") != "success":
+                missing_count += 1
+            if supplier.get("esg_upload_status") != "success":
+                missing_count += 1
+            
+            supplier["missing_documents_count"] = missing_count
+        
+        return {"suppliers": cleaned_suppliers}
+        
+    except Exception as e:
+        logger.exception("Error fetching suppliers with products")
+        return {"error": str(e)}
+
+def clean_nan_values(obj):
+    """Recursively clean NaN values from nested objects"""
+    if isinstance(obj, dict):
+        return {k: clean_nan_values(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [clean_nan_values(i) for i in obj]
+    elif isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    else:
+        return obj
+      
+
