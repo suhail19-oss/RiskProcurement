@@ -51,7 +51,23 @@ export default function HomePage() {
     riskCategory: "high",
     articleSummary: "",
   });
+  const [activeViolations, setActiveViolations] = useState(0);
+  const [pendingActions, setPendingActions] = useState(0);
   const [dbSuppliers, setDbSuppliers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const totalActive = suppliers
+    .map(supplier =>
+      supplier.violations.filter((v: any) => v.status === "pending").length
+    )
+    .reduce((sum, count) => sum + count, 0);
+    setActiveViolations(totalActive);
+
+    const totalPending = suppliers.map((supplier: any) => supplier.actions.filter((v: any) => v.status === "pending").length)
+    .reduce((sum,count) => sum+count, 0);
+
+    setPendingActions(totalPending);
+  }, [suppliers]);
 
   // Helper function to enforce proper priority
   const enforcePriority = (geminiPriority: string, riskCategory: string) => {
@@ -102,24 +118,63 @@ export default function HomePage() {
     console.log("Recommendations:", recommendations);
   };
 
-  const handleActionUpdate = (actionId: string, status: string) => {
-    const now = new Date().toISOString();
+  const handleActionUpdate = async (supplierId: string, actionId: string, status: string) => {
 
-    const updatedAction = actions.find((action) => action.id === actionId);
-    if (!updatedAction) return;
+    let supplier = suppliers.filter((s: any) => s.id === supplierId)[0];
+    const action = supplier.actions.filter((a: any) => a.id === actionId)[0];
+    
+    if(action.status === status) return;
 
-    const { supplierId } = updatedAction;
-
-    setActions((prev) =>
-      prev.map((action) =>
-        action.id === actionId
-          ? {
-              ...action,
-              status: status as SuggestedAction["status"],
+    action.status = status;
+    const otherActions = supplier.actions.filter((a: any) => a.id !== actionId);
+    supplier.actions = [...otherActions, action];
+    const otherSuppliers = suppliers.filter((s: any) => s.id !== supplierId);
+    if(status === "approved"){
+      supplier = {
+        ...supplier,
+        violations: (() => {
+          let updated = false;
+          return supplier.violations.map((v: any) => {
+            if (!updated && v.status === "pending") {
+              updated = true;
+              return { ...v, status: "approved" };
             }
-          : action
-      )
-    );
+            return v;
+          });
+        })(),
+      };
+    }
+    const updatedSuppliers = [...otherSuppliers,supplier];
+    setSuppliers(updatedSuppliers);
+
+    const payload = {
+      actions: supplier.actions,
+      violations: supplier.violations,
+    };
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/actions/${supplier.company_name}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Update failed:", data.error || res.statusText);
+      } else {
+        console.log("Update successful:", data.message);
+      }
+    } catch (error) {
+      console.error("Network or server error:", error);
+    }
+
   };
 
   const filteredSuppliers = suppliers.filter((supplier: any) => {
@@ -160,8 +215,6 @@ export default function HomePage() {
   const getSupplierActions = (supplierId: string) =>
     actions.filter((a) => a.supplierId === supplierId);
 
-  const totalViolations = violations.length;
-  const pendingActions = actions.filter((a) => a.status === "pending").length;
   const highRiskSuppliers = suppliers.filter(
     (s: any) => s.risk_level === "High"
   ).length;
@@ -181,8 +234,8 @@ export default function HomePage() {
         ]);
         const suppliersData = await suppliersRes.json();
         const actionsData = await actionsRes.json();
-        console.log('aupplier data from DB: ', suppliersData.suppliers);
-        console.log('acttions data from DB: ', actionsData);
+        // console.log('aupplier data from DB: ', suppliersData.suppliers);
+        // console.log('acttions data from DB: ', actionsData);
 
         setDbSuppliers(suppliersData.suppliers || []);
         setSuppliers(actionsData.actions || []);
@@ -211,7 +264,7 @@ export default function HomePage() {
             },
             {
               title: "Active Violations",
-              count: totalViolations,
+              count: activeViolations,
               color: "red",
               icon: <AlertTriangle className="h-7 w-7 text-white" />,
               note: "-1 from last week",
@@ -498,6 +551,7 @@ export default function HomePage() {
                         actions: newSupplier.actions,
                         risk_score: Math.round(newSupplier.risk_score),
                         risk_level: newSupplier.risk_level,
+                        product_id: newSupplier.product_id,
                       };
 
                       // Call the backend to create the action

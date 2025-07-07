@@ -33,6 +33,7 @@ class ActionDocument(BaseModel):
     id: str
     risk_score: int
     risk_level: str
+    product_id: int
     violations: List[Violation]
     actions: List[ActionItem]
 

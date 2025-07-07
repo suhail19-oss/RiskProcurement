@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
+from fastapi import Path
 
 from app.routes import profile
 from app.schemas.actions_schemas import ActionDocument
@@ -149,6 +150,31 @@ async def get_all_actions():
         return {"actions": actions}
     except Exception as e:
         logger.exception("Error fetching actions")
+        return {"error": str(e)}
+
+@app.put("/api/actions/{company_name}")
+async def update_action(
+    company_name: str = Path(..., description="The company name of the action document to update"),
+    violations: Optional[list] = Body(None),
+    actions: Optional[list] = Body(None)
+):
+    try:
+        update_fields = {}
+        if violations is not None:
+            update_fields["violations"] = violations
+        if actions is not None:
+            update_fields["actions"] = actions
+        if not update_fields:
+            return {"error": "No update fields provided"}
+        result = await db.actions.update_one(
+            {"company_name": company_name},
+            {"$set": update_fields}
+        )
+        if result.matched_count == 0:
+            return {"error": "No action found for this company"}
+        return {"message": "Action updated successfully"}
+    except Exception as e:
+        logger.exception("Error updating action")
         return {"error": str(e)}
 
 

@@ -19,6 +19,7 @@ import { Supplier, RiskViolation, SuggestedAction } from "../types/supplier";
 import { RiskBadge } from "./RiskBadge";
 import { PriorityBadge } from "./PriorityBadge";
 import { StatusBadge } from "./StatusBadge";
+import { products } from "../data/products";
 
 const formatPriority = (
   priority: string
@@ -77,6 +78,8 @@ export const SupplierCard: React.FC<any> = ({
     }
   };
 
+  const supplierProduct = products.filter((product: any) => product.id == supplier.product_id)[0];
+
   return (
     <div className="group relative bg-white/70 dark:bg-zinc-900 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-zinc-700 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
       <div
@@ -102,7 +105,7 @@ export const SupplierCard: React.FC<any> = ({
                 </h3>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-zinc-800 px-3 py-1 rounded-full">
-                    {supplier?.category ?? "Category"}
+                    {supplierProduct.name ?? "No category"}
                   </span>
                   <RiskBadge level={supplier.risk_level ?? 30} />
                 </div>
@@ -317,7 +320,7 @@ export const SupplierCard: React.FC<any> = ({
                         {status === "pending" && (
                           <div className="flex gap-3 pt-4 border-t border-blue-200/60 dark:border-blue-300/20">
                             <button
-                              onClick={() => onActionUpdate(id, "approved")}
+                              onClick={() => onActionUpdate(supplier.id, id, "approved")}
                               className="group/approve relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                             >
                               <CheckCircle className="h-4 w-4 group-hover/approve:scale-110 transition-transform duration-300" />
@@ -325,20 +328,12 @@ export const SupplierCard: React.FC<any> = ({
                               <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/approve:opacity-100 transition-opacity duration-300"></div>
                             </button>
                             <button
-                              onClick={() => onActionUpdate(id, "rejected")}
+                              onClick={() => onActionUpdate(supplier.id ,id, "rejected")}
                               className="group/reject relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-semibold rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                             >
                               <XCircle className="h-4 w-4 group-hover/reject:scale-110 transition-transform duration-300" />
                               Reject
                               <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/reject:opacity-100 transition-opacity duration-300"></div>
-                            </button>
-                            <button
-                              onClick={() => onActionUpdate(id, "completed")}
-                              className="group/complete relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                            >
-                              <Clock className="h-4 w-4 group-hover/complete:scale-110 transition-transform duration-300" />
-                              Mark Complete
-                              <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/complete:opacity-100 transition-opacity duration-300"></div>
                             </button>
                           </div>
                         )}
