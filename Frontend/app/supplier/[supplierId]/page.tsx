@@ -23,7 +23,6 @@ export default function SupplierPage({
       const data = await res.json();
       const s = data.suppliers[supplierId] // safer lookup
       setSupplier(s);
-      console.log('supplier', s);
     };
 
     getSuppliers();

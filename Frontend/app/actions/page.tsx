@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Shield,
   Search,
@@ -42,15 +42,16 @@ interface GeminiResponse {
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRisk, setFilterRisk] = useState("all");
-  const [actions, setActions] = useState<SuggestedAction[]>(suggestedActions);
-  const [suppliers, setSuppliers] = useState([...initialSuppliers]);
-  const [violations, setViolations] = useState([...initialViolations]);
+  const [actions, setActions] = useState<any[]>([]);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [violations, setViolations] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAction, setNewAction] = useState({
     supplierName: "",
     riskCategory: "high",
     articleSummary: "",
   });
+  const [dbSuppliers, setDbSuppliers] = useState<any[]>([]);
 
   // Helper function to enforce proper priority
   const enforcePriority = (geminiPriority: string, riskCategory: string) => {
@@ -115,29 +116,17 @@ export default function HomePage() {
           ? {
               ...action,
               status: status as SuggestedAction["status"],
-              lastAssessedAt: now,
             }
           : action
       )
     );
-
-    setSuppliers((prev) =>
-      prev.map((supplier) =>
-        supplier.id === supplierId
-          ? {
-              ...supplier,
-              lastAssessment: now,
-            }
-          : supplier
-      )
-    );
   };
 
-  const filteredSuppliers = suppliers.filter((supplier) => {
+  const filteredSuppliers = suppliers.filter((supplier: any) => {
     const matchesSearch =
-      supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.location.toLowerCase().includes(searchTerm.toLowerCase());
+      supplier.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      supplier.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      supplier.location?.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesRisk =
       filterRisk === "all" || supplier.riskLevel === filterRisk;
@@ -147,7 +136,7 @@ export default function HomePage() {
 
   const getSupplierViolations = (supplierId: string) => {
     const merged = [
-      ...violations.filter((v) => v.supplierId === supplierId),
+      ...violations.filter((v: any) => v.supplierId === supplierId),
       ...actions
         .filter((a) => a.supplierId === supplierId && a.violation)
         .map((a) => ({
@@ -174,8 +163,36 @@ export default function HomePage() {
   const totalViolations = violations.length;
   const pendingActions = actions.filter((a) => a.status === "pending").length;
   const highRiskSuppliers = suppliers.filter(
-    (s) => s.riskLevel === "high"
+    (s: any) => s.risk_level === "High"
   ).length;
+
+  const calculateRiskLevel = (risk: number) => {
+    if (risk > 35) return "High";
+    if (risk >= 28) return "Medium";
+    return "Low";
+  };
+
+  useEffect(() => {
+    const fetchFromDB = async () => {
+      try {
+        const [suppliersRes, actionsRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/suppliers`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/actions`),
+        ]);
+        const suppliersData = await suppliersRes.json();
+        const actionsData = await actionsRes.json();
+        console.log('aupplier data from DB: ', suppliersData.suppliers);
+        console.log('acttions data from DB: ', actionsData);
+
+        setDbSuppliers(suppliersData.suppliers || []);
+        setSuppliers(actionsData.actions || []);
+      } catch (err) {
+        setDbSuppliers([]);
+        setSuppliers([]);
+      }
+    };
+    fetchFromDB();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-slate-900 dark:via-slate-800/60 dark:to-gray-900">
@@ -291,14 +308,13 @@ export default function HomePage() {
 
         {/* Supplier List */}
         <div className="space-y-6">
-          {filteredSuppliers.map((supplier) => (
+          {filteredSuppliers.map((supplier: any, index) => (
             <SupplierCard
-              key={supplier.id}
+              key={supplier.id ?? index}
               supplier={supplier}
-              violations={getSupplierViolations(supplier.id)}
-              actions={getSupplierActions(supplier.id)}
               onActionUpdate={handleActionUpdate}
             />
+            //<p>{supplier?.name ?? "Name"}</p>
           ))}
         </div>
 
@@ -339,17 +355,30 @@ export default function HomePage() {
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Supplier Name
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={newAction.supplierName}
                     onChange={(e) =>
+                    {
+                      const supp = dbSuppliers.find((supplier) => supplier.company_name == e.target.value);
+                      const risk_s = supp.risk_score;
+                      const risk_level = calculateRiskLevel(risk_s);
+                      console.log('risk_level: ', risk_level);
                       setNewAction({
                         ...newAction,
                         supplierName: e.target.value,
-                      })
+                        riskCategory: risk_level,
+                      });
+                    }
                     }
                     className="w-full mt-1 p-3 rounded-xl bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-                  />
+                  >
+                    <option value="">Select a supplier</option>
+                    {dbSuppliers.map((supplier: any, idx: number) => (
+                      <option key={idx} value={supplier.company_name}>
+                        {supplier.company_name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -364,11 +393,12 @@ export default function HomePage() {
                         riskCategory: e.target.value,
                       })
                     }
+                    disabled
                     className="w-full mt-1 px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   >
-                    <option value="high">High Risk</option>
-                    <option value="medium">Medium Risk</option>
-                    <option value="low">Low Risk</option>
+                    <option value="High">High Risk</option>
+                    <option value="Medium">Medium Risk</option>
+                    <option value="Low">Low Risk</option>
                   </select>
                 </div>
 
@@ -394,24 +424,8 @@ export default function HomePage() {
                     try {
                       const id = uuidv4();
                       const now = new Date().toISOString();
-                      const newSupplier = {
-                        id,
-                        name: newAction.supplierName,
-                        location: "Unknown",
-                        rating: 0,
-                        experience: "N/A",
-                        deliveryTime: "N/A",
-                        price: "N/A",
-                        riskLevel: newAction.riskCategory,
-                        category: "Manually Added",
-                        specialties: [],
-                        contact: "",
-                        phone: "",
-                        email: "",
-                        website: "",
-                        lastAssessment: now,
-                      };
-
+                      const newSupplier = dbSuppliers.find((supplier) => supplier.company_name == newAction.supplierName);
+                      newSupplier.id = id;
                       // Get the response from Gemini
                       const { violations: newViolations, recommendations } =
                         await getGeminiRecommendation(
@@ -424,13 +438,12 @@ export default function HomePage() {
                         alert("No recommendations generated. Try again.");
                         return;
                       }
-
                       // Add the new supplier
-                      setSuppliers((prev) => [newSupplier, ...prev]);
+                      //setSuppliers((prev: any) => [newSupplier, ...prev]);
 
                       // Add new violations
                       if (newViolations && newViolations.length > 0) {
-                        const formattedViolations = newViolations.map((v) => ({
+                        const formattedViolations = newViolations.map((v: any) => ({
                           id: uuidv4(),
                           supplierId: id,
                           type:
@@ -442,15 +455,12 @@ export default function HomePage() {
                           source: "Gemini AI",
                           status: "pending",
                         }));
-                        setViolations((prev) => [
-                          ...formattedViolations,
-                          ...prev,
-                        ]);
+                        newSupplier.violations = formattedViolations;
                       }
 
                       // Create actions for each recommendation
                       const newActions = recommendations.map(
-                        (recommendation) => {
+                        (recommendation: any) => {
                           const enforcedPriority = enforcePriority(
                             recommendation.priority,
                             newAction.riskCategory
@@ -478,15 +488,35 @@ export default function HomePage() {
                           };
                         }
                       );
+                      newSupplier.actions = newActions;
+                      console.log('newSupplier', newSupplier);
+                      const actionDoc = {
+                        company_name: newSupplier.company_name,
+                        location: newSupplier.location,
+                        id: newSupplier.id,
+                        violations: newSupplier.violations,
+                        actions: newSupplier.actions,
+                        risk_score: Math.round(newSupplier.risk_score),
+                        risk_level: newSupplier.risk_level,
+                      };
 
-                      setActions((prev) => [...newActions, ...prev]);
+                      // Call the backend to create the action
+                      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/actions`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(actionDoc),
+                      });
 
+                      setSuppliers([...suppliers, actionDoc]);
                       setIsModalOpen(false);
                       setNewAction({
                         supplierName: "",
                         riskCategory: "high",
                         articleSummary: "",
                       });
+
+
+
                     } catch (err) {
                       alert(
                         "Something went wrong while generating recommendation."

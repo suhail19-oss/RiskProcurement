@@ -119,42 +119,42 @@ export default function SupplierDetail({ supplier }: any) {
   const product = products.find((p: any) => p.id == supplier.product_id);
 
   supplier.product_name = product?.name || "Default";
+  const currentSupplier = supplier;
+  
+  // Fetch supplier news from backend
+  const [supplierNews, setSupplierNews] = useState<any[]>([]);
+  const [readMoreList, setReadMoreList] = useState<boolean[]>([]);
 
-  const currentSupplier = supplier || mockSupplier;
-
-  const [supplierNews] = useState([
-    {
-      Headline: "Company Expands Manufacturing Capacity",
-      News: "The company has announced a significant expansion of its manufacturing facilities, increasing production capacity by 40% to meet growing demand. This expansion includes new state-of-the-art equipment and additional workforce hiring. The investment demonstrates the company's commitment to growth and customer satisfaction.",
-      Date: "2024-01-15",
-      Source: {
-        name: "Reuters",
-        url: "https://example.com/news/expansion",
-      },
-    },
-    {
-      Headline: "Sustainability Initiative Launched",
-      News: "A comprehensive sustainability program has been launched focusing on reducing carbon footprint and implementing eco-friendly practices across all operations. The initiative includes renewable energy adoption, waste reduction strategies, and sustainable sourcing policies.",
-      Date: "2024-01-10",
-      Source: {
-        name: "Bloomberg",
-        url: "https://example.com/news/sustainability",
-      },
-    },
-    {
-      Headline: "Quality Certification Renewed",
-      News: "The company has successfully renewed its ISO 9001 quality management certification, demonstrating continued commitment to maintaining the highest quality standards in manufacturing and service delivery.",
-      Date: "2024-01-05",
-      Source: {
-        name: "Financial Times",
-        url: "https://example.com/news/certification",
-      },
-    },
-  ]);
-
-  const [readMoreList, setReadMoreList] = useState(
-    new Array(supplierNews.length).fill(false)
-  );
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        if(currentSupplier.company_name !== undefined){
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/news/${encodeURIComponent(
+              currentSupplier.company_name
+            )}`,
+            {
+              method: "GET",
+            }
+          );
+          const data = await res.json();
+          console.log('news data: ', data);
+          if (data && Array.isArray(data.news)) {
+            setSupplierNews(data.news);
+            setReadMoreList(new Array(data.news.length).fill(false));
+          } else {
+            setSupplierNews([]);
+            setReadMoreList([]);
+          }
+        }
+      } catch (err) {
+        setSupplierNews([]);
+        setReadMoreList([]);
+      }
+    };
+    fetchNews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSupplier.company_name]);
 
   const calculateRiskLevel = (risk: number) => {
     if (risk > 35) return "High";
@@ -322,6 +322,9 @@ export default function SupplierDetail({ supplier }: any) {
             Latest News About {currentSupplier.company_name}
           </h3>
           <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+            {supplierNews.length === 0 && (
+              <div className="text-gray-500 dark:text-gray-400">No news found for this supplier.</div>
+            )}
             {supplierNews.map((news, index) => {
               const isExpanded = readMoreList[index];
               return (
@@ -331,36 +334,37 @@ export default function SupplierDetail({ supplier }: any) {
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold text-base text-gray-900 dark:text-white">
-                      📰 {news.Headline}
+                      📰 {news.headline}
                     </h4>
-                    {news.Source && (
+                    {news.source && (
                       <a
-                        href={news.Source.url}
+                        href={news.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-black dark:text-white hover:underline hover:cursor-pointer"
                       >
-                        {news.Source.name}
+                        {news.source}
                       </a>
                     )}
                   </div>
-
                   <p className="text-sm leading-relaxed text-justify text-gray-700 dark:text-gray-300">
                     {isExpanded
-                      ? news.News
-                      : `${news.News.substring(0, 120)}... `}
-                    <button
-                      className="ml-1 text-blue-500 font-medium"
-                      onClick={() =>
-                        setReadMoreList((prev) => {
-                          const updated = [...prev];
-                          updated[index] = !updated[index];
-                          return updated;
-                        })
-                      }
-                    >
-                      {isExpanded ? "Show Less" : "Read More"}
-                    </button>
+                      ? news.summary
+                      : `${news.summary?.substring(0, 120) ?? ""}${news.summary && news.summary.length > 120 ? "... " : ""}`}
+                    {news.summary && news.summary.length > 120 && (
+                      <button
+                        className="ml-1 text-blue-500 font-medium"
+                        onClick={() =>
+                          setReadMoreList((prev) => {
+                            const updated = [...prev];
+                            updated[index] = !updated[index];
+                            return updated;
+                          })
+                        }
+                      >
+                        {isExpanded ? "Show Less" : "Read More"}
+                      </button>
+                    )}
                   </p>
                 </div>
               );
@@ -371,3 +375,4 @@ export default function SupplierDetail({ supplier }: any) {
     </div>
   );
 }
+

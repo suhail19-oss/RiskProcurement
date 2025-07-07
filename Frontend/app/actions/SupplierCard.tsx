@@ -38,13 +38,14 @@ interface SupplierCardProps {
   onActionUpdate: (actionId: string, status: string) => void;
 }
 
-export const SupplierCard: React.FC<SupplierCardProps> = ({
+export const SupplierCard: React.FC<any> = ({
   supplier,
-  violations,
-  actions,
   onActionUpdate,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const violations = supplier.violations;
+  const actions = supplier.actions;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -65,11 +66,11 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
 
   const getRiskGradient = (riskLevel: string) => {
     switch (riskLevel) {
-      case "high":
+      case "High":
         return "from-orange-500/10 to-red-500/10";
-      case "medium":
+      case "Medium":
         return "from-yellow-500/10 to-orange-500/10";
-      case "low":
+      case "Low":
         return "from-green-500/10 to-emerald-500/10";
       default:
         return "from-gray-500/10 to-slate-500/10";
@@ -80,7 +81,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
     <div className="group relative bg-white/70 dark:bg-zinc-900 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-zinc-700 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
       <div
         className={`absolute inset-0 bg-gradient-to-br ${getRiskGradient(
-          supplier.riskLevel
+          supplier?.risk_level ?? 30
         )} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
       ></div>
 
@@ -97,13 +98,13 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                  {supplier.name}
+                  {supplier?.company_name ?? "No name"}
                 </h3>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-zinc-800 px-3 py-1 rounded-full">
-                    {supplier.category}
+                    {supplier?.category ?? "Category"}
                   </span>
-                  <RiskBadge level={supplier.riskLevel} />
+                  <RiskBadge level={supplier.risk_level ?? 30} />
                 </div>
               </div>
             </div>
@@ -120,21 +121,21 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                 {
                   icon: <DollarSign className="h-5 w-5 text-white" />,
                   label: "Contract Value",
-                  value: formatCurrency(supplier.contractValue),
+                  value: formatCurrency(supplier.risk_subfactors?.["contract_value(100m_800m)"] ?? 1000000000),
                   gradient: "from-blue-500 to-indigo-600",
                 },
                 {
                   icon: <AlertCircle className="h-5 w-5 text-white" />,
                   label: "Penalties",
-                  value: `${supplier.complianceScore}%`,
+                  value: `${supplier.risk_subfactors?.compliance_legal_risk_score ?? 30}%`,
                   gradient: "from-purple-500 to-pink-600",
                 },
-                {
-                  icon: <Calendar className="h-5 w-5 text-white" />,
-                  label: "Last Assessment",
-                  value: formatDate(supplier.lastAssessment),
-                  gradient: "from-amber-500 to-orange-600",
-                },
+                // {
+                //   icon: <Calendar className="h-5 w-5 text-white" />,
+                //   label: "Last Assessment",
+                //   value: formatDate(supplier.lastAssessment),
+                //   gradient: "from-amber-500 to-orange-600",
+                // },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -195,7 +196,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
 
             {violations.length > 0 ? (
               <div className="space-y-3">
-                {violations.map((violation) => (
+                {violations.map((violation: any) => (
                   <div
                     key={violation.id}
                     className="group/violation relative bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-red-200/60 dark:border-red-400/20 rounded-2xl p-4 hover:shadow-lg transition-all duration-300"
@@ -208,7 +209,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
                             <span className="font-bold text-red-900 dark:text-red-300 text-lg">
                               {violation.type}
                             </span>
-                            <RiskBadge level={violation.severity} size="sm" />
+                            <RiskBadge level={(violation.severity?.charAt(0).toUpperCase() + violation.severity?.slice(1))} size="sm" />
                           </div>
                           <p className="text-red-800 dark:text-red-200 leading-relaxed">
                             {violation.description}
@@ -250,7 +251,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
 
             {actions.length > 0 ? (
               <div className="space-y-4">
-                {actions.map((action) => {
+                {actions.map((action: any) => {
                   const {
                     id,
                     title,

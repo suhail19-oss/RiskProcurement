@@ -26,7 +26,9 @@ export default function ProductDetails() {
         method: "GET",
       });
       const data = await res.json();
-      const productSup = data.suppliers.filter((supplier: any) => supplier.product_id == productId);
+      const productSup = data.suppliers
+        .map((supplier: any, idx: number) => ({ ...supplier, supplierId: idx }))
+        .filter((supplier: any) => supplier.product_id == productId);
       //console.log("data: ", data.suppliers);
       console.log("productSupp: ", productSup);
       // console.log('productId', productId);
@@ -38,7 +40,7 @@ export default function ProductDetails() {
   }, []);
 
   const product = products.find((p) => p.id === productId);
-  const handleViewRiskScore = (supplierId: Number) => {
+  const handleViewRiskScore = (supplierId: number) => {
     router.push(`/supplier/${supplierId}`);
   };
   if (!product) {
@@ -228,7 +230,7 @@ export default function ProductDetails() {
                     </div>
 
                     <button
-                      onClick={() => handleViewRiskScore(index)}
+                      onClick={() => handleViewRiskScore(supplier.supplierId)}
                       className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                     >
                       View Risk Score
