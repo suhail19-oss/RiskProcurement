@@ -25,7 +25,7 @@ import { Leaf, Users, Shield, AlertCircle, CheckCircle, Star, TrendingUp, Award,
 import { Chatbot } from "@/components/chatbot"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-
+import { useToast } from "@/hooks/use-toast"
 
 
 function getStatusIcon(score: number) {
@@ -86,7 +86,7 @@ export default function ReliabilityAnalysis() {
     const [combinedDisruption, setCombinedDisruption] = useState("");
 
     const [reliabilityScore, setReliabilityScore] = useState<number | null>(null);
-
+    const { toast } = useToast()
     type Supplier = {
         product_id: number;
         company_name: string;
@@ -128,16 +128,65 @@ export default function ReliabilityAnalysis() {
         fetchSuppliers();
     }, []);
 
-    // for Overall score 
     useEffect(() => {
-        if (selectedSupplier) {
-            // Find the full supplier data including ESG score
-            const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
-            setReliabilityScore(supplierWithScore?.reliability_score ?? null);
-        } else {
-            setReliabilityScore(0);
-        }
-    }, [selectedSupplier, suppliers]);
+        const fetchProfileAndSetCompany = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+
+                const response = await fetch("http://localhost:8000/profile/me", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch profile");
+                }
+
+                const data = await response.json();
+
+                // Just get company_name
+                const companyName = data.data.company_name;
+              
+                if (companyName) {
+                    // Set selectedSupplier
+                    setSelectedSupplier(companyName);
+                    // Optionally store in localStorage
+                    localStorage.setItem("company_name", companyName);
+
+                    // Find supplier with this name
+                    const supplierWithScore = suppliers.find(
+                        (s) => s.company_name === companyName
+                    );
+
+                    setReliabilityScore(supplierWithScore?.reliability_score ?? 0);
+                } else {
+                    // Fallback if company_name missing
+                    setSelectedSupplier("");
+                    setReliabilityScore(0);
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                toast({
+                    title: "Error",
+                    description: "Failed to load profile data",
+                    variant: "destructive",
+                });
+                // Fallback in case of error
+                setSelectedSupplier("");
+                setReliabilityScore(0);
+            } finally {
+
+            }
+        };
+
+        // Call the async function
+        fetchProfileAndSetCompany();
+    }, [suppliers]);
 
 
     // For the pei chart 
@@ -266,38 +315,6 @@ export default function ReliabilityAnalysis() {
                     <p className="text-xl text-muted-foreground">
                         Comprehensive reliability evaluation of the supplier
                     </p>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="flex justify-center"
-                >
-
-                    {activeTab === "reliability-analysis" && (
-                        <Select
-                            value={selectedSupplier}
-                            onValueChange={setSelectedSupplier}
-                        >
-                            <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
-                                <SelectValue placeholder="Select a supplier">
-                                    {selectedSupplier || "Select a supplier"}
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {suppliers.map((supplier) => (
-                                    <SelectItem
-                                        key={`${supplier.company_name}_${supplier.email_domain}_${supplier.product_id}`}
-                                        value={String(supplier.company_name)}
-                                        disabled={supplier.reliability_upload_status !== "success"}
-                                    >
-                                        {supplier.company_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
                 </motion.div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="">

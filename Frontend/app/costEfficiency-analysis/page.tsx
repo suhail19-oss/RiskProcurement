@@ -25,7 +25,7 @@ import { Leaf, Users, Shield, AlertCircle, CheckCircle, Star, TrendingUp, Award,
 import { Chatbot } from "@/components/chatbot"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-
+import { useToast } from "@/hooks/use-toast"
 
 
 function getStatusIcon(score: number) {
@@ -91,8 +91,8 @@ export default function CostEfficiencyAnalysis() {
     const [tradePolicyScore, setTradePolicyScore] = useState("");
     const [warZoneScore, setWarZoneScore] = useState("");
     const [contractValueScore, setContractValueScore] = useState("");
-    const [legalDisputeScore, setLegalDisputeScore] = useState("");  
-
+    const [legalDisputeScore, setLegalDisputeScore] = useState("");
+     const { toast } = useToast()
     type Supplier = {
         product_id: number;
         company_name: string;
@@ -152,16 +152,69 @@ export default function CostEfficiencyAnalysis() {
         fetchSuppliers();
     }, []);
 
-    // for Overall score 
-    useEffect(() => {
-        if (selectedSupplier) {
-            // Find the full supplier data including ESG score
-            const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
-            setCostEfficiencyScore(supplierWithScore?.cost_score ?? null);
-        } else {
-            setCostEfficiencyScore(0);
-        }
-    }, [selectedSupplier, suppliers]);
+        useEffect(() => {
+            const fetchProfileAndSetCompany = async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                        throw new Error("No authentication token found");
+                    }
+    
+                    const response = await fetch("http://localhost:8000/profile/me", {
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch profile");
+                    }
+    
+                    const data = await response.json();
+    
+                    // Just get company_name
+                    const companyName = data.data.company_name;
+                  
+                    if (companyName) {
+                        // Set selectedSupplier
+                        setSelectedSupplier(companyName);
+                        // Optionally store in localStorage
+                        localStorage.setItem("company_name", companyName);
+    
+                        // Find supplier with this name
+                        const supplierWithScore = suppliers.find(
+                            (s) => s.company_name === companyName
+                        );
+    
+                        setCostEfficiencyScore(supplierWithScore?.cost_score  ?? 0);
+                    } else {
+                        // Fallback if company_name missing
+                        setSelectedSupplier("");
+                       setCostEfficiencyScore(0);
+
+                    }
+                } catch (error) {
+                    console.error("Error fetching profile:", error);
+                    toast({
+                        title: "Error",
+                        description: "Failed to load profile data",
+                        variant: "destructive",
+                    });
+                    // Fallback in case of error
+                    setSelectedSupplier("");
+                    setCostEfficiencyScore(0);
+                } finally {
+    
+                }
+            };
+    
+            // Call the async function
+            fetchProfileAndSetCompany();
+        }, [suppliers]);
+    
+
+  
 
 
     // For the pei chart 
@@ -186,56 +239,56 @@ export default function CostEfficiencyAnalysis() {
         fetchCompanyESGData();
     }, [selectedSupplier]);
 
-   useEffect(() => {
-  const supplier = suppliers.find(s => s.company_name === selectedSupplier);
+    useEffect(() => {
+        const supplier = suppliers.find(s => s.company_name === selectedSupplier);
 
-  if (!supplier || !supplier.cost_subfactors) return;
+        if (!supplier || !supplier.cost_subfactors) return;
 
-  const cost = supplier.cost_subfactors;
+        const cost = supplier.cost_subfactors;
 
-  // Convert raw fields to numbers safely
-  const unitPriceBenchmarkingNum = Number(cost.unit_price_benchmarking) || 0;
-  const volumeDiscountPotentialNum = Number(cost.volume_discount_potential) || 0;
-  const paymentTermsFlexibilityNum = Number(cost.payment_terms_flexibility) || 0;
-  const inTransitDelaysDaysNum = Number(cost.in_transit_delay_days) || 0;
-  const fpyNormalizedNum = Number(cost.first_pass_yield) || 0;
-  const recallScoreOutOf100Num = Number(cost.recall_score) || 0;
-  const legalDisputeScoreNum = Number(cost.legal_dispute_score) || 0;
-  const sanctionScoreNum = Number(cost.sanction_score) || 0;
-  const laborViolationRiskNum = Number(cost.labor_violation_risk) || 0;
-  const tradePolicyNormNum = Number(cost.trade_policy_norm) || 0;
-  const warZoneNormNum = Number(cost.war_zone_norm) || 0;
-  const contractValueNum = Number(cost.contract_value) || 0;
+        // Convert raw fields to numbers safely
+        const unitPriceBenchmarkingNum = Number(cost.unit_price_benchmarking) || 0;
+        const volumeDiscountPotentialNum = Number(cost.volume_discount_potential) || 0;
+        const paymentTermsFlexibilityNum = Number(cost.payment_terms_flexibility) || 0;
+        const inTransitDelaysDaysNum = Number(cost.in_transit_delay_days) || 0;
+        const fpyNormalizedNum = Number(cost.first_pass_yield) || 0;
+        const recallScoreOutOf100Num = Number(cost.recall_score) || 0;
+        const legalDisputeScoreNum = Number(cost.legal_dispute_score) || 0;
+        const sanctionScoreNum = Number(cost.sanction_score) || 0;
+        const laborViolationRiskNum = Number(cost.labor_violation_risk) || 0;
+        const tradePolicyNormNum = Number(cost.trade_policy_norm) || 0;
+        const warZoneNormNum = Number(cost.war_zone_norm) || 0;
+        const contractValueNum = Number(cost.contract_value) || 0;
 
-  // Compute scores
-  const unitPriceScore = unitPriceBenchmarkingNum * 100;
-  const volumeDiscountScore = volumeDiscountPotentialNum * 100;
-  const paymentTermsScore = paymentTermsFlexibilityNum * 100;
-  const transitDelayScore = (1 - inTransitDelaysDaysNum / 30) * 100;
-  const fpyScore = fpyNormalizedNum * 100;
-  const recallScore = 100 - recallScoreOutOf100Num;
-  const legalDisputeScore = (1 - legalDisputeScoreNum) * 100;
-  const sanctionsScore = (1 - sanctionScoreNum) * 100;
-  const laborViolationScore = (1 - laborViolationRiskNum) * 100;
-  const tradePolicyScore = (1 - tradePolicyNormNum) * 100;
-  const warZoneScore = (1 - warZoneNormNum) * 100;
-  const contractValueScore = ((contractValueNum - 100000000) / 700000000) * 100;
+        // Compute scores
+        const unitPriceScore = unitPriceBenchmarkingNum * 100;
+        const volumeDiscountScore = volumeDiscountPotentialNum * 100;
+        const paymentTermsScore = paymentTermsFlexibilityNum * 100;
+        const transitDelayScore = (1 - inTransitDelaysDaysNum / 30) * 100;
+        const fpyScore = fpyNormalizedNum * 100;
+        const recallScore = 100 - recallScoreOutOf100Num;
+        const legalDisputeScore = (1 - legalDisputeScoreNum) * 100;
+        const sanctionsScore = (1 - sanctionScoreNum) * 100;
+        const laborViolationScore = (1 - laborViolationRiskNum) * 100;
+        const tradePolicyScore = (1 - tradePolicyNormNum) * 100;
+        const warZoneScore = (1 - warZoneNormNum) * 100;
+        const contractValueScore = ((contractValueNum - 100000000) / 700000000) * 100;
 
-  // Set scores to state hooks
-  setUnitPriceScore(unitPriceScore.toFixed(2));
-  setVolumeDiscountScore(volumeDiscountScore.toFixed(2));
-  setPaymentTermsScore(paymentTermsScore.toFixed(2));
-  setTransitDelayScore(transitDelayScore.toFixed(2));
-  setFpyScore(fpyScore.toFixed(2));
-  setRecallScore(recallScore.toFixed(2));
-  setLegalDisputeScore(legalDisputeScore.toFixed(2));
-  setSanctionsScore(sanctionsScore.toFixed(2));
-  setLaborViolationScore(laborViolationScore.toFixed(2));
-  setTradePolicyScore(tradePolicyScore.toFixed(2));
-  setWarZoneScore(warZoneScore.toFixed(2));
-  setContractValueScore(contractValueScore.toFixed(2));
+        // Set scores to state hooks
+        setUnitPriceScore(unitPriceScore.toFixed(2));
+        setVolumeDiscountScore(volumeDiscountScore.toFixed(2));
+        setPaymentTermsScore(paymentTermsScore.toFixed(2));
+        setTransitDelayScore(transitDelayScore.toFixed(2));
+        setFpyScore(fpyScore.toFixed(2));
+        setRecallScore(recallScore.toFixed(2));
+        setLegalDisputeScore(legalDisputeScore.toFixed(2));
+        setSanctionsScore(sanctionsScore.toFixed(2));
+        setLaborViolationScore(laborViolationScore.toFixed(2));
+        setTradePolicyScore(tradePolicyScore.toFixed(2));
+        setWarZoneScore(warZoneScore.toFixed(2));
+        setContractValueScore(contractValueScore.toFixed(2));
 
-}, [selectedSupplier, suppliers]);
+    }, [selectedSupplier, suppliers]);
 
 
     useEffect(() => {
@@ -252,7 +305,7 @@ export default function CostEfficiencyAnalysis() {
             return;
         }
 
-        
+
     }, [selectedSupplier, suppliers]);
 
 
@@ -288,39 +341,7 @@ export default function CostEfficiencyAnalysis() {
                         Comprehensive cost efficiency evaluation
                     </p>
                 </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="flex justify-center"
-                >
-
-                    {activeTab === "costEfficiency-analysis" && (
-                        <Select
-                            value={selectedSupplier}
-                            onValueChange={setSelectedSupplier}
-                        >
-                            <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
-                                <SelectValue placeholder="Select a supplier">
-                                    {selectedSupplier || "Select a supplier"}
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {suppliers.map((supplier) => (
-                                    <SelectItem
-                                        key={`${supplier.company_name}_${supplier.email_domain}_${supplier.product_id}`}
-                                        value={String(supplier.company_name)}
-                                        disabled={supplier.cost_upload_status !== "success"}
-                                    >
-                                        {supplier.company_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
-                </motion.div>
-
+         
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="">
                     <TabsContent value="costEfficiency-analysis" className="space-y-6">
                         <motion.div
@@ -441,7 +462,7 @@ export default function CostEfficiencyAnalysis() {
                                                                 style={{
                                                                     fontSize: '12px',
                                                                     fontWeight: 'bold',
-                                                                   
+
                                                                 }}
                                                             >
                                                                 {`${name}`}
@@ -485,7 +506,7 @@ export default function CostEfficiencyAnalysis() {
                                                                     {payload[0].name}
                                                                 </p>
                                                                 <p>Value: {payload[0].value}</p>
-                                                               
+
                                                             </motion.div>
                                                         );
                                                     }}
@@ -493,7 +514,7 @@ export default function CostEfficiencyAnalysis() {
                                             </PieChart>
                                         </ResponsiveContainer>
 
-                                     
+
                                     </motion.div>
                                 </CardContent>
                             </Card>
@@ -602,15 +623,15 @@ export default function CostEfficiencyAnalysis() {
                                                     </div>
                                                     <div className="flex items-center space-x-2">
                                                         <span className="text-sm font-medium">{Number(transitDelayScore).toFixed(1)}/100</span>
-                                                                                                                               <Badge variant="outline" className={getStatusColor(Number(transitDelayScore))}>
-                                                                            {Number(transitDelayScore) >= 90
-                                                                                ? "excellent"
-                                                                                : Number(transitDelayScore) >= 75
-                                                                                    ? "good"
-                                                                                    : Number(transitDelayScore) >= 60
-                                                                                        ? "fair"
-                                                                                        : "poor"}
-                                                                        </Badge>
+                                                        <Badge variant="outline" className={getStatusColor(Number(transitDelayScore))}>
+                                                            {Number(transitDelayScore) >= 90
+                                                                ? "excellent"
+                                                                : Number(transitDelayScore) >= 75
+                                                                    ? "good"
+                                                                    : Number(transitDelayScore) >= 60
+                                                                        ? "fair"
+                                                                        : "poor"}
+                                                        </Badge>
                                                     </div>
                                                 </div>
                                                 <Progress value={Number(transitDelayScore)} className="mb-2" />
@@ -629,14 +650,14 @@ export default function CostEfficiencyAnalysis() {
                                                     <div className="flex items-center space-x-2">
                                                         <span className="text-sm font-medium">{Number(fpyScore).toFixed(1)}/100</span>
                                                         <Badge variant="outline" className={getStatusColor(Number(fpyScore))}>
-                                                                                                                                   {Number(fpyScore) >= 90
-                                                                                                                                       ? "excellent"
-                                                                                                                                       : Number(fpyScore) >= 75
-                                                                                                                                           ? "good"
-                                                                                                                                           : Number(fpyScore) >= 60
-                                                                                                                                               ? "fair"
-                                                                                                                                               : "poor"}
-                                                                                                                               </Badge>
+                                                            {Number(fpyScore) >= 90
+                                                                ? "excellent"
+                                                                : Number(fpyScore) >= 75
+                                                                    ? "good"
+                                                                    : Number(fpyScore) >= 60
+                                                                        ? "fair"
+                                                                        : "poor"}
+                                                        </Badge>
                                                     </div>
                                                 </div>
                                                 <Progress value={Number(fpyScore)} className="mb-2" />
@@ -654,15 +675,15 @@ export default function CostEfficiencyAnalysis() {
                                                     </div>
                                                     <div className="flex items-center space-x-2">
                                                         <span className="text-sm font-medium">{Number(recallScore).toFixed(1)}/100</span>
-                                                         <Badge variant="outline" className={getStatusColor(Number(recallScore))}>
-                                                                                                                                    {Number(recallScore) >= 90
-                                                                                                                                        ? "excellent"
-                                                                                                                                        : Number(recallScore) >= 75
-                                                                                                                                            ? "good"
-                                                                                                                                            : Number(recallScore) >= 60
-                                                                                                                                                ? "fair"
-                                                                                                                                                : "poor"}
-                                                                                                                                </Badge>
+                                                        <Badge variant="outline" className={getStatusColor(Number(recallScore))}>
+                                                            {Number(recallScore) >= 90
+                                                                ? "excellent"
+                                                                : Number(recallScore) >= 75
+                                                                    ? "good"
+                                                                    : Number(recallScore) >= 60
+                                                                        ? "fair"
+                                                                        : "poor"}
+                                                        </Badge>
                                                     </div>
                                                 </div>
                                                 <Progress value={Number(recallScore)} className="mb-2" />
@@ -681,14 +702,14 @@ export default function CostEfficiencyAnalysis() {
                                                     <div className="flex items-center space-x-2">
                                                         <span className="text-sm font-medium">{Number(laborViolationScore).toFixed(1)}/100</span>
                                                         <Badge variant="outline" className={getStatusColor(Number(laborViolationScore))}>
-                                                                                                                                   {Number(laborViolationScore) >= 90
-                                                                                                                                       ? "excellent"
-                                                                                                                                       : Number(laborViolationScore) >= 75
-                                                                                                                                           ? "good"
-                                                                                                                                           : Number(laborViolationScore) >= 60
-                                                                                                                                               ? "fair"
-                                                                                                                                               : "poor"}
-                                                                                                                               </Badge>
+                                                            {Number(laborViolationScore) >= 90
+                                                                ? "excellent"
+                                                                : Number(laborViolationScore) >= 75
+                                                                    ? "good"
+                                                                    : Number(laborViolationScore) >= 60
+                                                                        ? "fair"
+                                                                        : "poor"}
+                                                        </Badge>
                                                     </div>
                                                 </div>
                                                 <Progress value={Number(laborViolationScore)} className="mb-2" />
