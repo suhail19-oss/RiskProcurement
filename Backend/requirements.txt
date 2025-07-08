@@ -1,4 +1,4 @@
-aiofiles==24.1.0
+﻿aiofiles==24.1.0
 annotated-types==0.7.0
 anyio==4.9.0
 bcrypt==4.3.0
@@ -75,3 +75,4 @@ urllib3==2.4.0
 uvicorn==0.34.3
 watchfiles==1.0.5
 websockets==15.0.1
+xgboost==3.0.2
