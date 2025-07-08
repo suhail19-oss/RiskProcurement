@@ -261,9 +261,9 @@ async def get_all_actions():
         logger.exception("Error fetching actions")
         return {"error": str(e)}
 
-@app.put("/api/actions/{company_name}")
+@app.put("/api/actions/{id}")
 async def update_action(
-    company_name: str = Path(..., description="The company name of the action document to update"),
+    id: str = Path(..., description="The ID of the action document to update"),
     violations: Optional[list] = Body(None),
     actions: Optional[list] = Body(None)
 ):
@@ -275,14 +275,16 @@ async def update_action(
             update_fields["actions"] = actions
         if not update_fields:
             return {"error": "No update fields provided"}
+        
         result = await db.actions.update_one(
-            {"company_name": company_name},
+            {"id": id},
             {"$set": update_fields}
         )
         if result.matched_count == 0:
-            return {"error": "No action found for this company"}
+            return {"error": "No action found with this ID"}
         return {"message": "Action updated successfully"}
     except Exception as e:
         logger.exception("Error updating action")
         return {"error": str(e)}
+
 
