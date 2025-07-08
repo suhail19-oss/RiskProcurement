@@ -480,14 +480,11 @@ export default function HomePage() {
                   </label>
                   <select
                     value={newAction.riskCategory}
-                    onChange={(e) =>
-                      setNewAction({
-                        ...newAction,
-                        riskCategory: e.target.value,
-                      })
-                    }
                     disabled
-                    className="w-full mt-1 px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    className="w-full mt-1 px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-xl appearance-none bg-no-repeat pr-4"
+                    style={{
+                      backgroundImage: "none", // Hide dropdown arrow
+                    }}
                   >
                     <option value="High">High Risk</option>
                     <option value="Medium">Medium Risk</option>
