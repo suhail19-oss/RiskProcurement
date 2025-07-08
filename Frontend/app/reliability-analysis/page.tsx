@@ -86,6 +86,7 @@ export default function ReliabilityAnalysis() {
     const [combinedDisruption, setCombinedDisruption] = useState("");
 
     const [reliabilityScore, setReliabilityScore] = useState<number | null>(null);
+    const [reliabilityScoreC, setReliabilityScoreC] = useState<number | null>(null);
     const { toast } = useToast()
     type Supplier = {
         product_id: number;
@@ -248,7 +249,14 @@ export default function ReliabilityAnalysis() {
 
         // R6
         const r6Score = (1 - combinedDisruptionValue) * 100;
-
+        
+        const reliabilityScoreCal =
+        (r1Score * 0.25) +
+        (r2Score * 0.15) +
+        (r3Score * 0.15) +
+        (r4Score * 0.15) +
+        (r5Score * 0.15) +
+        (r6Score * 0.15);
         // ✅ SET SCORES INTO YOUR STATE HOOKS:
         setAdjustedOnTimeDeliveryRate(r1Score.toFixed(2));
         setAverageLeadTimeDaysScore(r2Score.toFixed(2));
@@ -256,7 +264,7 @@ export default function ReliabilityAnalysis() {
         setIsoCertificationScore(r4Score.toFixed(2));
         setInfrastructureDisruptionSeverityScore(r5Score.toFixed(2));
         setCombinedDisruption(combinedDisruptionValue.toFixed(2));
-
+        setReliabilityScoreC(parseFloat(reliabilityScoreCal.toFixed(2)));
     }, [selectedSupplier, suppliers]);
 
 
@@ -344,7 +352,7 @@ export default function ReliabilityAnalysis() {
                                             transition={{ duration: 0.5, delay: 0.4 }}
                                             className="text-6xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
                                         >
-                                            {reliabilityScore !== null ? reliabilityScore.toFixed(1) : "N/A"}
+                                            {reliabilityScoreC !== null ? reliabilityScoreC.toFixed(1) : "N/A"}
                                         </motion.div>
                                         <div className="text-lg text-muted-foreground">out of 100</div>
                                         <Badge
@@ -360,12 +368,12 @@ export default function ReliabilityAnalysis() {
                                                             : "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
                                             )}
                                         >
-                                            {reliabilityScore !== null
-                                                ? reliabilityScore >= 85
+                                            {reliabilityScoreC !== null
+                                                ? reliabilityScoreC >= 85
                                                     ? "Excellent"
-                                                    : reliabilityScore >= 70
+                                                    : reliabilityScoreC >= 70
                                                         ? "Good"
-                                                        : reliabilityScore >= 50
+                                                        : reliabilityScoreC >= 50
                                                             ? "Fair"
                                                             : "Poor"
                                                 : "N/A"}{" "}

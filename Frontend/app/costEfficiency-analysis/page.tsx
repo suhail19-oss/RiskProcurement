@@ -80,6 +80,7 @@ export default function CostEfficiencyAnalysis() {
     const [selectedSupplier, setSelectedSupplier] = useState("")
     const [activeTab, setActiveTab] = useState("costEfficiency-analysis")
     const [costEfficiencyScore, setCostEfficiencyScore] = useState<number | null>(null);
+    const [costEfficiencyScoreC, setCostEfficiencyScoreC] = useState<number | null>(null);
     const [unitPriceScore, setUnitPriceScore] = useState("");
     const [volumeDiscountScore, setVolumeDiscountScore] = useState("");
     const [paymentTermsScore, setPaymentTermsScore] = useState("");
@@ -274,6 +275,23 @@ export default function CostEfficiencyAnalysis() {
         const warZoneScore = (1 - warZoneNormNum) * 100;
         const contractValueScore = ((contractValueNum - 100000000) / 700000000) * 100;
 
+        const costEfficiencyScoreCal =
+  (unitPriceScore * 0.20) +
+  (volumeDiscountScore * 0.10) +
+  (paymentTermsScore * 0.10) +
+  (transitDelayScore * 0.10) +
+  (fpyScore * 0.10) +
+  (recallScore * 0.10) +
+  (legalDisputeScore * 0.05) +
+  (sanctionsScore * 0.05) +
+  (laborViolationScore * 0.05) +
+  (tradePolicyScore * 0.05) +
+  (warZoneScore * 0.05) +
+  (contractValueScore * 0.05);
+
+// Set the final score to the state hook as number with 2 decimal precision
+setCostEfficiencyScoreC(parseFloat(costEfficiencyScoreCal.toFixed(2)));
+
         // Set scores to state hooks
         setUnitPriceScore(unitPriceScore.toFixed(2));
         setVolumeDiscountScore(volumeDiscountScore.toFixed(2));
@@ -369,28 +387,28 @@ export default function CostEfficiencyAnalysis() {
                                             transition={{ duration: 0.5, delay: 0.4 }}
                                             className="text-6xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
                                         >
-                                            {costEfficiencyScore !== null ? costEfficiencyScore.toFixed(1) : "N/A"}
+                                            {costEfficiencyScoreC !== null ? costEfficiencyScoreC.toFixed(1) : "N/A"}
                                         </motion.div>
                                         <div className="text-lg text-muted-foreground">out of 100</div>
                                         <Badge
                                             variant="outline"
                                             className={cn(
                                                 "text-md px-5 py-1.5 rounded-full transition-all duration-300",
-                                                costEfficiencyScore !== null && costEfficiencyScore >= 85
+                                                costEfficiencyScoreC !== null && costEfficiencyScoreC >= 85
                                                     ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
-                                                    : costEfficiencyScore !== null && costEfficiencyScore >= 70
+                                                    : costEfficiencyScoreC !== null && costEfficiencyScoreC >= 70
                                                         ? "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200"
-                                                        : costEfficiencyScore !== null && costEfficiencyScore >= 50
+                                                        : costEfficiencyScoreC !== null && costEfficiencyScoreC >= 50
                                                             ? "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
                                                             : "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
                                             )}
                                         >
-                                            {costEfficiencyScore !== null
-                                                ? costEfficiencyScore >= 85
+                                            {costEfficiencyScoreC !== null
+                                                ? costEfficiencyScoreC >= 85
                                                     ? "Excellent"
-                                                    : costEfficiencyScore >= 70
+                                                    : costEfficiencyScoreC >= 70
                                                         ? "Good"
-                                                        : costEfficiencyScore >= 50
+                                                        : costEfficiencyScoreC >= 50
                                                             ? "Fair"
                                                             : "Poor"
                                                 : "N/A"}{" "}

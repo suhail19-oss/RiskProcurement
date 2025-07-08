@@ -25,8 +25,8 @@ import { Leaf, Users, Shield, AlertCircle, CheckCircle, Star, TrendingUp, Award,
 import { Chatbot } from "@/components/chatbot"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { useToast } from "@/hooks/use-toast"
- const { toast } = useToast()
+
+
 
 
 function getStatusIcon(score: number) {
@@ -85,7 +85,9 @@ export default function RiskAnalysis() {
     const [legalRiskScore, setLegalRiskScore] = useState("");
     const [esgRiskScore, setEsgRiskScore] = useState("");
     const [geoPoliticalRiskScore, setGeoPoliticalRiskScore] = useState("");
+    
 
+    
     const [riskScore, setRiskScore] = useState<number | null>(null);
 
     type Supplier = {
@@ -163,11 +165,7 @@ export default function RiskAnalysis() {
                     }
                 } catch (error) {
                     console.error("Error fetching profile:", error);
-                    toast({
-                        title: "Error",
-                        description: "Failed to load profile data",
-                        variant: "destructive",
-                    });
+                  
                     // Fallback in case of error
                     setSelectedSupplier("");
                     setRiskScore(0);

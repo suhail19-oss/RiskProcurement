@@ -219,7 +219,7 @@ async def get_risk_prefill(request: Request):
     supplier = await db.suppliers.find_one({"email_domain": email_domain})
 
     if not supplier or "risk_subfactors" not in supplier:
-        raise HTTPException(status_code=404, detail="No ESG data found")
+        raise HTTPException(status_code=404, detail="No risk data found")
 
     return {
         "status": "success",

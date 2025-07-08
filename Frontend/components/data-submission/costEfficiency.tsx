@@ -24,6 +24,8 @@ const email = userData.email;
 
 export default function CostEfficiency() {
 
+  
+
   // Cost Metrics State
   const [unitPriceBenchmarking, setUnitPriceBenchmarking] = useState("");
   const [volumeDiscountPotential, setVolumeDiscountPotential] = useState("");
@@ -52,6 +54,7 @@ export default function CostEfficiency() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasData, setHasData] = useState(false);
+  
   const [uploadedFiles, setUploadedFiles] = useState<{ costDocument?: File }>({});
 
   const [expandedSections, setExpandedSections] = useState({

@@ -2,6 +2,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import joblib
 import pandas as pd
+from app.database import db
+import re
+def camel_to_snake(label):
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', label).lower()
 
 # ✅ Create router instance
 router = APIRouter()
@@ -38,6 +42,7 @@ class RiskInput(BaseModel):
     Trade_policy_changes_tariffs_bans: str
     Adjusted_On_Time_Delivery_Rate: float
     Strike_Days: float
+    email: str
 
 # ✅ Health check route
 @router.get("/")
@@ -46,10 +51,11 @@ def read_root():
 
 # ✅ Prediction endpoint
 @router.post("/predict")
-def predict(input_data: RiskInput):
+async def predict(input_data: RiskInput):
     try:
         # Convert input to dictionary
         data_dict = input_data.dict()
+        email = input_data.email
 
         # Map categorical values
         data_dict["Govt_Sanctions_Penalties"] = govt_sanctions_map.get(
@@ -89,10 +95,11 @@ def predict(input_data: RiskInput):
             'Overall_Risk_Score'
         ]
 
-        result = {label: float(value) for label, value in zip(output_labels, prediction[0])}
+        # Create prediction result with lowercase keys
+        result = {label.lower(): float(value) for label, value in zip(output_labels, prediction[0])}
 
-        # Risk classification
-        overall_score = result['Overall_Risk_Score']
+        # Risk classification based on overall score
+        overall_score = result['overall_risk_score']
         if overall_score < 33:
             classification = "Low"
         elif 33 <= overall_score <= 45:
@@ -100,7 +107,28 @@ def predict(input_data: RiskInput):
         else:
             classification = "High"
 
-        result['Overall_Risk_Level'] = classification
+        result['overall_risk_level'] = classification
+
+        email_domain = email.split('@')[1]
+        supplier = await db.suppliers.find_one({"email_domain": email_domain})
+        
+        if not supplier:
+            raise HTTPException(status_code=404, detail="Supplier not found")
+
+        # Merge new subfactors with existing ones (if any)
+        existing_subfactors = supplier.get("risk_subfactors", {})
+        merged_subfactors = {**existing_subfactors, **result}
+        
+        update_fields = {
+            "risk_subfactors": merged_subfactors,
+            "risk_score": overall_score,
+            "risk_level": classification
+        }
+
+        await db.suppliers.update_one(
+            {"email_domain": email_domain},
+            {"$set": update_fields}
+        )
 
         return {"prediction": result}
 

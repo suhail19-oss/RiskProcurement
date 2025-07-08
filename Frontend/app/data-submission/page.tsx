@@ -6,10 +6,11 @@ import ESG from "@/components/data-submission/esg"
 import Risk from "@/components/data-submission/risk"
 import CostEfficiency from "@/components/data-submission/costEfficiency"
 import Reliability from "@/components/data-submission/reliability"
+import React, { useEffect } from 'react';
 
 export default function DataSubmissionPage() {
   const [activeTab, setActiveTab] = useState("ESG")
-
+  
   return (
     <div className="relative pt-24 min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container max-w-6xl mx-auto px-6 py-12">

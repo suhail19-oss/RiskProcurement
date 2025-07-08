@@ -243,16 +243,19 @@ function MobileNav({ onLogout }: { userData: any; onLogout: () => void }) {
       {userData && (
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
           <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-              {userData.contactName
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")
-                .toUpperCase()}
-            </AvatarFallback>
+           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+  {userData?.email
+    ? userData.email
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+    : "?"}
+</AvatarFallback>
+
           </Avatar>
           <div className="flex-1">
-            <h4 className="font-semibold text-sm">{userData.contactName}</h4>
+            <h4 className="font-semibold text-sm">{userData.email}</h4>
             <p className="text-xs text-muted-foreground">{userData.role}</p>
           </div>
         </div>

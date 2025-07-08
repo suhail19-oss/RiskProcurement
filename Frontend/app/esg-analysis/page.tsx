@@ -24,8 +24,6 @@ import { Leaf, Users, Shield, AlertCircle, CheckCircle, Star, TrendingUp, Award,
 import { Chatbot } from "@/components/chatbot"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { useToast } from "@/hooks/use-toast"
- const { toast } = useToast()
 
 const betterSuppliers = [
   {
@@ -287,11 +285,7 @@ export default function ESGAnalysis() {
                     }
                 } catch (error) {
                     console.error("Error fetching profile:", error);
-                    toast({
-                        title: "Error",
-                        description: "Failed to load profile data",
-                        variant: "destructive",
-                    });
+                   
                     // Fallback in case of error
                     setSelectedSupplier("");
                     setESGScore(0);
