@@ -1,0 +1,157 @@
+import { Supplier, RiskViolation, SuggestedAction } from "../types/supplier";
+
+export const suppliers: Supplier[] = [
+  {
+    id: "1",
+    name: "TechCorp Manufacturing",
+    category: "Electronics",
+    riskLevel: "high",
+    lastAssessment: "2024-01-15",
+    complianceScore: 72,
+    location: "Shanghai, China",
+    contractValue: 2500000,
+  },
+  {
+    id: "2",
+    name: "Global Logistics Ltd",
+    category: "Transportation",
+    riskLevel: "medium",
+    lastAssessment: "2024-01-18",
+    complianceScore: 85,
+    location: "Hamburg, Germany",
+    contractValue: 1800000,
+  },
+
+  {
+    id: "3",
+    name: "Precision Components Inc",
+    category: "Manufacturing",
+    riskLevel: "high",
+    lastAssessment: "2024-01-12",
+    complianceScore: 58,
+    location: "Mumbai, India",
+    contractValue: 3200000,
+  },
+
+  {
+    id: "4",
+    name: "EcoMaterials Co",
+    category: "Raw Materials",
+    riskLevel: "low",
+    lastAssessment: "2024-01-20",
+    complianceScore: 94,
+    location: "Toronto, Canada",
+    contractValue: 950000,
+  },
+];
+
+export const violations: RiskViolation[] = [
+  {
+    id: "1",
+    supplierId: "1",
+    type: "Environmental Compliance",
+    severity: "high",
+    description: "Exceeded permitted emission levels in Q4 2023",
+    detectedDate: "2024-01-10",
+    status: "investigating",
+    source: "Environmental Monitoring System",
+  },
+  {
+    id: "2",
+    supplierId: "3",
+    type: "Labor Standards",
+    severity: "high",
+    description: "Reports of unsafe working conditions and overtime violations",
+    detectedDate: "2024-01-08",
+    status: "open",
+    source: "Third-party Audit",
+  },
+  {
+    id: "3",
+    supplierId: "1",
+    type: "Financial Risk",
+    severity: "medium",
+    description: "Credit rating downgrade from B+ to B-",
+    detectedDate: "2024-01-14",
+    status: "open",
+    source: "Credit Monitoring Service",
+  },
+  {
+    id: "4",
+    supplierId: "2",
+    type: "Cybersecurity",
+    severity: "medium",
+    description: "Data breach affecting customer information",
+    detectedDate: "2024-01-16",
+    status: "investigating",
+    source: "Security Intelligence",
+  },
+];
+
+export const suggestedActions: SuggestedAction[] = [
+  {
+    id: "1",
+    supplierId: "1",
+    title: "Implement Enhanced Environmental Monitoring",
+    description:
+      "Deploy real-time emission monitoring systems and establish monthly compliance reporting",
+    priority: "high",
+    category: "Environmental",
+    estimatedImpact: "Reduce environmental risk by 40%",
+    recommendedBy: "Environmental Risk AI",
+    createdAt: "2024-01-15",
+    status: "pending",
+  },
+  {
+    id: "2",
+    supplierId: "3",
+    title: "Conduct Immediate On-site Audit",
+    description:
+      "Schedule emergency audit to assess labor conditions and implement corrective measures",
+    priority: "urgent",
+    category: "Labor & Ethics",
+    estimatedImpact: "Critical risk mitigation",
+    recommendedBy: "Compliance Risk AI",
+    createdAt: "2024-01-12",
+    status: "pending",
+  },
+  {
+    id: "3",
+    supplierId: "1",
+    title: "Diversify Supply Chain",
+    description:
+      "Identify alternative suppliers to reduce dependency and financial exposure",
+    priority: "medium",
+    category: "Financial",
+    estimatedImpact: "Reduce concentration risk by 25%",
+    recommendedBy: "Financial Risk AI",
+    createdAt: "2024-01-14",
+    status: "pending",
+  },
+  {
+    id: "4",
+    supplierId: "2",
+    title: "Enhance Cybersecurity Requirements",
+    description:
+      "Update contract terms to include stricter cybersecurity standards and regular assessments",
+    priority: "high",
+    category: "Cybersecurity",
+    estimatedImpact: "Improve security posture by 60%",
+    recommendedBy: "Cyber Risk AI",
+    createdAt: "2024-01-16",
+    status: "pending",
+  },
+  {
+    id: "5",
+    supplierId: "3",
+    title: "Implement Corrective Action Plan",
+    description:
+      "Develop and monitor 90-day improvement plan with weekly progress reviews",
+    priority: "urgent",
+    category: "Operational",
+    estimatedImpact: "Address critical compliance gaps",
+    recommendedBy: "Operations Risk AI",
+    createdAt: "2024-01-13",
+    status: "approved",
+  },
+];

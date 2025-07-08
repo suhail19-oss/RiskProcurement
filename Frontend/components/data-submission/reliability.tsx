@@ -7,7 +7,10 @@ import { Progress } from "@/components/ui/progress"
 import { Upload, CheckCircle, AlertTriangle, ShieldCheck, Activity, Clock, ChevronDown, ChevronUp } from "lucide-react"
 import { SystemReliabilitySection } from "@/components/data-submission/sections/SystemReliabilitySection"
 import { OperationalReliabilitySection } from "@/components/data-submission/sections/OperationalReliabilitySection"
+<<<<<<< HEAD
 import Loading from "./loading"
+=======
+>>>>>>> supplier
 
 type SectionId = 'system' | 'operational' | 'documents';
 
@@ -17,6 +20,7 @@ const sections = [
   { id: "documents", title: "Documents", icon: Upload, description: "Supporting documentation" }
 ]
 
+<<<<<<< HEAD
 export default function Reliability() {
   // System Reliability state
   const [isoCertificationScore, setIsoCertificationScore] = useState("");
@@ -28,6 +32,23 @@ export default function Reliability() {
   const [productDefectRate, setProductDefectRate] = useState("");
   const [strikeDays, setStrikeDays] = useState("");
   const [naturalDisasterFrequency, setNaturalDisasterFrequency] = useState("");
+=======
+const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+const email = userData.email;
+
+export default function Reliability() {
+  // System Reliability state
+  const [uptimePercentage, setUptimePercentage] = useState("");
+  const [meanTimeBetweenFailures, setMeanTimeBetweenFailures] = useState("");
+  const [meanTimeToRepair, setMeanTimeToRepair] = useState("");
+  const [criticalFailureRate, setCriticalFailureRate] = useState("");
+  
+  // Operational Reliability state
+  const [onTimeDeliveryRate, setOnTimeDeliveryRate] = useState("");
+  const [productionYield, setProductionYield] = useState("");
+  const [serviceLevelAgreement, setServiceLevelAgreement] = useState("");
+  const [incidentResponseTime, setIncidentResponseTime] = useState("");
+>>>>>>> supplier
   
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,9 +61,12 @@ export default function Reliability() {
     documents: false
   });
 
+<<<<<<< HEAD
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
   const email = userData.email;
 
+=======
+>>>>>>> supplier
   const toggleSection = (sectionId: SectionId) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -50,6 +74,7 @@ export default function Reliability() {
     }))
   };
 
+<<<<<<< HEAD
   const updateFormFields = (data: any) => {
     setIsoCertificationScore(data.iso_certification_score?.toString() || "");
     setInfrastructureDisruptionSeverity(data.infrastructure_disruption_severity?.toString() || "");
@@ -160,13 +185,21 @@ export default function Reliability() {
     console.error("Upload error:", err);
     alert("Failed to upload ESG report. Please try again.");
   }
+=======
+  const handleFileUpload = async (key: string, file: File) => {
+    // Placeholder implementation
+    return;
+>>>>>>> supplier
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+<<<<<<< HEAD
 
       <Loading isLoading = {isLoading} uploadProgress= {uploadProgress} />
 
+=======
+>>>>>>> supplier
       {/* Progress Bar with Status Message */}
       <div className="max-w-6xl mx-auto mb-8 animate-slide-up">
         <div className="flex justify-between items-center mb-4">
@@ -241,17 +274,29 @@ export default function Reliability() {
             <CardContent className="space-y-6 animate-fade-in">
               {section.id === "system" && (
                 <SystemReliabilitySection
+<<<<<<< HEAD
                   isoCertificationScore={isoCertificationScore}
                   setIsoCertificationScore={setIsoCertificationScore}
                   infrastructureDisruptionSeverity={infrastructureDisruptionSeverity}
                   setInfrastructureDisruptionSeverity={setInfrastructureDisruptionSeverity}
                   averageLeadTimeDays={averageLeadTimeDays}
                   setAverageLeadTimeDays={setAverageLeadTimeDays}
+=======
+                  uptimePercentage={uptimePercentage}
+                  setUptimePercentage={setUptimePercentage}
+                  meanTimeBetweenFailures={meanTimeBetweenFailures}
+                  setMeanTimeBetweenFailures={setMeanTimeBetweenFailures}
+                  meanTimeToRepair={meanTimeToRepair}
+                  setMeanTimeToRepair={setMeanTimeToRepair}
+                  criticalFailureRate={criticalFailureRate}
+                  setCriticalFailureRate={setCriticalFailureRate}
+>>>>>>> supplier
                 />
               )}
 
               {section.id === "operational" && (
                 <OperationalReliabilitySection
+<<<<<<< HEAD
                   adjustedOnTimeDeliveryRate={adjustedOnTimeDeliveryRate}
                   setAdjustedOnTimeDeliveryRate={setAdjustedOnTimeDeliveryRate}
                   productDefectRate={productDefectRate}
@@ -260,6 +305,16 @@ export default function Reliability() {
                   setStrikeDays={setStrikeDays}
                   naturalDisasterFrequency={naturalDisasterFrequency}
                   setNaturalDisasterFrequency={setNaturalDisasterFrequency}
+=======
+                  onTimeDeliveryRate={onTimeDeliveryRate}
+                  setOnTimeDeliveryRate={setOnTimeDeliveryRate}
+                  productionYield={productionYield}
+                  setProductionYield={setProductionYield}
+                  serviceLevelAgreement={serviceLevelAgreement}
+                  setServiceLevelAgreement={setServiceLevelAgreement}
+                  incidentResponseTime={incidentResponseTime}
+                  setIncidentResponseTime={setIncidentResponseTime}
+>>>>>>> supplier
                 />
               )}
 

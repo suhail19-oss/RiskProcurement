@@ -185,6 +185,7 @@ Document text:
                 "error": str(e),
                 "status": "error"
             }
+<<<<<<< HEAD
 
     async def extract_ci_data(self, file_content: bytes, filename: str) -> Dict[str, Any]:
             logger.info("Starting Gemini 1.5 Flash Cost Efficiency data extraction...")
@@ -384,3 +385,5 @@ Document text:
                 "error": str(e),
                 "status": "error"
             }
+=======
+>>>>>>> supplier

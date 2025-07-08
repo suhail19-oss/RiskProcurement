@@ -10,8 +10,11 @@ import { CompanySection } from "@/components/data-submission/sections/CompanySec
 import { EnvironmentSection } from "@/components/data-submission/sections/EnvironmentSection"
 import { GovernanceSection } from "@/components/data-submission/sections/GovernanceSection" 
 import { SocialSection } from "./sections/SocialSection"
+<<<<<<< HEAD
 import Loading
  from "./loading"
+=======
+>>>>>>> supplier
 
 type SectionId = 'company' | 'environmental' | 'social' | 'governance' | 'documents';
 
@@ -241,8 +244,49 @@ export default function ESG( ){
 
 return( 
       <div>
+<<<<<<< HEAD
           
         <Loading isLoading = {isLoading} uploadProgress= {uploadProgress} />
+=======
+           { isLoading && ( 
+              <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div className="text-center">
+                  {/* Spinner (stops spinning at 100%) */}
+                  <div 
+                    className={`rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4 ${
+                      uploadProgress < 100 ? "animate-spin" : ""
+                    }`}
+                  />
+
+                  {/* Dynamic title (changes on completion) */}
+                  <p className="text-lg font-medium">
+                    {uploadProgress < 100 
+                      ? "Processing your ESG document..." 
+                      : "Done! Finalizing results..."
+                    }
+                  </p>
+
+                  {/* Progress text (accessible via aria-live) */}
+                  <p className="text-muted-foreground" aria-live="polite">
+                    {uploadProgress < 50 
+                      ? `Extracting data (${uploadProgress}%)` 
+                      : `Calculating scores (${uploadProgress}%)` 
+                    }
+                  </p>
+
+                  {/* Progress bar (hides at 100%) */}
+                  {uploadProgress < 100 ? (
+                    <Progress 
+                      value={uploadProgress} 
+                      className="mt-4 w-64 mx-auto h-2" 
+                    />
+                  ) : (
+                    <div className="mt-4 h-2 w-64 mx-auto" /> // Spacer for layout consistency
+                  )}
+                </div>
+              </div>
+            )} 
+>>>>>>> supplier
 
         <div className="max-w-6xl mx-auto space-y-6">
           

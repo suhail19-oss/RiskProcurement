@@ -19,13 +19,32 @@ interface Message {
   typing?: boolean
 }
 
+<<<<<<< HEAD
+=======
+const predefinedResponses = {
+  hello: "Hello! I'm your ESG assistant. How can I help you with your sustainability journey today?",
+  help: "I can assist you with ESG data submission, sustainability metrics, compliance requirements, and best practices. What specific area would you like to explore?",
+  esg: "ESG stands for Environmental, Social, and Governance. These are the three key factors used to measure the sustainability and ethical impact of an investment or business.",
+  carbon:
+    "Carbon emissions tracking is crucial for environmental reporting. I can help you understand carbon footprint calculation, reduction strategies, and reporting standards.",
+  certification:
+    "There are various sustainability certifications like ISO 14001, B-Corp, and Fair Trade. Which certification are you interested in learning about?",
+  default:
+    "That's an interesting question! While I'm still learning, I can help you with ESG data submission, sustainability metrics, and compliance. Could you rephrase your question or ask about a specific ESG topic?",
+}
+
+>>>>>>> supplier
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       content:
+<<<<<<< HEAD
         "Hi! I'm your assistant. I'm here to help you with sustainability questions, data submission guidance, and ESG best practices. How can I assist you today?",
+=======
+        "Hi! I'm your ESG assistant. I'm here to help you with sustainability questions, data submission guidance, and ESG best practices. How can I assist you today?",
+>>>>>>> supplier
       sender: "bot",
       timestamp: new Date(),
     },
@@ -92,7 +111,21 @@ export function Chatbot() {
     }
   }, [isOpen])
 
+<<<<<<< HEAD
 
+=======
+  const generateResponse = (userMessage: string): string => {
+    const lowerMessage = userMessage.toLowerCase()
+
+    for (const [key, response] of Object.entries(predefinedResponses)) {
+      if (key !== "default" && lowerMessage.includes(key)) {
+        return response
+      }
+    }
+
+    return predefinedResponses.default
+  }
+>>>>>>> supplier
 
   const GEMINI_API_KEY = "AIzaSyBWY904yt5tCcUt0r4r8Ljcn3w66y3Uz_o"
 
@@ -113,7 +146,11 @@ export function Chatbot() {
     try {
       const geminiResponse = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
+<<<<<<< HEAD
         GEMINI_API_KEY,
+=======
+          GEMINI_API_KEY,
+>>>>>>> supplier
         {
           method: "POST",
           headers: {
@@ -125,7 +162,11 @@ export function Chatbot() {
                 role: "user",
                 parts: [
                   {
+<<<<<<< HEAD
                     text: "You are an assistant for an application which is a supply chain based intelligent decison making tool named ProcurePro. Provide helpful, factual, and concise answers related to ESG, Cost Efficiency, Reliability, Overall Risk Assessment. Give the answer in 2-3 lines only for general questions. Give the response in no styling (non-bold, non-italic) format.",
+=======
+                    text: "You are an ESG assistant named Sustain Pro. Provide helpful, factual, and concise answers related to ESG, sustainability, and reporting. Give the answer in 2-3 lines only for general questions. Give the response in no styling (non-bold, non-italic) format.",
+>>>>>>> supplier
                   },
                 ],
               },
@@ -170,6 +211,7 @@ export function Chatbot() {
       sendMessage()
     }
   }
+<<<<<<< HEAD
   const recognitionRef = useRef<any>(null);
   const toggleVoiceInput = () => {
     if (isListening) {
@@ -217,6 +259,21 @@ export function Chatbot() {
     }
   };
 
+=======
+
+  const toggleVoiceInput = () => {
+    if (!isListening) {
+      setIsListening(true)
+      // Simulate voice input
+      setTimeout(() => {
+        setIsListening(false)
+        setInputValue("How can I improve my ESG score?")
+      }, 2000)
+    } else {
+      setIsListening(false)
+    }
+  }
+>>>>>>> supplier
 
   const speakMessage = (content: string) => {
     if ("speechSynthesis" in window) {
@@ -241,6 +298,11 @@ export function Chatbot() {
 
   return (
     <>
+<<<<<<< HEAD
+=======
+      {/* Chatbot Toggle Button */}
+      {/* Chatbot Toggle Button */}
+>>>>>>> supplier
       <div className="fixed bottom-3 right-3 z-50">
         <div className="relative w-16 h-16">
           {/* Robot image (floating above button) */}
@@ -263,6 +325,7 @@ export function Chatbot() {
             </span>
           )}
 
+<<<<<<< HEAD
           {/* Toggle Button */}
           <Button
             onClick={toggleChat}
@@ -286,10 +349,37 @@ export function Chatbot() {
           </Button>
         </div>
       </div>
+=======
+            {/* Toggle Button */}
+            <Button
+              onClick={toggleChat}
+              aria-label="Toggle Chatbot"
+              className={cn(
+                "h-12 w-12 rounded-full shadow-md transition-all duration-300 relative",
+                "bg-gradient-to-br from-purple-500 via-indigo-500 to-teal-400 hover:from-purple-600 hover:via-indigo-600 hover:to-teal-500",
+                "transform hover:scale-105 active:scale-95",
+                "border-2 border-white/20 hover:border-white/30",
+                "shadow-md shadow-purple-500/20 hover:shadow-purple-500/30",
+                isOpen && "rotate-90"
+              )}
+            >
+              {isOpen ? (
+                <X className="h-6 w-6 text-white z-10" />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  
+                </div>
+              )}
+            </Button>
+          </div>
+        </div>
+
+>>>>>>> supplier
 
 
       {/* Chatbot Window */}
       {isOpen && (
+<<<<<<< HEAD
         <div
           className={cn(
             "fixed bottom-24 right-6 z-50 w-96 h-[500px] transition-all duration-300",
@@ -457,6 +547,170 @@ export function Chatbot() {
           </Card>
         </div>
       )}
+=======
+  <div
+    className={cn(
+      "fixed bottom-24 right-6 z-50 w-96 transition-all duration-300",
+      isMinimized ? "h-16" : "h-[500px]",
+    )}
+  >
+    <Card
+      className={cn(
+        "h-full shadow-xl border border-gray-200 dark:border-gray-700",
+        "bg-white dark:bg-gray-800 transition-all duration-300",
+        "flex flex-col overflow-hidden",
+      )}
+    >
+      <CardHeader
+        className={cn(
+          "pb-3 bg-gradient-to-r from-purple-500 to-purple-800 text-white",
+          "rounded-t-lg cursor-pointer transition-all duration-200",
+          "hover:from-blue-600 hover:to-sky-500",
+        )}
+        onClick={() => setIsMinimized(!isMinimized)}
+      >
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Bot className="h-6 w-6" />
+            <span className="font-semibold">ESG Assistant</span>
+          </div>
+          <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+            <Sparkles className="h-3 w-3 mr-1" />
+            AI Powered
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+
+      {!isMinimized && (
+        <CardContent className="p-0 h-full flex flex-col">
+          {/* Messages Area */}
+          <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex items-start space-x-2",
+                  "transition-all duration-200 ease-out",
+                  message.sender === "user" ? "justify-end" : "justify-start",
+                  "animate-fade-in-up",
+                )}
+              >
+                {message.sender === "bot" && (
+                  <Avatar className="h-8 w-8 bg-sky-100 dark:bg-blue-900/50">
+                    <AvatarFallback className="bg-purple-500 text-white">
+                      <Bot className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+
+                <div
+                  className={cn(
+                    "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                    "transition-all duration-200 hover:shadow-sm",
+                    message.sender === "user"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white",
+                    "animate-pop-in",
+                  )}
+                >
+                  <p>{message.content}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-xs opacity-70">
+                      {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    {message.sender === "bot" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 ml-2 opacity-70 hover:opacity-100"
+                        onClick={() => (isSpeaking ? stopSpeaking() : speakMessage(message.content))}
+                      >
+                        {isSpeaking ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {message.sender === "user" && (
+                  <Avatar className="h-8 w-8 bg-blue-100 dark:bg-blue-900/50">
+                    <AvatarFallback className="bg-blue-500 text-white">
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            ))}
+
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="flex items-start space-x-2 animate-fade-in">
+                <Avatar className="h-8 w-8 bg-sky-100 dark:bg-blue-900/50">
+                  <AvatarFallback className="bg-blue-500 text-white">
+                    <Bot className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
+                  <div className="flex space-x-1">
+                    <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" />
+                    <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce delay-200" />
+                    <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce delay-400" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </ScrollArea>
+
+          {/* Input Area */}
+          <div className="p-4 border-t bg-white dark:bg-gray-800">
+            <div className="flex items-center space-x-2">
+              <div className="flex-1 relative">
+                <Input
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask me about ESG, sustainability, or data submission..."
+                  className="pr-12 focus-visible:ring-blue-500"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0",
+                    isListening && "text-red-500 animate-pulse",
+                  )}
+                  onClick={toggleVoiceInput}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+              </div>
+              <Button
+                onClick={sendMessage}
+                disabled={!inputValue.trim()}
+                className={cn(
+                  "h-10 w-10 p-0 bg-blue-600 hover:bg-blue-700",
+                  "transition-transform duration-150 active:scale-95",
+                )}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {isListening && (
+              <div className="mt-2 text-center">
+                <Badge variant="outline" className="animate-pulse text-blue-600 border-blue-300">
+                  <Mic className="h-3 w-3 mr-1" />
+                  Listening...
+                </Badge>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  </div>
+)}
+>>>>>>> supplier
 
     </>
   )

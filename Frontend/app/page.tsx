@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 
 import React, { useState, useEffect } from "react"
@@ -15,6 +16,40 @@ import { Brain } from "lucide-react";
 import {
   ShieldAlert,
 } from "lucide-react";
+=======
+"use client";
+
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { CircularProgress } from "@/components/CircularProgress";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Brain } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
+>>>>>>> supplier
 import {
   LineChart,
   Line,
@@ -26,7 +61,11 @@ import {
   PieChart,
   Pie,
   Cell,
+<<<<<<< HEAD
 } from "recharts"
+=======
+} from "recharts";
+>>>>>>> supplier
 import {
   User,
   TrendingDown,
@@ -35,10 +74,17 @@ import {
   Clock,
   Heart,
   Lightbulb,
+<<<<<<< HEAD
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Chatbot } from "@/components/chatbot"
 import { useAuth } from "@/hooks/use-auth"
+=======
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Chatbot } from "@/components/chatbot";
+import { useAuth } from "@/hooks/use-auth";
+>>>>>>> supplier
 import {
   BarChart3,
   Shield,
@@ -54,17 +100,29 @@ import {
   Award,
   AlertTriangle,
   Search,
+<<<<<<< HEAD
 } from "lucide-react"
+=======
+} from "lucide-react";
+>>>>>>> supplier
 
 // Animation variants
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
+<<<<<<< HEAD
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+=======
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+>>>>>>> supplier
 };
 
 const fadeIn = {
   hidden: { opacity: 0 },
+<<<<<<< HEAD
   visible: { opacity: 1, transition: { duration: 0.8 } }
+=======
+  visible: { opacity: 1, transition: { duration: 0.8 } },
+>>>>>>> supplier
 };
 
 const services = [
@@ -72,8 +130,19 @@ const services = [
     id: "esg",
     icon: Leaf,
     title: "ESG Analysis",
+<<<<<<< HEAD
     description: "Comprehensive Environmental, Social, and Governance evaluation",
     features: ["AI-powered scoring", "Real-time monitoring", "Compliance tracking", "Benchmarking"],
+=======
+    description:
+      "Comprehensive Environmental, Social, and Governance evaluation",
+    features: [
+      "AI-powered scoring",
+      "Real-time monitoring",
+      "Compliance tracking",
+      "Benchmarking",
+    ],
+>>>>>>> supplier
     color: "text-green-600",
     bgColor: "bg-green-100 dark:bg-green-900/20",
   },
@@ -82,7 +151,16 @@ const services = [
     icon: BarChart3,
     title: "Supplier Ranking",
     description: "Data-driven supplier performance evaluation and ranking",
+<<<<<<< HEAD
     features: ["Multi-criteria analysis", "Custom weighting", "Performance trends", "Risk assessment"],
+=======
+    features: [
+      "Multi-criteria analysis",
+      "Custom weighting",
+      "Performance trends",
+      "Risk assessment",
+    ],
+>>>>>>> supplier
     color: "text-blue-600",
     bgColor: "bg-blue-100 dark:bg-blue-900/20",
   },
@@ -90,8 +168,19 @@ const services = [
     id: "risk",
     icon: Shield,
     title: "Risk Assessment",
+<<<<<<< HEAD
     description: "Proactive identification and mitigation of supply chain risks",
     features: ["Risk scoring", "Early warning alerts", "Mitigation strategies", "Compliance monitoring"],
+=======
+    description:
+      "Proactive identification and mitigation of supply chain risks",
+    features: [
+      "Risk scoring",
+      "Early warning alerts",
+      "Mitigation strategies",
+      "Compliance monitoring",
+    ],
+>>>>>>> supplier
     color: "text-red-600",
     bgColor: "bg-red-100 dark:bg-red-900/20",
   },
@@ -100,11 +189,24 @@ const services = [
     icon: CheckCircle,
     title: "Cost Efficiency & Reliability Evaluation",
     description: "Continuous monitoring of regulatory and policy compliance",
+<<<<<<< HEAD
     features: ["Multi-criteria Analysis", "Regulatory updates", "Audit trails", "Reporting tools"],
     color: "text-purple-600",
     bgColor: "bg-purple-100 dark:bg-purple-900/20",
   },
 ]
+=======
+    features: [
+      "Multi-criteria Analysis",
+      "Regulatory updates",
+      "Audit trails",
+      "Reporting tools",
+    ],
+    color: "text-purple-600",
+    bgColor: "bg-purple-100 dark:bg-purple-900/20",
+  },
+];
+>>>>>>> supplier
 
 const riskFeatures = [
   {
@@ -162,7 +264,12 @@ const evaluationSteps = [
   {
     step: "02",
     title: "AI-Powered Analysis",
+<<<<<<< HEAD
     description: "Apply advanced machine learning algorithms to analyze ESG performance across multiple dimensions.",
+=======
+    description:
+      "Apply advanced machine learning algorithms to analyze ESG performance across multiple dimensions.",
+>>>>>>> supplier
     details: [
       "Natural language processing for document analysis",
       "Pattern recognition for risk identification",
@@ -197,7 +304,11 @@ const evaluationSteps = [
     ],
     icon: Target,
   },
+<<<<<<< HEAD
 ]
+=======
+];
+>>>>>>> supplier
 
 const faqs = [
   {
@@ -225,31 +336,54 @@ const faqs = [
     answer:
       "We maintain SOC 2 Type II certification, ISO 27001 compliance, and GDPR adherence. All data is encrypted in transit and at rest, with role-based access controls and regular security audits.",
   },
+<<<<<<< HEAD
 ]
+=======
+];
+>>>>>>> supplier
 
 const values = [
   {
     icon: Heart,
     title: "Sustainability First",
+<<<<<<< HEAD
     description: "Every decision we make is guided by our commitment to environmental and social responsibility.",
+=======
+    description:
+      "Every decision we make is guided by our commitment to environmental and social responsibility.",
+>>>>>>> supplier
     color: "text-green-600",
     bgColor: "bg-green-100 dark:bg-green-900/20",
   },
   {
     icon: Lightbulb,
     title: "Innovation",
+<<<<<<< HEAD
     description: "We continuously push the boundaries of what's possible with AI and data analytics.",
+=======
+    description:
+      "We continuously push the boundaries of what's possible with AI and data analytics.",
+>>>>>>> supplier
     color: "text-blue-600",
     bgColor: "bg-blue-100 dark:bg-blue-900/20",
   },
   {
     icon: Shield,
     title: "Transparency",
+<<<<<<< HEAD
     description: "We believe in open, honest communication and transparent business practices.",
     color: "text-purple-600",
     bgColor: "bg-purple-100 dark:bg-purple-900/20",
   },
 ]
+=======
+    description:
+      "We believe in open, honest communication and transparent business practices.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-100 dark:bg-purple-900/20",
+  },
+];
+>>>>>>> supplier
 
 const team = [
   {
@@ -272,7 +406,11 @@ const team = [
     role: "Head of ESG",
     bio: "Environmental scientist and ESG expert with PhD in Procurement related Business Practices.",
   },
+<<<<<<< HEAD
 ]
+=======
+];
+>>>>>>> supplier
 
 const suppliers = [
   { id: "greentech", name: "GreenTech Solutions" },
@@ -280,13 +418,22 @@ const suppliers = [
   { id: "Procurementparts", name: "ProcurementParts Inc" },
   { id: "cleanenergy", name: "CleanEnergy Corp" },
   { id: "budgetsupply", name: "BudgetSupply Ltd" },
+<<<<<<< HEAD
 ]
+=======
+];
+>>>>>>> supplier
 
 const personas = [
   {
     id: "analyst",
     title: "Procurement Analyst",
+<<<<<<< HEAD
     description: "Focus on cost optimization and supplier performance analytics",
+=======
+    description:
+      "Focus on cost optimization and supplier performance analytics",
+>>>>>>> supplier
     icon: User,
     color: "bg-blue-500",
     gradient: "from-blue-500 to-blue-600",
@@ -297,7 +444,12 @@ const personas = [
         trend: "up",
         target: 15,
         current: 12.5,
+<<<<<<< HEAD
         description: "Year-over-year procurement cost reduction through strategic sourcing",
+=======
+        description:
+          "Year-over-year procurement cost reduction through strategic sourcing",
+>>>>>>> supplier
         icon: DollarSign,
       },
       {
@@ -423,7 +575,12 @@ const personas = [
         trend: "up",
         target: 70,
         current: 65,
+<<<<<<< HEAD
         description: "Percentage of suppliers with sustainability certifications",
+=======
+        description:
+          "Percentage of suppliers with sustainability certifications",
+>>>>>>> supplier
         icon: Target,
       },
       {
@@ -445,13 +602,21 @@ const personas = [
       { month: "Jun", value: 78, target: 85 },
     ],
   },
+<<<<<<< HEAD
 ]
+=======
+];
+>>>>>>> supplier
 
 const pieData = [
   { name: "Environmental", value: 35, color: "#10b981" },
   { name: "Social", value: 30, color: "#3b82f6" },
   { name: "Governance", value: 35, color: "#8b5cf6" },
+<<<<<<< HEAD
 ]
+=======
+];
+>>>>>>> supplier
 
 const adminSteps = [
   {
@@ -481,7 +646,11 @@ const adminSteps = [
       "Generate ESG reports for compliance",
     ],
   },
+<<<<<<< HEAD
 ]
+=======
+];
+>>>>>>> supplier
 
 const supplierSteps = [
   "Complete your company registration and profile setup",
@@ -489,6 +658,7 @@ const supplierSteps = [
   "Complete the sustainability assessment questionnaire",
   "Monitor your ESG score and improvement recommendations",
   "Respond to procurement requests and maintain compliance",
+<<<<<<< HEAD
 ]
 
 export default function Dashboard() {
@@ -532,6 +702,56 @@ export default function Dashboard() {
 
   const userPersona = getUserPersona()
   const [activeTab, setActiveTab] = useState("overview")
+=======
+];
+
+export default function Dashboard() {
+  const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState("greentech");
+  const [userRole, setUserRole] = useState<string>("");
+  const router = useRouter();
+  const { userData, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const user = JSON.parse(userData);
+      setUserRole(user.role);
+    }
+  }, []);
+
+  const selectedPersonaData = personas.find((p) => p.id === selectedPersona);
+
+  const isRoleAllowed = (personaId: string) => {
+    if (userRole === "Supplier") return false;
+    if (personaId === "analyst" && userRole === "Procurement Analyst")
+      return true;
+    if (personaId === "vendor" && userRole === "Vendor Manager") return true;
+    if (personaId === "sustainability" && userRole === "Sustainability Head")
+      return true;
+    return false;
+  };
+
+  const getUserSteps = () => {
+    if (userRole === "Supplier") {
+      return supplierSteps;
+    }
+    return adminSteps.find((admin) => admin.role === userRole)?.steps || [];
+  };
+
+  const getUserPersona = () => {
+    if (userRole === "Procurement Analyst")
+      return personas.find((p) => p.id === "analyst");
+    if (userRole === "Vendor Manager")
+      return personas.find((p) => p.id === "vendor");
+    if (userRole === "Sustainability Head")
+      return personas.find((p) => p.id === "sustainability");
+    return null;
+  };
+
+  const userPersona = getUserPersona();
+  const [activeTab, setActiveTab] = useState("overview");
+>>>>>>> supplier
 
   return (
     <div className="relative pt-20 min-h-screen bg-gradient-to-br from-background via-background to-primary/5 w-full">
@@ -560,7 +780,12 @@ export default function Dashboard() {
             </div>
 
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+<<<<<<< HEAD
               Empowering smarter, Resilient procurement with AI-driven ESG insights.
+=======
+              Empowering smarter, Resilient procurement with AI-driven ESG
+              insights.
+>>>>>>> supplier
             </p>
 
             <div className="flex justify-center gap-4 pt-4">
@@ -571,7 +796,14 @@ export default function Dashboard() {
                 </Button>
               </Link>
               <Link href="#about">
+<<<<<<< HEAD
                 <Button variant="outline" className="px-6 h-11 rounded-lg border-[#2563eb] text-[#2563eb] font-bold hover:bg-[#2563eb]/10 transition-all duration-300 hover:scale-105 transform">
+=======
+                <Button
+                  variant="outline"
+                  className="px-6 h-11 rounded-lg border-[#2563eb] text-[#2563eb] font-bold hover:bg-[#2563eb]/10 transition-all duration-300 hover:scale-105 transform"
+                >
+>>>>>>> supplier
                   Learn More
                 </Button>
               </Link>
@@ -586,7 +818,14 @@ export default function Dashboard() {
             {/* Vision */}
             <div className="space-y-4 w-full">
               <div>
+<<<<<<< HEAD
                 <Badge variant="outline" className="mb-4 border-[#E2142D] text-[#E2142D] bg-white/80 dark:bg-black/80 font-semibold">
+=======
+                <Badge
+                  variant="outline"
+                  className="mb-4 border-[#E2142D] text-[#E2142D] bg-white/80 dark:bg-black/80 font-semibold"
+                >
+>>>>>>> supplier
                   <Target className="h-3 w-3 mr-2" />
                   Our Vision
                 </Badge>
@@ -597,12 +836,35 @@ export default function Dashboard() {
                   </span>
                 </h2>
                 <p className="text-muted-foreground leading-relaxed mb-6 text-base">
+<<<<<<< HEAD
                   We envision a future where every procurement decision is a step toward a more resilient, responsible, and high-performing supply chain.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 justify-items-center">
                   <CircularProgress value={85} label="Sustainable Sourcing" color="#E2142D" />
                   <CircularProgress value={88} label="Social Responsibility Compliance" color="#2563eb" />
                   <CircularProgress value={83} label="Ethical & Regulatory Governance" color="#a21caf" />
+=======
+                  We envision a future where every procurement decision is a
+                  step toward a more resilient, responsible, and high-performing
+                  supply chain.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 justify-items-center">
+                  <CircularProgress
+                    value={85}
+                    label="Sustainable Sourcing"
+                    color="#E2142D"
+                  />
+                  <CircularProgress
+                    value={88}
+                    label="Social Responsibility Compliance"
+                    color="#2563eb"
+                  />
+                  <CircularProgress
+                    value={83}
+                    label="Ethical & Regulatory Governance"
+                    color="#a21caf"
+                  />
+>>>>>>> supplier
                 </div>
               </div>
             </div>
@@ -610,7 +872,14 @@ export default function Dashboard() {
             {/* Mission */}
             <div className="space-y-4 w-full">
               <div>
+<<<<<<< HEAD
                 <Badge variant="outline" className="mb-4 border-[#2563eb] text-[#2563eb] bg-white/80 dark:bg-black/80 font-semibold">
+=======
+                <Badge
+                  variant="outline"
+                  className="mb-4 border-[#2563eb] text-[#2563eb] bg-white/80 dark:bg-black/80 font-semibold"
+                >
+>>>>>>> supplier
                   <Lightbulb className="h-3 w-3 mr-2" />
                   Our Mission
                 </Badge>
@@ -621,14 +890,26 @@ export default function Dashboard() {
                   </span>
                 </h2>
                 <p className="text-muted-foreground leading-relaxed text-base mb-6">
+<<<<<<< HEAD
                   Our mission is to transform the procurement landscape by equipping organizations with data-driven insights that go beyond ESG.
+=======
+                  Our mission is to transform the procurement landscape by
+                  equipping organizations with data-driven insights that go
+                  beyond ESG.
+>>>>>>> supplier
                 </p>
                 <Card className="w-full group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-[#E2142D]/5 via-[#2563eb]/10 to-[#a21caf]/10 backdrop-blur-sm animate-fade-in">
                   <CardContent className="p-6 space-y-6">
                     <div className="flex items-center space-x-4">
                       <Award className="h-8 w-8 text-[#E2142D] animate-pulse" />
                       <div className="space-y-1">
+<<<<<<< HEAD
                         <h3 className="font-semibold text-lg">Industry Recognition</h3>
+=======
+                        <h3 className="font-semibold text-lg">
+                          Industry Recognition
+                        </h3>
+>>>>>>> supplier
                         <p className="text-muted-foreground text-base">
                           Sustainability Innovation Award '24 Winner
                         </p>
@@ -643,7 +924,14 @@ export default function Dashboard() {
           {/* Values */}
           <div className="w-full">
             <div className="text-center">
+<<<<<<< HEAD
               <Badge variant="outline" className="mb-4 border-[#a21caf] text-[#a21caf] bg-white/80 dark:bg-black/80 font-semibold">
+=======
+              <Badge
+                variant="outline"
+                className="mb-4 border-[#a21caf] text-[#a21caf] bg-white/80 dark:bg-black/80 font-semibold"
+              >
+>>>>>>> supplier
                 <Heart className="h-3 w-3 mr-2" />
                 Our Values
               </Badge>
@@ -654,13 +942,22 @@ export default function Dashboard() {
                 </span>
               </h2>
               <p className="text-muted-foreground max-w-3xl mx-auto text-base mb-2">
+<<<<<<< HEAD
                 Guiding our products, partnerships, and decisions at every step of the journey.
+=======
+                Guiding our products, partnerships, and decisions at every step
+                of the journey.
+>>>>>>> supplier
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               {values.map((value, index) => {
+<<<<<<< HEAD
                 const Icon = value.icon
+=======
+                const Icon = value.icon;
+>>>>>>> supplier
                 return (
                   <Card
                     key={index}
@@ -672,7 +969,13 @@ export default function Dashboard() {
                       >
                         <Icon className={`h-5 w-5 ${value.color}`} />
                       </div>
+<<<<<<< HEAD
                       <CardTitle className="text-xl font-heading">{value.title}</CardTitle>
+=======
+                      <CardTitle className="text-xl font-heading">
+                        {value.title}
+                      </CardTitle>
+>>>>>>> supplier
                     </CardHeader>
                     <CardContent>
                       <CardDescription className="leading-relaxed text-base">
@@ -680,7 +983,11 @@ export default function Dashboard() {
                       </CardDescription>
                     </CardContent>
                   </Card>
+<<<<<<< HEAD
                 )
+=======
+                );
+>>>>>>> supplier
               })}
             </div>
           </div>
@@ -688,7 +995,14 @@ export default function Dashboard() {
           {/* Team */}
           <div className="w-full space-y-12">
             <div className="text-center">
+<<<<<<< HEAD
               <Badge variant="outline" className="mb-4 border-[#E2142D] text-[#E2142D] bg-white/80 dark:bg-black/80 font-semibold">
+=======
+              <Badge
+                variant="outline"
+                className="mb-4 border-[#E2142D] text-[#E2142D] bg-white/80 dark:bg-black/80 font-semibold"
+              >
+>>>>>>> supplier
                 <Users className="h-3 w-3 mr-2" />
                 Our Team
               </Badge>
@@ -699,7 +1013,12 @@ export default function Dashboard() {
                 </span>
               </h2>
               <p className="text-muted-foreground max-w-3xl mx-auto text-base">
+<<<<<<< HEAD
                 A diverse team with decades of experience in sustainability, tech, and strategy.
+=======
+                A diverse team with decades of experience in sustainability,
+                tech, and strategy.
+>>>>>>> supplier
               </p>
             </div>
 
@@ -713,9 +1032,21 @@ export default function Dashboard() {
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E2142D]/20 to-[#2563eb]/20 mx-auto mb-6 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <Users className="h-6 w-6 text-[#E2142D]" />
                     </div>
+<<<<<<< HEAD
                     <h3 className="font-heading font-semibold text-lg mb-0">{member.name}</h3>
                     <p className="text-[#2563eb] font-medium mb-4">{member.role}</p>
                     <p className="text-muted-foreground leading-relaxed text-base">{member.bio}</p>
+=======
+                    <h3 className="font-heading font-semibold text-lg mb-0">
+                      {member.name}
+                    </h3>
+                    <p className="text-[#2563eb] font-medium mb-4">
+                      {member.role}
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed text-base">
+                      {member.bio}
+                    </p>
+>>>>>>> supplier
                   </CardContent>
                 </Card>
               ))}
@@ -743,8 +1074,13 @@ export default function Dashboard() {
                 </span>
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+<<<<<<< HEAD
                 Our comprehensive suite of services covers every aspect of procurement, from initial
                 assessment to ongoing optimization.
+=======
+                Our comprehensive suite of services covers every aspect of
+                procurement, from initial assessment to ongoing optimization.
+>>>>>>> supplier
               </p>
             </div>
 
@@ -762,13 +1098,29 @@ export default function Dashboard() {
                       >
                         <Icon className={`h-6 w-6 ${service.color}`} />
                       </div>
+<<<<<<< HEAD
                       <CardTitle className="text-xl font-heading">{service.title}</CardTitle>
                       <CardDescription className="text-base">{service.description}</CardDescription>
+=======
+                      <CardTitle className="text-xl font-heading">
+                        {service.title}
+                      </CardTitle>
+                      <CardDescription className="text-base">
+                        {service.description}
+                      </CardDescription>
+>>>>>>> supplier
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2">
                         {service.features.map((feature, i) => (
+<<<<<<< HEAD
                           <li key={i} className="flex items-center space-x-2 text-base">
+=======
+                          <li
+                            key={i}
+                            className="flex items-center space-x-2 text-base"
+                          >
+>>>>>>> supplier
                             <CheckCircle className="h-4 w-4 text-[#E2142D]" />
                             <span>{feature}</span>
                           </li>
@@ -796,6 +1148,7 @@ export default function Dashboard() {
                 Supplier Risk Dashboard
               </h2>
               <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+<<<<<<< HEAD
                 Visualize supplier risk and connectivity across your entire supply chain in real time.
               </p>
             </div>
@@ -804,6 +1157,21 @@ export default function Dashboard() {
             <div className="relative w-full h-[200px] sm:h-[400px] md:h-[400px] flex items-center justify-center mb-10 md:mb-12 px-4">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 dark:from-gray-800/50 dark:to-gray-900/50 rounded-3xl"></div>
               <svg className="w-full h-full" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
+=======
+                Visualize supplier risk and connectivity across your entire
+                supply chain in real time.
+              </p>
+            </div>
+
+            {/* Enhanced Network Graph Visualization */}
+            <div className="relative w-full h-[200px] sm:h-[400px] md:h-[400px] flex items-center justify-center mb-10 md:mb-12 px-4">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 dark:from-gray-800/50 dark:to-gray-900/50 rounded-3xl"></div>
+              <svg
+                className="w-full h-full"
+                viewBox="0 0 800 500"
+                preserveAspectRatio="xMidYMid meet"
+              >
+>>>>>>> supplier
                 {/* Animated Background Grid */}
                 <defs>
                   <pattern
@@ -831,16 +1199,36 @@ export default function Dashboard() {
                     <stop offset="0%" stopColor="#2563EB" stopOpacity="0.8" />
                     <stop offset="100%" stopColor="#1D4ED8" stopOpacity="1" />
                   </linearGradient>
+<<<<<<< HEAD
                   <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
                     <feGaussianBlur stdDeviation="5" result="blur" />
                     <feComposite in="SourceGraphic" in2="blur" operator="over" />
+=======
+                  <filter
+                    id="glow"
+                    x="-30%"
+                    y="-30%"
+                    width="160%"
+                    height="160%"
+                  >
+                    <feGaussianBlur stdDeviation="5" result="blur" />
+                    <feComposite
+                      in="SourceGraphic"
+                      in2="blur"
+                      operator="over"
+                    />
+>>>>>>> supplier
                   </filter>
                 </defs>
 
                 <rect width="100%" height="100%" fill="url(#grid)" rx="20" />
 
                 {/* Connection Lines with Animation */}
+<<<<<<< HEAD
                 <g className="opacity-60">
+=======
+                <g className="opacity-70">
+>>>>>>> supplier
                   {/* Top suppliers */}
                   <line
                     x1="400"
@@ -848,10 +1236,17 @@ export default function Dashboard() {
                     x2="300"
                     y2="100"
                     stroke="#10B981"
+<<<<<<< HEAD
                     strokeWidth="4"
                     strokeLinecap="round"
                     className="animate-pulse"
                     strokeDasharray="8,8"
+=======
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    className="animate-pulse"
+                    strokeDasharray="5,5"
+>>>>>>> supplier
                   >
                     <animate
                       attributeName="stroke-dashoffset"
@@ -866,10 +1261,17 @@ export default function Dashboard() {
                     x2="500"
                     y2="100"
                     stroke="#10B981"
+<<<<<<< HEAD
                     strokeWidth="4"
                     strokeLinecap="round"
                     className="animate-pulse"
                     strokeDasharray="8,8"
+=======
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    className="animate-pulse"
+                    strokeDasharray="5,5"
+>>>>>>> supplier
                   >
                     <animate
                       attributeName="stroke-dashoffset"
@@ -885,7 +1287,11 @@ export default function Dashboard() {
                     x2="150"
                     y2="250"
                     stroke="#EF4444"
+<<<<<<< HEAD
                     strokeWidth="6"
+=======
+                    strokeWidth="4"
+>>>>>>> supplier
                     strokeLinecap="round"
                     className="animate-pulse"
                   />
@@ -898,7 +1304,11 @@ export default function Dashboard() {
                     strokeWidth="4"
                     strokeLinecap="round"
                     className="animate-pulse"
+<<<<<<< HEAD
                     strokeDasharray="8,8"
+=======
+                    strokeDasharray="5,5"
+>>>>>>> supplier
                   >
                     <animate
                       attributeName="stroke-dashoffset"
@@ -914,7 +1324,11 @@ export default function Dashboard() {
                     x2="250"
                     y2="450"
                     stroke="#F59E0B"
+<<<<<<< HEAD
                     strokeWidth="4"
+=======
+                    strokeWidth="3"
+>>>>>>> supplier
                     strokeLinecap="round"
                     strokeDasharray="5,5"
                   >
@@ -931,7 +1345,11 @@ export default function Dashboard() {
                     x2="550"
                     y2="450"
                     stroke="#F59E0B"
+<<<<<<< HEAD
                     strokeWidth="4"
+=======
+                    strokeWidth="3"
+>>>>>>> supplier
                     strokeLinecap="round"
                     strokeDasharray="5,5"
                   >
@@ -952,8 +1370,13 @@ export default function Dashboard() {
                   fill="url(#nodeGradient)"
                   stroke="#2563EB"
                   strokeWidth="4"
+<<<<<<< HEAD
                   filter="url(#glow)"
                   className="shadow-xl"
+=======
+                  filter="url(#shadowfilter)"
+                  className="fill-blue-600 dark:fill-blue-700 shadow-md transition-all duration-300 "
+>>>>>>> supplier
                 >
                   <animate
                     attributeName="r"
@@ -978,13 +1401,21 @@ export default function Dashboard() {
                     cx="300"
                     cy="100"
                     r="30"
+<<<<<<< HEAD
                     fill="#047857"
                     className="animate-pulse shadow-md group-hover:shadow-lg group-hover:shadow-green-200/50"
+=======
+                    className="fill-[#059669] dark:fill-[#064e3b] animate-pulse"
+>>>>>>> supplier
                   >
                     <animate
                       attributeName="opacity"
                       values="0.7;1;0.7"
+<<<<<<< HEAD
                       dur="2s"
+=======
+                      dur="2.4s"
+>>>>>>> supplier
                       repeatCount="indefinite"
                     />
                   </circle>
@@ -1000,7 +1431,11 @@ export default function Dashboard() {
                     x="300"
                     y="60"
                     textAnchor="middle"
+<<<<<<< HEAD
                     className="mb-2text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
+=======
+                    className="mb-2text-base font-medium fill-gray-900 dark:fill-gray-100 group-hover:font-bold"
+>>>>>>> supplier
                   >
                     Supplier A
                   </text>
@@ -1012,13 +1447,21 @@ export default function Dashboard() {
                     cx="500"
                     cy="100"
                     r="30"
+<<<<<<< HEAD
                     fill="#047857"
                     className="animate-pulse shadow-md group-hover:shadow-lg group-hover:shadow-green-200/50"
+=======
+                    className="fill-[#059669] dark:fill-[#064e3b] animate-pulse"
+>>>>>>> supplier
                   >
                     <animate
                       attributeName="opacity"
                       values="0.7;1;0.7"
+<<<<<<< HEAD
                       dur="2.2s"
+=======
+                      dur="2.4s"
+>>>>>>> supplier
                       repeatCount="indefinite"
                     />
                   </circle>
@@ -1034,7 +1477,11 @@ export default function Dashboard() {
                     x="500"
                     y="60"
                     textAnchor="middle"
+<<<<<<< HEAD
                     className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
+=======
+                    className="text-base font-medium fill-gray-900 dark:fill-gray-100 group-hover:font-bold"
+>>>>>>> supplier
                   >
                     Supplier B
                   </text>
@@ -1042,7 +1489,16 @@ export default function Dashboard() {
 
                 {/* Left - High Risk Supplier */}
                 <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
+<<<<<<< HEAD
                   <circle cx="150" cy="250" r="30" fill="#B91C1C" className="shadow-md group-hover:shadow-lg group-hover:shadow-red-200/50">
+=======
+                  <circle
+                    cx="150"
+                    cy="250"
+                    r="30"
+                    className="fill-[#dc2626] dark:fill-[#7f1d1d] shadow-md group-hover:shadow-lg group-hover:shadow-red-200/50"
+                  >
+>>>>>>> supplier
                     <animate
                       attributeName="r"
                       values="30;35;30"
@@ -1062,7 +1518,11 @@ export default function Dashboard() {
                     x="150"
                     y="210"
                     textAnchor="middle"
+<<<<<<< HEAD
                     className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
+=======
+                    className="text-base font-medium fill-gray-900 dark:fill-gray-100 group-hover:font-bold"
+>>>>>>> supplier
                   >
                     Supplier F
                   </text>
@@ -1074,8 +1534,12 @@ export default function Dashboard() {
                     cx="650"
                     cy="250"
                     r="30"
+<<<<<<< HEAD
                     fill="#047857"
                     className="animate-pulse shadow-md group-hover:shadow-lg group-hover:shadow-green-200/50"
+=======
+                    className="fill-[#059669] dark:fill-[#064e3b] animate-pulse"
+>>>>>>> supplier
                   >
                     <animate
                       attributeName="opacity"
@@ -1096,7 +1560,11 @@ export default function Dashboard() {
                     x="650"
                     y="210"
                     textAnchor="middle"
+<<<<<<< HEAD
                     className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
+=======
+                    className="text-base font-medium fill-gray-900 dark:fill-gray-100 group-hover:font-bold"
+>>>>>>> supplier
                   >
                     Supplier C
                   </text>
@@ -1104,7 +1572,17 @@ export default function Dashboard() {
 
                 {/* Bottom Left - Supplier E */}
                 <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
+<<<<<<< HEAD
                   <circle cx="250" cy="450" r="30" fill="#B45309" className="shadow-md group-hover:shadow-lg group-hover:shadow-yellow-200/50">
+=======
+                  <circle
+                    cx="250"
+                    cy="450"
+                    r="30"
+                    fill="#B45309"
+                    className="shadow-md group-hover:shadow-lg group-hover:shadow-yellow-200/50"
+                  >
+>>>>>>> supplier
                     <animate
                       attributeName="opacity"
                       values="0.8;1;0.8"
@@ -1121,10 +1599,17 @@ export default function Dashboard() {
                     MED
                   </text>
                   <text
+<<<<<<< HEAD
                     x="250"
                     y="410"
                     textAnchor="middle"
                     className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
+=======
+                    x="230"
+                    y="410"
+                    textAnchor="middle"
+                    className="text-base font-medium fill-gray-900 dark:fill-gray-100 group-hover:font-bold"
+>>>>>>> supplier
                   >
                     Supplier E
                   </text>
@@ -1132,7 +1617,17 @@ export default function Dashboard() {
 
                 {/* Bottom Right - Supplier D */}
                 <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
+<<<<<<< HEAD
                   <circle cx="550" cy="450" r="30" fill="#B45309" className="shadow-md group-hover:shadow-lg group-hover:shadow-yellow-200/50">
+=======
+                  <circle
+                    cx="550"
+                    cy="450"
+                    r="30"
+                    fill="#B45309"
+                    className="shadow-md group-hover:shadow-lg group-hover:shadow-yellow-200/50"
+                  >
+>>>>>>> supplier
                     <animate
                       attributeName="opacity"
                       values="0.8;1;0.8"
@@ -1149,10 +1644,17 @@ export default function Dashboard() {
                     MED
                   </text>
                   <text
+<<<<<<< HEAD
                     x="550"
                     y="410"
                     textAnchor="middle"
                     className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
+=======
+                    x="570"
+                    y="410"
+                    textAnchor="middle"
+                    className="text-base font-medium fill-gray-900 dark:fill-gray-100 group-hover:font-bold"
+>>>>>>> supplier
                   >
                     Supplier D
                   </text>
@@ -1165,69 +1667,141 @@ export default function Dashboard() {
               <div className="p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-900/30 dark:to-green-900/20 border border-green-200/80 dark:border-green-700/30 shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
+<<<<<<< HEAD
                     <CheckCircle className="text-green-600 dark:text-green-400" size={20} />
+=======
+                    <CheckCircle
+                      className="text-green-600 dark:text-green-400"
+                      size={20}
+                    />
+>>>>>>> supplier
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Low Risk
                     </span>
                   </div>
+<<<<<<< HEAD
                   <span className="text-2xl font-bold text-green-600 dark:text-green-400">50%</span>
+=======
+                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    50%
+                  </span>
+>>>>>>> supplier
                 </div>
                 <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700">
                   <div
                     className="h-2 bg-green-600 dark:bg-green-400 rounded-full relative overflow-hidden"
+<<<<<<< HEAD
                     style={{ width: '50%' }}
+=======
+                    style={{ width: "50%" }}
+>>>>>>> supplier
                   >
                     <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
                   </div>
                 </div>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+<<<<<<< HEAD
                   <span className="font-semibold text-green-600 dark:text-green-400">+2%</span> from last month
+=======
+                  <span className="font-semibold text-green-600 dark:text-green-400">
+                    +2%
+                  </span>{" "}
+                  from last month
+>>>>>>> supplier
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-yellow-50 to-yellow-100/50 dark:from-yellow-900/30 dark:to-yellow-900/20 border border-yellow-200/80 dark:border-yellow-700/30 shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
+<<<<<<< HEAD
                     <ShieldAlert className="text-yellow-500 dark:text-yellow-400" size={20} />
+=======
+                    <ShieldAlert
+                      className="text-yellow-500 dark:text-yellow-400"
+                      size={20}
+                    />
+>>>>>>> supplier
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Medium Risk
                     </span>
                   </div>
+<<<<<<< HEAD
                   <span className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">33%</span>
+=======
+                  <span className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">
+                    33%
+                  </span>
+>>>>>>> supplier
                 </div>
                 <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700">
                   <div
                     className="h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full relative overflow-hidden"
+<<<<<<< HEAD
                     style={{ width: '33%' }}
+=======
+                    style={{ width: "33%" }}
+>>>>>>> supplier
                   >
                     <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
                   </div>
                 </div>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+<<<<<<< HEAD
                   <span className="font-semibold text-yellow-500 dark:text-yellow-400">-1%</span> from last month
+=======
+                  <span className="font-semibold text-yellow-500 dark:text-yellow-400">
+                    -1%
+                  </span>{" "}
+                  from last month
+>>>>>>> supplier
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/30 dark:to-red-900/20 border border-red-200/80 dark:border-red-700/30 shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
+<<<<<<< HEAD
                     <AlertTriangle className="text-red-500 dark:text-red-400" size={20} />
+=======
+                    <AlertTriangle
+                      className="text-red-500 dark:text-red-400"
+                      size={20}
+                    />
+>>>>>>> supplier
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       High Risk
                     </span>
                   </div>
+<<<<<<< HEAD
                   <span className="text-2xl font-bold text-red-500 dark:text-red-400">17%</span>
+=======
+                  <span className="text-2xl font-bold text-red-500 dark:text-red-400">
+                    17%
+                  </span>
+>>>>>>> supplier
                 </div>
                 <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700">
                   <div
                     className="h-2 bg-red-500 dark:bg-red-400 rounded-full relative overflow-hidden"
+<<<<<<< HEAD
                     style={{ width: '17%' }}
+=======
+                    style={{ width: "17%" }}
+>>>>>>> supplier
                   >
                     <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
                   </div>
                 </div>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+<<<<<<< HEAD
                   <span className="font-semibold text-red-500 dark:text-red-400">-1%</span> from last month
+=======
+                  <span className="font-semibold text-red-500 dark:text-red-400">
+                    -1%
+                  </span>{" "}
+                  from last month
+>>>>>>> supplier
                 </p>
               </div>
             </div>
@@ -1250,7 +1824,12 @@ export default function Dashboard() {
                 </span>
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+<<<<<<< HEAD
                 Unlock actionable insights and proactive risk mitigation with our advanced AI-powered features.
+=======
+                Unlock actionable insights and proactive risk mitigation with
+                our advanced AI-powered features.
+>>>>>>> supplier
               </p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
@@ -1289,7 +1868,15 @@ export default function Dashboard() {
         {/* Detailed Service Tabs */}
         <section className="w-full py-10">
           <div className="w-full px-4">
+<<<<<<< HEAD
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+=======
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+>>>>>>> supplier
               <div className="text-center mb-12">
                 <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6">
                   Explore Our{" "}
@@ -1298,24 +1885,62 @@ export default function Dashboard() {
                   </span>
                 </h2>
                 <TabsList className="grid w-full grid-cols-4 gap-2 bg-[#ffffff]/70 dark:bg-[#0f0f0f]/70  rounded-lg shadow-md">
+<<<<<<< HEAD
                   <TabsTrigger value="overview" className="font-semibold text-[#E2142D] dark:hover:bg-[#E2142D]/10 transition-all duration-300">Overview</TabsTrigger>
                   <TabsTrigger value="features" className="font-semibold text-[#2563eb] dark:hover:bg-[#2563eb]/10 transition-all duration-300">Features</TabsTrigger>
                   <TabsTrigger value="benefits" className="font-semibold text-[#a21caf] dark:hover:bg-[#a21caf]/10 transition-all duration-300">Benefits</TabsTrigger>
                   <TabsTrigger value="pricing" className="font-semibold text-[#E2142D] dark:hover:bg-[#E2142D]/10 transition-all duration-300">Pricing</TabsTrigger>
+=======
+                  <TabsTrigger
+                    value="overview"
+                    className="font-semibold text-[#E2142D] dark:hover:bg-[#E2142D]/10 transition-all duration-300"
+                  >
+                    Overview
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="features"
+                    className="font-semibold text-[#2563eb] dark:hover:bg-[#2563eb]/10 transition-all duration-300"
+                  >
+                    Features
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="benefits"
+                    className="font-semibold text-[#a21caf] dark:hover:bg-[#a21caf]/10 transition-all duration-300"
+                  >
+                    Benefits
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="pricing"
+                    className="font-semibold text-[#E2142D] dark:hover:bg-[#E2142D]/10 transition-all duration-300"
+                  >
+                    Pricing
+                  </TabsTrigger>
+>>>>>>> supplier
                 </TabsList>
               </div>
 
               <TabsContent value="overview" className="space-y-8 w-full">
                 <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
                   <div className="space-y-6">
+<<<<<<< HEAD
                     <h3 className="font-heading text-2xl font-extrabold">Comprehensive Platform Overview</h3>
                     <p className="text-lg text-muted-foreground leading-relaxed">
                       Our platform combines cutting-edge AI technology with deep sustainability expertise to deliver
                       unparalleled insights into your supply chain performance.
+=======
+                    <h3 className="font-heading text-2xl font-extrabold">
+                      Comprehensive Platform Overview
+                    </h3>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      Our platform combines cutting-edge AI technology with deep
+                      sustainability expertise to deliver unparalleled insights
+                      into your supply chain performance.
+>>>>>>> supplier
                     </p>
                     <div className="space-y-4">
                       <div className="flex items-center space-x-3">
                         <CheckCircle className="h-5 w-5 text-[#E2142D]" />
+<<<<<<< HEAD
                         <span className="text-base">Real-time ESG monitoring and analysis</span>
                       </div>
                       <div className="flex items-center space-x-3">
@@ -1329,6 +1954,29 @@ export default function Dashboard() {
                       <div className="flex items-center space-x-3">
                         <CheckCircle className="h-5 w-5 text-[#E2142D]" />
                         <span className="text-base">Customizable reporting and dashboards</span>
+=======
+                        <span className="text-base">
+                          Real-time ESG monitoring and analysis
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-[#2563eb]" />
+                        <span className="text-base">
+                          Cost Efficiency & Reliability Evaluation
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-[#a21caf]" />
+                        <span className="text-base">
+                          Automated risk assessment and alerts
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-[#E2142D]" />
+                        <span className="text-base">
+                          Customizable reporting and dashboards
+                        </span>
+>>>>>>> supplier
                       </div>
                     </div>
                   </div>
@@ -1337,6 +1985,7 @@ export default function Dashboard() {
                     <CardContent className="p-8">
                       <div className="space-y-6">
                         <div className="text-center">
+<<<<<<< HEAD
                           <div className="text-4xl font-bold text-[#E2142D] mb-2">10,000+</div>
                           <div className="text-muted-foreground text-base">Suppliers Analyzed</div>
                         </div>
@@ -1347,6 +1996,30 @@ export default function Dashboard() {
                         <div className="text-center">
                           <div className="text-4xl font-bold text-[#a21caf] mb-2">24/7</div>
                           <div className="text-muted-foreground text-base">Monitoring</div>
+=======
+                          <div className="text-4xl font-bold text-[#E2142D] mb-2">
+                            10,000+
+                          </div>
+                          <div className="text-muted-foreground text-base">
+                            Suppliers Analyzed
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-4xl font-bold text-[#2563eb] mb-2">
+                            95%
+                          </div>
+                          <div className="text-muted-foreground text-base">
+                            Accuracy Rate
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-4xl font-bold text-[#a21caf] mb-2">
+                            24/7
+                          </div>
+                          <div className="text-muted-foreground text-base">
+                            Monitoring
+                          </div>
+>>>>>>> supplier
                         </div>
                       </div>
                     </CardContent>
@@ -1354,6 +2027,7 @@ export default function Dashboard() {
                 </div>
               </TabsContent>
 
+<<<<<<< HEAD
            <TabsContent value="features" className="space-y-8 w-full">
   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
     {[
@@ -1421,6 +2095,77 @@ export default function Dashboard() {
   </div>
 </TabsContent>
 
+=======
+              <TabsContent value="features" className="space-y-8 w-full">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                  {[
+                    {
+                      icon: BarChart3,
+                      title: "Advanced Analytics",
+                      description: "Deep insights with AI-powered analysis",
+                    },
+                    {
+                      icon: Shield,
+                      title: "Risk Assessment",
+                      description:
+                        "Proactive risk identification and mitigation",
+                    },
+                    {
+                      icon: FileText,
+                      title: "Automated Reporting",
+                      description: "Generate comprehensive reports instantly",
+                    },
+                    {
+                      icon: TrendingUp,
+                      title: "Performance Tracking",
+                      description: "Monitor improvements over time",
+                    },
+                    {
+                      icon: Users,
+                      title: "Supplier Ranking",
+                      description: "Ranking amongst other suppliers",
+                    },
+                    {
+                      icon: Globe,
+                      title: "Global Benchmarking",
+                      description: "Comparison with international suppliers",
+                    },
+                  ].map((feature, index) => {
+                    const Icon = feature.icon;
+
+                    // Light pastel background classes (Tailwind-friendly)
+                    const bgColors = [
+                      "bg-blue-50",
+                      "bg-green-50",
+                      "bg-purple-50",
+                      "bg-yellow-50",
+                      "bg-pink-50",
+                      "bg-indigo-50",
+                    ];
+                    const bgColor = bgColors[index % bgColors.length];
+
+                    return (
+                      <Card
+                        key={index}
+                        className={`w-full hover:shadow-lg transition-all duration-300 border-0 ${bgColor} dark:bg-white/5 backdrop-blur-sm`}
+                      >
+                        <CardHeader>
+                          <Icon className="h-8 w-8 text-primary mb-2" />
+                          <CardTitle className="text-lg">
+                            {feature.title}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription className="text-base">
+                            {feature.description}
+                          </CardDescription>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+>>>>>>> supplier
 
               <TabsContent value="benefits" className="space-y-8 w-full">
                 <div className="grid lg:grid-cols-2 gap-8 w-full">
@@ -1434,6 +2179,7 @@ export default function Dashboard() {
                     <CardContent className="space-y-4">
                       <div className="flex items-center space-x-3">
                         <CheckCircle className="h-5 w-5 text-green-600" />
+<<<<<<< HEAD
                         <span className="text-base">Reduce procurement costs by up to 15%</span>
                       </div>
                       <div className="flex items-center space-x-3">
@@ -1447,6 +2193,29 @@ export default function Dashboard() {
                       <div className="flex items-center space-x-3">
                         <CheckCircle className="h-5 w-5 text-green-600" />
                         <span className="text-base">Ensure regulatory compliance</span>
+=======
+                        <span className="text-base">
+                          Reduce procurement costs by up to 15%
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-base">
+                          Improve supplier performance by 25%
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-base">
+                          Enhance brand reputation and customer trust
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-base">
+                          Ensure regulatory compliance
+                        </span>
+>>>>>>> supplier
                       </div>
                     </CardContent>
                   </Card>
@@ -1473,7 +2242,11 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center space-x-3">
                         <CheckCircle className="h-5 w-5 text-blue-600" />
+<<<<<<< HEAD
                         <span>Contribute to UN  Development Goals</span>
+=======
+                        <span>Contribute to UN Development Goals</span>
+>>>>>>> supplier
                       </div>
                     </CardContent>
                   </Card>
@@ -1488,7 +2261,16 @@ export default function Dashboard() {
                       price: "$99",
                       period: "/month",
                       description: "Perfect for small businesses",
+<<<<<<< HEAD
                       features: ["Up to 50 suppliers", "Basic ESG analysis", "Monthly reports", "Email support"],
+=======
+                      features: [
+                        "Up to 50 suppliers",
+                        "Basic ESG analysis",
+                        "Monthly reports",
+                        "Email support",
+                      ],
+>>>>>>> supplier
                       popular: false,
                     },
                     {
@@ -1522,7 +2304,15 @@ export default function Dashboard() {
                   ].map((plan, index) => (
                     <Card
                       key={index}
+<<<<<<< HEAD
                       className={`relative ${plan.popular ? "border-primary shadow-lg scale-105" : "border-0 bg-background/50 backdrop-blur-sm"}`}
+=======
+                      className={`relative ${
+                        plan.popular
+                          ? "border-primary shadow-lg scale-105"
+                          : "border-0 bg-background/50 backdrop-blur-sm"
+                      }`}
+>>>>>>> supplier
                     >
                       {plan.popular && (
                         <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary to-blue-600">
@@ -1530,10 +2320,21 @@ export default function Dashboard() {
                         </Badge>
                       )}
                       <CardHeader className="text-center">
+<<<<<<< HEAD
                         <CardTitle className="text-2xl font-heading">{plan.name}</CardTitle>
                         <div className="text-4xl font-bold">
                           {plan.price}
                           <span className="text-lg text-muted-foreground">{plan.period}</span>
+=======
+                        <CardTitle className="text-2xl font-heading">
+                          {plan.name}
+                        </CardTitle>
+                        <div className="text-4xl font-bold">
+                          {plan.price}
+                          <span className="text-lg text-muted-foreground">
+                            {plan.period}
+                          </span>
+>>>>>>> supplier
                         </div>
                         <CardDescription>{plan.description}</CardDescription>
                       </CardHeader>
@@ -1544,7 +2345,17 @@ export default function Dashboard() {
                             <span className="text-sm">{feature}</span>
                           </div>
                         ))}
+<<<<<<< HEAD
                         <Button className={`w-full ${plan.popular ? "bg-gradient-to-r from-primary to-blue-600" : ""}`}>
+=======
+                        <Button
+                          className={`w-full ${
+                            plan.popular
+                              ? "bg-gradient-to-r from-primary to-blue-600"
+                              : ""
+                          }`}
+                        >
+>>>>>>> supplier
                           Get Started
                         </Button>
                       </CardContent>
@@ -1555,6 +2366,7 @@ export default function Dashboard() {
             </Tabs>
           </div>
         </section>
+<<<<<<< HEAD
 
 
       </div>
@@ -1562,3 +2374,10 @@ export default function Dashboard() {
     </div>
   )
 }
+=======
+      </div>
+      <Chatbot />
+    </div>
+  );
+}
+>>>>>>> supplier

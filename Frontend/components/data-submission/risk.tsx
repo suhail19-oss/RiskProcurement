@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Upload, CheckCircle, AlertTriangle, Shield, Activity, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
+<<<<<<< HEAD
 import { OperationalRiskSection } from "@/components/data-submission/sections/OperationalRiskSection"
 import { ComplianceLegalRiskSection } from "@/components/data-submission/sections/ComplianceLegalRiskSection"
 import { QualityRiskSection } from "@/components/data-submission/sections/QualityRiskSection"
@@ -22,6 +23,16 @@ const sections = [
   { id: "esg", title: "ESG Risk", icon: AlertCircle, description: "Environmental, Social, and Governance factors" },
   { id: "geopolitical", title: "Geopolitical Risk", icon: AlertTriangle, description: "Political and trade-related risks" },
   { id: "logistics", title: "Logistics Risk", icon: Activity, description: "Supply chain and delivery metrics" },
+=======
+import { RiskOverviewSection } from "@/components/data-submission/sections/RiskOverviewSection"
+import { RiskMitigationSection } from "@/components/data-submission/sections/RiskMitigationSection"
+
+type SectionId = 'overview' | 'mitigation' | 'documents';
+
+const sections = [
+  { id: "overview", title: "Risk Overview", icon: AlertCircle, description: "Key risk indicators and exposures" },
+  { id: "mitigation", title: "Risk Mitigation", icon: Shield, description: "Risk control measures and strategies" },
+>>>>>>> supplier
   { id: "documents", title: "Documents", icon: Upload, description: "Supporting documentation" }
 ]
 
@@ -29,6 +40,7 @@ const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 const email = userData.email;
 
 export default function Risk() {
+<<<<<<< HEAD
   // Operational Risk State
   const [firstPassYield, setFirstPassYield] = useState("");
   const [fpyNormalized, setFpyNormalized] = useState("");
@@ -89,18 +101,40 @@ export default function Risk() {
   const [isoCertificationScore, setIsoCertificationScore] = useState("");
   const [contractValue, setContractValue] = useState("");
 
+=======
+  // Risk state variables
+  const [financialRiskScore, setFinancialRiskScore] = useState("");
+  const [operationalRiskScore, setOperationalRiskScore] = useState("");
+  const [complianceRiskScore, setComplianceRiskScore] = useState("");
+  const [reputationRiskScore, setReputationRiskScore] = useState("");
+  const [cyberRiskScore, setCyberRiskScore] = useState("");
+  const [supplyChainRiskScore, setSupplyChainRiskScore] = useState("");
+  
+  // Mitigation state variables
+  const [riskMitigationBudget, setRiskMitigationBudget] = useState("");
+  const [riskTrainingHours, setRiskTrainingHours] = useState("");
+  const [incidentsLastYear, setIncidentsLastYear] = useState("");
+  const [insuranceCoverageAmount, setInsuranceCoverageAmount] = useState("");
+  const [businessContinuityPlans, setBusinessContinuityPlans] = useState("");
+  
+>>>>>>> supplier
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasData, setHasData] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{ riskDocument?: File }>({});
 
   const [expandedSections, setExpandedSections] = useState({
+<<<<<<< HEAD
     operational: true,
     compliance: false,
     quality: false,
     esg: false,
     geopolitical: false,
     logistics: false,
+=======
+    overview: true,
+    mitigation: false,
+>>>>>>> supplier
     documents: false
   });
 
@@ -111,6 +145,7 @@ export default function Risk() {
     }))
   };
 
+<<<<<<< HEAD
   const updateRiskFormFields = (data: any) => {
     // Operational Risk
     setFirstPassYield(data.first_pass_yield?.toString() || "");
@@ -197,6 +232,9 @@ export default function Risk() {
     }
     checkData();
   }, [])
+=======
+  // Placeholder for data prefilling
+>>>>>>> supplier
 
   const handleFileUpload = async (key: string, file: File) => {
     // Placeholder implementation
@@ -277,6 +315,7 @@ export default function Risk() {
 
           {expandedSections[section.id as SectionId] && (
             <CardContent className="space-y-6 animate-fade-in">
+<<<<<<< HEAD
               {section.id === "operational" && (
                 <OperationalRiskSection
                   firstPassYield={firstPassYield}
@@ -396,6 +435,37 @@ export default function Risk() {
                   setIsoCertificationScore={setIsoCertificationScore}
                   contractValue={contractValue}
                   setContractValue={setContractValue}
+=======
+              {section.id === "overview" && (
+                <RiskOverviewSection
+                  financialRiskScore={financialRiskScore}
+                  setFinancialRiskScore={setFinancialRiskScore}
+                  operationalRiskScore={operationalRiskScore}
+                  setOperationalRiskScore={setOperationalRiskScore}
+                  complianceRiskScore={complianceRiskScore}
+                  setComplianceRiskScore={setComplianceRiskScore}
+                  reputationRiskScore={reputationRiskScore}
+                  setReputationRiskScore={setReputationRiskScore}
+                  cyberRiskScore={cyberRiskScore}
+                  setCyberRiskScore={setCyberRiskScore}
+                  supplyChainRiskScore={supplyChainRiskScore}
+                  setSupplyChainRiskScore={setSupplyChainRiskScore}
+                />
+              )}
+
+              {section.id === "mitigation" && (
+                <RiskMitigationSection
+                  riskMitigationBudget={riskMitigationBudget}
+                  setRiskMitigationBudget={setRiskMitigationBudget}
+                  riskTrainingHours={riskTrainingHours}
+                  setRiskTrainingHours={setRiskTrainingHours}
+                  incidentsLastYear={incidentsLastYear}
+                  setIncidentsLastYear={setIncidentsLastYear}
+                  insuranceCoverageAmount={insuranceCoverageAmount}
+                  setInsuranceCoverageAmount={setInsuranceCoverageAmount}
+                  businessContinuityPlans={businessContinuityPlans}
+                  setBusinessContinuityPlans={setBusinessContinuityPlans}
+>>>>>>> supplier
                 />
               )}
 

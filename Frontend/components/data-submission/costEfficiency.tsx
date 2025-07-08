@@ -7,15 +7,23 @@ import { Progress } from "@/components/ui/progress"
 import { Upload, CheckCircle, AlertTriangle, DollarSign, TrendingDown, BarChart2, ChevronDown, ChevronUp } from "lucide-react"
 import { CostMetricsSection } from "@/components/data-submission/sections/CostMetricsSection"
 import { EfficiencyMetricsSection } from "@/components/data-submission/sections/EfficiencyMetricsSection"
+<<<<<<< HEAD
 import { ComplianceMetricsSection } from "@/components/data-submission/sections/ComplianceMetricsSection"
 import Loading from "./loading"
 
 type SectionId = 'costs' | 'efficiency' | 'compliance' | 'documents';
+=======
+
+type SectionId = 'costs' | 'efficiency' | 'documents';
+>>>>>>> supplier
 
 const sections = [
   { id: "costs", title: "Cost Metrics", icon: DollarSign, description: "Direct and indirect cost measurements" },
   { id: "efficiency", title: "Efficiency Metrics", icon: TrendingDown, description: "Operational efficiency indicators" },
+<<<<<<< HEAD
   { id: "compliance", title: "Compliance Metrics", icon: BarChart2, description: "Regulatory and legal compliance factors" },
+=======
+>>>>>>> supplier
   { id: "documents", title: "Documents", icon: Upload, description: "Supporting documentation" }
 ]
 
@@ -23,6 +31,7 @@ const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 const email = userData.email;
 
 export default function CostEfficiency() {
+<<<<<<< HEAD
 
   // Cost Metrics State
   const [unitPriceBenchmarking, setUnitPriceBenchmarking] = useState("");
@@ -49,6 +58,21 @@ export default function CostEfficiency() {
   const [govtSanctions, setGovtSanctions] = useState("");
   const [sanctionScore, setSanctionScore] = useState("");
 
+=======
+  // Cost state variables
+  const [productionCostPerUnit, setProductionCostPerUnit] = useState("");
+  const [logisticsCostPerUnit, setLogisticsCostPerUnit] = useState("");
+  const [overheadCostPercentage, setOverheadCostPercentage] = useState("");
+  const [employeeCostPercentage, setEmployeeCostPercentage] = useState("");
+  
+  // Efficiency state variables
+  const [energyCostPerUnit, setEnergyCostPerUnit] = useState("");
+  const [materialUtilizationRate, setMaterialUtilizationRate] = useState("");
+  const [equipmentUtilizationRate, setEquipmentUtilizationRate] = useState("");
+  const [laborProductivity, setLaborProductivity] = useState("");
+  const [wasteReductionPercentage, setWasteReductionPercentage] = useState("");
+  
+>>>>>>> supplier
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasData, setHasData] = useState(false);
@@ -57,7 +81,10 @@ export default function CostEfficiency() {
   const [expandedSections, setExpandedSections] = useState({
     costs: true,
     efficiency: false,
+<<<<<<< HEAD
     compliance: false,
+=======
+>>>>>>> supplier
     documents: false
   });
 
@@ -68,6 +95,7 @@ export default function CostEfficiency() {
     }))
   };
 
+<<<<<<< HEAD
   const updateCostFormFields = (data: any) => {
     // Cost Metrics
     setUnitPriceBenchmarking(data.unit_price_benchmarking?.toString() || "");
@@ -196,13 +224,21 @@ export default function CostEfficiency() {
     console.error("Upload error:", err);
     alert("Failed to upload ESG report. Please try again.");
   }
+=======
+  const handleFileUpload = async (key: string, file: File) => {
+    // Placeholder implementation
+    return;
+>>>>>>> supplier
   };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+<<<<<<< HEAD
 
       <Loading isLoading = {isLoading} uploadProgress= {uploadProgress} />
 
+=======
+>>>>>>> supplier
       {/* Progress Bar with Status Message */}
       <div className="max-w-6xl mx-auto mb-8 animate-slide-up">
         <div className="flex justify-between items-center mb-4">
@@ -277,6 +313,7 @@ export default function CostEfficiency() {
             <CardContent className="space-y-6 animate-fade-in">
               {section.id === "costs" && (
                 <CostMetricsSection
+<<<<<<< HEAD
                   unitPriceBenchmarking={unitPriceBenchmarking}
                   setUnitPriceBenchmarking={setUnitPriceBenchmarking}
                   volumeDiscountPotential={volumeDiscountPotential}
@@ -285,11 +322,22 @@ export default function CostEfficiency() {
                   setPaymentTermsFlexibility={setPaymentTermsFlexibility}
                   contractValue={contractValue}
                   setContractValue={setContractValue}
+=======
+                  productionCostPerUnit={productionCostPerUnit}
+                  setProductionCostPerUnit={setProductionCostPerUnit}
+                  logisticsCostPerUnit={logisticsCostPerUnit}
+                  setLogisticsCostPerUnit={setLogisticsCostPerUnit}
+                  overheadCostPercentage={overheadCostPercentage}
+                  setOverheadCostPercentage={setOverheadCostPercentage}
+                  employeeCostPercentage={employeeCostPercentage}
+                  setEmployeeCostPercentage={setEmployeeCostPercentage}
+>>>>>>> supplier
                 />
               )}
 
               {section.id === "efficiency" && (
                 <EfficiencyMetricsSection
+<<<<<<< HEAD
                   inTransitDelayDays={inTransitDelayDays}
                   setInTransitDelayDays={setInTransitDelayDays}
                   inTransitDelayFactor={inTransitDelayFactor}
@@ -325,6 +373,18 @@ export default function CostEfficiency() {
                   setGovtSanctions={setGovtSanctions}
                   sanctionScore={sanctionScore}
                   setSanctionScore={setSanctionScore}
+=======
+                  energyCostPerUnit={energyCostPerUnit}
+                  setEnergyCostPerUnit={setEnergyCostPerUnit}
+                  materialUtilizationRate={materialUtilizationRate}
+                  setMaterialUtilizationRate={setMaterialUtilizationRate}
+                  equipmentUtilizationRate={equipmentUtilizationRate}
+                  setEquipmentUtilizationRate={setEquipmentUtilizationRate}
+                  laborProductivity={laborProductivity}
+                  setLaborProductivity={setLaborProductivity}
+                  wasteReductionPercentage={wasteReductionPercentage}
+                  setWasteReductionPercentage={setWasteReductionPercentage}
+>>>>>>> supplier
                 />
               )}
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 
 import { useState, useEffect } from "react"
@@ -7,6 +8,36 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+=======
+"use client";
+
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+>>>>>>> supplier
 import {
   Dialog,
   DialogContent,
@@ -14,11 +45,36 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+<<<<<<< HEAD
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Search, Filter, MapPin, Calendar, FileText, Award, TrendingUp, ExternalLink } from "lucide-react"
+=======
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Search,
+  Filter,
+  MapPin,
+  Calendar,
+  FileText,
+  Award,
+  TrendingUp,
+  ExternalLink,
+} from "lucide-react";
+>>>>>>> supplier
 
 const suppliers = [
   {
@@ -28,14 +84,22 @@ const suppliers = [
     category: "Automotive",
     esgScore: 92,
     overallScore: 89,
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> supplier
     joinDate: "2022-03-15",
     status: "Active",
     contact: "contact@ford.com",
     website: "https://www.ford.com/",
   },
+<<<<<<< HEAD
 
 ]
+=======
+];
+>>>>>>> supplier
 
 const esgHistoryData = [
   { month: "Jan", score: 85 },
@@ -44,6 +108,7 @@ const esgHistoryData = [
   { month: "Apr", score: 90 },
   { month: "May", score: 92 },
   { month: "Jun", score: 92 },
+<<<<<<< HEAD
 ]
 
 const documents = [
@@ -56,11 +121,30 @@ function getScoreBadgeVariant(score: number) {
   if (score >= 80) return "secondary"
   if (score >= 70) return "outline"
   return "destructive"
+=======
+];
+
+const documents = [
+  {
+    name: "ESG Report 2023",
+    type: "Policy",
+    date: "2025-06-19",
+    status: "Approved",
+  },
+];
+
+function getScoreBadgeVariant(score: number) {
+  if (score >= 90) return "default";
+  if (score >= 80) return "secondary";
+  if (score >= 70) return "outline";
+  return "destructive";
+>>>>>>> supplier
 }
 
 function getStatusBadgeVariant(status: string) {
   switch (status) {
     case "Active":
+<<<<<<< HEAD
       return "default"
     case "Under Review":
       return "secondary"
@@ -68,18 +152,35 @@ function getStatusBadgeVariant(status: string) {
       return "outline"
     default:
       return "destructive"
+=======
+      return "default";
+    case "Under Review":
+      return "secondary";
+    case "Pending":
+      return "outline";
+    default:
+      return "destructive";
+>>>>>>> supplier
   }
 }
 
 export default function SupplierDirectory() {
+<<<<<<< HEAD
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [scoreFilter, setScoreFilter] = useState("all")
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null)
+=======
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [scoreFilter, setScoreFilter] = useState("all");
+  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+>>>>>>> supplier
 
   const filteredSuppliers = suppliers.filter((supplier) => {
     const matchesSearch =
       supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+<<<<<<< HEAD
       supplier.location.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = categoryFilter === "all" || supplier.category === categoryFilter
     const matchesScore =
@@ -147,17 +248,100 @@ export default function SupplierDirectory() {
     };
   
    useEffect(() => {
+=======
+      supplier.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "all" || supplier.category === categoryFilter;
+    const matchesScore =
+      scoreFilter === "all" ||
+      (scoreFilter === "high" && supplier.esgScore >= 85) ||
+      (scoreFilter === "medium" &&
+        supplier.esgScore >= 70 &&
+        supplier.esgScore < 85) ||
+      (scoreFilter === "low" && supplier.esgScore < 70);
+
+    return matchesSearch && matchesCategory && matchesScore;
+  });
+
+  const categories = [...new Set(suppliers.map((s) => s.category))];
+
+  const [allScores, setAllScores] = useState<{
+    E_score?: number;
+    S_score?: number;
+    G_score?: number;
+    ESG_score?: number;
+    Cost_Efficiency?: number;
+    Risk_Score?: number;
+    Reliability_Score?: number;
+  }>({});
+  const [overallScore, setOverallScore] = useState(0);
+
+  const handleShowOverallScore = async () => {
+    const esgCategoryRaw = localStorage.getItem("esg_category_scores");
+    const remainingRaw = localStorage.getItem("remainingScores");
+    const overall_score = localStorage.getItem("overallScore");
+    setOverallScore(overall_score ? parseFloat(overall_score) : 0);
+    if (!esgCategoryRaw || !remainingRaw) {
+      alert("Score data not found in localStorage.");
+      return;
+    }
+
+    try {
+      const parsedESG = JSON.parse(esgCategoryRaw);
+      const parsedRemaining = JSON.parse(remainingRaw);
+
+      const { E_score, S_score, G_score, ESG_score } = parsedESG;
+
+      const scoreText = parsedRemaining[0]; // "Cost Efficiency: 88\nRisk Score: 12\nReliability Score: 95"
+      const scoreLines = scoreText.split("\n");
+
+      const remainingScores: any = {};
+      scoreLines.forEach((line: string) => {
+        const [key, value] = line.split(":").map((s) => s.trim());
+        if (key === "Cost Efficiency")
+          remainingScores.Cost_Efficiency = parseFloat(value);
+        else if (key === "Risk Score")
+          remainingScores.Risk_Score = parseFloat(value);
+        else if (key === "Reliability Score")
+          remainingScores.Reliability_Score = parseFloat(value);
+      });
+
+      setAllScores({
+        E_score,
+        S_score,
+        G_score,
+        ESG_score,
+        ...remainingScores,
+      });
+    } catch (e) {
+      console.error("Error parsing localStorage data:", e);
+      alert("Failed to load score data.");
+    }
+  };
+
+  useEffect(() => {
+>>>>>>> supplier
     handleShowOverallScore();
   }, []);
 
   return (
     <div className="container mx-auto p-6 space-y-8">
+<<<<<<< HEAD
       <div className="h-10" /> 
+=======
+      <div className="h-10" />
+>>>>>>> supplier
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
           Supplier Directory
         </h1>
+<<<<<<< HEAD
         <p className="text-xl text-muted-foreground">Browse and manage your supplier network</p>
+=======
+        <p className="text-xl text-muted-foreground">
+          Browse and manage your supplier network
+        </p>
+>>>>>>> supplier
       </div>
 
       {/* Filters */}
@@ -209,10 +393,19 @@ export default function SupplierDirectory() {
       </Card>
 
       {/* Supplier Table */}
+<<<<<<< HEAD
      <Card>
         <CardHeader>
           <CardTitle>Suppliers ({filteredSuppliers.length})</CardTitle>
           <CardDescription>Click on any supplier to view detailed information</CardDescription>
+=======
+      <Card>
+        <CardHeader>
+          <CardTitle>Suppliers ({filteredSuppliers.length})</CardTitle>
+          <CardDescription>
+            Click on any supplier to view detailed information
+          </CardDescription>
+>>>>>>> supplier
         </CardHeader>
         <CardContent>
           <Table>
@@ -223,18 +416,34 @@ export default function SupplierDirectory() {
                 <TableHead>Category</TableHead>
                 <TableHead>ESG Score</TableHead>
                 <TableHead>Overall Score</TableHead> {/* New column header */}
+<<<<<<< HEAD
               
+=======
+>>>>>>> supplier
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredSuppliers.map((supplier) => (
+<<<<<<< HEAD
                 <TableRow key={supplier.id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell>
                     <div>
                       <div className="font-medium">{supplier.name}</div>
                       <div className="text-sm text-muted-foreground">{supplier.contact}</div>
+=======
+                <TableRow
+                  key={supplier.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                >
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{supplier.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {supplier.contact}
+                      </div>
+>>>>>>> supplier
                     </div>
                   </TableCell>
                   <TableCell>
@@ -245,12 +454,23 @@ export default function SupplierDirectory() {
                   </TableCell>
                   <TableCell>{supplier.category}</TableCell>
                   <TableCell>
+<<<<<<< HEAD
                     <Badge variant={getScoreBadgeVariant(allScores.ESG_score||supplier.esgScore)}>{allScores.ESG_score}/100</Badge>
+=======
+                    <Badge
+                      variant={getScoreBadgeVariant(
+                        allScores.ESG_score || supplier.esgScore
+                      )}
+                    >
+                      {allScores.ESG_score}/100
+                    </Badge>
+>>>>>>> supplier
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary">{overallScore}/100</Badge>
                   </TableCell>
                   <TableCell>
+<<<<<<< HEAD
                     <Badge variant={getStatusBadgeVariant(supplier.status)}>{supplier.status}</Badge>
                   </TableCell>
                   
@@ -258,6 +478,21 @@ export default function SupplierDirectory() {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm" onClick={() => setSelectedSupplier(supplier)}>
+=======
+                    <Badge variant={getStatusBadgeVariant(supplier.status)}>
+                      {supplier.status}
+                    </Badge>
+                  </TableCell>
+
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedSupplier(supplier)}
+                        >
+>>>>>>> supplier
                           View Details
                         </Button>
                       </DialogTrigger>
@@ -265,17 +500,37 @@ export default function SupplierDirectory() {
                         <DialogHeader>
                           <DialogTitle className="flex items-center space-x-2">
                             <span>{supplier.name}</span>
+<<<<<<< HEAD
                             <Badge variant={getScoreBadgeVariant(allScores.ESG_score ?? 0)}>
                               ESG: {allScores.ESG_score ?? 0}/100
                             </Badge>
                           </DialogTitle>
                           <DialogDescription>Detailed supplier profile and performance metrics</DialogDescription>
+=======
+                            <Badge
+                              variant={getScoreBadgeVariant(
+                                allScores.ESG_score ?? 0
+                              )}
+                            >
+                              ESG: {allScores.ESG_score ?? 0}/100
+                            </Badge>
+                          </DialogTitle>
+                          <DialogDescription>
+                            Detailed supplier profile and performance metrics
+                          </DialogDescription>
+>>>>>>> supplier
                         </DialogHeader>
 
                         <Tabs defaultValue="overview" className="w-full">
                           <TabsList className="grid w-full grid-cols-4">
                             <TabsTrigger value="overview">Overview</TabsTrigger>
+<<<<<<< HEAD
                             <TabsTrigger value="documents">Documents</TabsTrigger>
+=======
+                            <TabsTrigger value="documents">
+                              Documents
+                            </TabsTrigger>
+>>>>>>> supplier
                             <TabsTrigger value="kpis">KPIs</TabsTrigger>
                             <TabsTrigger value="esg">ESG History</TabsTrigger>
                           </TabsList>
@@ -284,7 +539,13 @@ export default function SupplierDirectory() {
                             <div className="grid md:grid-cols-2 gap-4">
                               <Card>
                                 <CardHeader>
+<<<<<<< HEAD
                                   <CardTitle className="text-lg">Contact Information</CardTitle>
+=======
+                                  <CardTitle className="text-lg">
+                                    Contact Information
+                                  </CardTitle>
+>>>>>>> supplier
                                 </CardHeader>
                                 <CardContent className="space-y-2">
                                   <div className="flex items-center space-x-2">
@@ -297,14 +558,24 @@ export default function SupplierDirectory() {
                                   </div>
                                   <div className="flex items-center space-x-2">
                                     <ExternalLink className="h-4 w-4 text-muted-foreground" />
+<<<<<<< HEAD
                                     <a href={`https://${supplier.website}`} className="text-blue-600 hover:underline">
+=======
+                                    <a
+                                      href={`https://${supplier.website}`}
+                                      className="text-blue-600 hover:underline"
+                                    >
+>>>>>>> supplier
                                       {supplier.website}
                                     </a>
                                   </div>
                                 </CardContent>
                               </Card>
+<<<<<<< HEAD
 
                              
+=======
+>>>>>>> supplier
                             </div>
                           </TabsContent>
 
@@ -315,7 +586,13 @@ export default function SupplierDirectory() {
                                   <TrendingUp className="h-5 w-5 text-green-600" />
                                   <span>ESG Score Trend</span>
                                 </CardTitle>
+<<<<<<< HEAD
                                 <CardDescription>6-month performance history</CardDescription>
+=======
+                                <CardDescription>
+                                  6-month performance history
+                                </CardDescription>
+>>>>>>> supplier
                               </CardHeader>
                               <CardContent>
                                 <ResponsiveContainer width="100%" height={300}>
@@ -329,7 +606,15 @@ export default function SupplierDirectory() {
                                       dataKey="score"
                                       stroke="#10b981"
                                       strokeWidth={3}
+<<<<<<< HEAD
                                       dot={{ fill: "#10b981", strokeWidth: 2, r: 6 }}
+=======
+                                      dot={{
+                                        fill: "#10b981",
+                                        strokeWidth: 2,
+                                        r: 6,
+                                      }}
+>>>>>>> supplier
                                     />
                                   </LineChart>
                                 </ResponsiveContainer>
@@ -348,17 +633,40 @@ export default function SupplierDirectory() {
                               <CardContent>
                                 <div className="space-y-3">
                                   {documents.map((doc, i) => (
+<<<<<<< HEAD
                                     <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
                                       <div className="flex items-center space-x-3">
                                         <FileText className="h-4 w-4 text-muted-foreground" />
                                         <div>
                                           <div className="font-medium">{doc.name}</div>
+=======
+                                    <div
+                                      key={i}
+                                      className="flex items-center justify-between p-3 border rounded-lg"
+                                    >
+                                      <div className="flex items-center space-x-3">
+                                        <FileText className="h-4 w-4 text-muted-foreground" />
+                                        <div>
+                                          <div className="font-medium">
+                                            {doc.name}
+                                          </div>
+>>>>>>> supplier
                                           <div className="text-sm text-muted-foreground">
                                             {doc.type} • {doc.date}
                                           </div>
                                         </div>
                                       </div>
+<<<<<<< HEAD
                                       <Badge variant={getStatusBadgeVariant(doc.status)}>{doc.status}</Badge>
+=======
+                                      <Badge
+                                        variant={getStatusBadgeVariant(
+                                          doc.status
+                                        )}
+                                      >
+                                        {doc.status}
+                                      </Badge>
+>>>>>>> supplier
                                     </div>
                                   ))}
                                 </div>
@@ -370,20 +678,38 @@ export default function SupplierDirectory() {
                             <div className="grid md:grid-cols-3 gap-4">
                               <Card>
                                 <CardHeader>
+<<<<<<< HEAD
                                   <CardTitle className="text-lg">Environmental</CardTitle>
+=======
+                                  <CardTitle className="text-lg">
+                                    Environmental
+                                  </CardTitle>
+>>>>>>> supplier
                                 </CardHeader>
                                 <CardContent>
                                   <div className="space-y-3">
                                     <div>
                                       <div className="flex justify-between mb-1">
+<<<<<<< HEAD
                                         <span className="text-sm">Carbon Reduction</span>
+=======
+                                        <span className="text-sm">
+                                          Carbon Reduction
+                                        </span>
+>>>>>>> supplier
                                         <span className="text-sm">25%</span>
                                       </div>
                                       <Progress value={25} />
                                     </div>
                                     <div>
                                       <div className="flex justify-between mb-1">
+<<<<<<< HEAD
                                         <span className="text-sm">Renewable Energy</span>
+=======
+                                        <span className="text-sm">
+                                          Renewable Energy
+                                        </span>
+>>>>>>> supplier
                                         <span className="text-sm">95%</span>
                                       </div>
                                       <Progress value={95} />
@@ -394,20 +720,38 @@ export default function SupplierDirectory() {
 
                               <Card>
                                 <CardHeader>
+<<<<<<< HEAD
                                   <CardTitle className="text-lg">Social</CardTitle>
+=======
+                                  <CardTitle className="text-lg">
+                                    Social
+                                  </CardTitle>
+>>>>>>> supplier
                                 </CardHeader>
                                 <CardContent>
                                   <div className="space-y-3">
                                     <div>
                                       <div className="flex justify-between mb-1">
+<<<<<<< HEAD
                                         <span className="text-sm">Employee Safety</span>
+=======
+                                        <span className="text-sm">
+                                          Employee Safety
+                                        </span>
+>>>>>>> supplier
                                         <span className="text-sm">98%</span>
                                       </div>
                                       <Progress value={98} />
                                     </div>
                                     <div>
                                       <div className="flex justify-between mb-1">
+<<<<<<< HEAD
                                         <span className="text-sm">Diversity Index</span>
+=======
+                                        <span className="text-sm">
+                                          Diversity Index
+                                        </span>
+>>>>>>> supplier
                                         <span className="text-sm">78%</span>
                                       </div>
                                       <Progress value={78} />
@@ -418,20 +762,38 @@ export default function SupplierDirectory() {
 
                               <Card>
                                 <CardHeader>
+<<<<<<< HEAD
                                   <CardTitle className="text-lg">Governance</CardTitle>
+=======
+                                  <CardTitle className="text-lg">
+                                    Governance
+                                  </CardTitle>
+>>>>>>> supplier
                                 </CardHeader>
                                 <CardContent>
                                   <div className="space-y-3">
                                     <div>
                                       <div className="flex justify-between mb-1">
+<<<<<<< HEAD
                                         <span className="text-sm">Compliance Rate</span>
+=======
+                                        <span className="text-sm">
+                                          Compliance Rate
+                                        </span>
+>>>>>>> supplier
                                         <span className="text-sm">92%</span>
                                       </div>
                                       <Progress value={92} />
                                     </div>
                                     <div>
                                       <div className="flex justify-between mb-1">
+<<<<<<< HEAD
                                         <span className="text-sm">Transparency</span>
+=======
+                                        <span className="text-sm">
+                                          Transparency
+                                        </span>
+>>>>>>> supplier
                                         <span className="text-sm">85%</span>
                                       </div>
                                       <Progress value={85} />
@@ -452,5 +814,9 @@ export default function SupplierDirectory() {
         </CardContent>
       </Card>
     </div>
+<<<<<<< HEAD
   )
+=======
+  );
+>>>>>>> supplier
 }

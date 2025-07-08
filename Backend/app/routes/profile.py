@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> supplier
 from fastapi import APIRouter, HTTPException, Depends
 from app.auth.jwt import get_current_user_from_token
 from app.database import db
@@ -22,6 +25,7 @@ async def get_profile(current_user: Dict = Depends(get_current_user_from_token))
             raise HTTPException(status_code=404, detail="User not found in database")
 
         user = serialize_mongo_document(user)
+<<<<<<< HEAD
         # Extract email domain
         email_domain = user_email.split('@')[1]
         # Find company based on email domain and role
@@ -46,13 +50,33 @@ async def get_profile(current_user: Dict = Depends(get_current_user_from_token))
             if company_doc:
                 company_doc = serialize_mongo_document(company_doc)
                 company_name = company_doc.get("company_name", "Not found")
+=======
+        
+        # Extract email domain
+        email_domain = user_email.split('@')[1]
+        
+        # Find company based on email domain and role
+        company_name = "Not found"
+        if user["role"].lower() == "supplier":
+            company_doc = await db.suppliers.find_one({"email_domain": email_domain})
+        else:
+            company_doc = await db.companies.find_one({"email_domain": email_domain})
+        
+        if company_doc:
+            company_doc = serialize_mongo_document(company_doc)
+            company_name = company_doc.get("company_name", "Not found")
+>>>>>>> supplier
 
         profile_data = {
             "email": user_email,
             "role": user.get("role", "employee"),
             "company_name": company_name,
+<<<<<<< HEAD
             "email_domain": email_domain,
             "document_status": document_status
+=======
+            "email_domain": email_domain
+>>>>>>> supplier
         }
 
         return {"success": True, "data": profile_data}
@@ -86,6 +110,10 @@ async def update_profile(
 
         # Get only the fields that were actually provided
         update_data = profile_data.dict(exclude_unset=True)
+<<<<<<< HEAD
+=======
+
+>>>>>>> supplier
         if not update_data:
             raise HTTPException(status_code=400, detail="No data provided for update")
 
