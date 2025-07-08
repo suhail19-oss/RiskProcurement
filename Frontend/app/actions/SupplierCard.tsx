@@ -39,10 +39,7 @@ interface SupplierCardProps {
   onActionUpdate: (actionId: string, status: string) => void;
 }
 
-export const SupplierCard: React.FC<any> = ({
-  supplier,
-  onActionUpdate,
-}) => {
+export const SupplierCard: React.FC<any> = ({ supplier, onActionUpdate }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const violations = supplier.violations;
@@ -65,6 +62,22 @@ export const SupplierCard: React.FC<any> = ({
     });
   };
 
+  const getSupplierLatestAssessment = (supplier: any) => {
+    if (!supplier.actions || supplier.actions.length === 0) return "N/A";
+
+    const dates = supplier.actions.map(
+      (a: any) => new Date(a.lastAssessedAt || a.createdAt)
+    );
+
+    const latest = new Date(Math.max(...dates.map((d) => d.getTime())));
+
+    return latest.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   const getRiskGradient = (riskLevel: string) => {
     switch (riskLevel) {
       case "High":
@@ -78,7 +91,9 @@ export const SupplierCard: React.FC<any> = ({
     }
   };
 
-  const supplierProduct = products.filter((product: any) => product.id == supplier.product_id)[0];
+  const supplierProduct = products.filter(
+    (product: any) => product.id == supplier.product_id
+  )[0];
 
   return (
     <div className="group relative bg-white/70 dark:bg-zinc-900 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-zinc-700 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
@@ -124,21 +139,33 @@ export const SupplierCard: React.FC<any> = ({
                 {
                   icon: <DollarSign className="h-5 w-5 text-white" />,
                   label: "Contract Value",
-                  value: formatCurrency(supplier.risk_subfactors?.["contract_value(100m_800m)"] ?? 1000000000),
+                  value: (
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      }).format(
+                        supplier?.risk_subfactors?.[
+                          "contract_value(100m_800m)"
+                        ] || 100000000
+                      )}
+                    </span>
+                  ),
                   gradient: "from-blue-500 to-indigo-600",
                 },
                 {
                   icon: <AlertCircle className="h-5 w-5 text-white" />,
                   label: "Penalties",
-                  value: `${supplier.risk_subfactors?.compliance_legal_risk_score ?? 30}%`,
+                  value: `${supplier.risk_subfactors?.legal_risk_score ?? 30}%`,
                   gradient: "from-purple-500 to-pink-600",
                 },
-                // {
-                //   icon: <Calendar className="h-5 w-5 text-white" />,
-                //   label: "Last Assessment",
-                //   value: formatDate(supplier.lastAssessment),
-                //   gradient: "from-amber-500 to-orange-600",
-                // },
+                {
+                  icon: <Calendar className="h-5 w-5 text-white" />,
+                  label: "Last Assessment",
+                  value: formatDate(supplier.lastAssessment),
+                  gradient: "from-amber-500 to-orange-600",
+                },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -212,7 +239,13 @@ export const SupplierCard: React.FC<any> = ({
                             <span className="font-bold text-red-900 dark:text-red-300 text-lg">
                               {violation.type}
                             </span>
-                            <RiskBadge level={(violation.severity?.charAt(0).toUpperCase() + violation.severity?.slice(1))} size="sm" />
+                            <RiskBadge
+                              level={
+                                violation.severity?.charAt(0).toUpperCase() +
+                                violation.severity?.slice(1)
+                              }
+                              size="sm"
+                            />
                           </div>
                           <p className="text-red-800 dark:text-red-200 leading-relaxed">
                             {violation.description}
@@ -320,7 +353,9 @@ export const SupplierCard: React.FC<any> = ({
                         {status === "pending" && (
                           <div className="flex gap-3 pt-4 border-t border-blue-200/60 dark:border-blue-300/20">
                             <button
-                              onClick={() => onActionUpdate(supplier.id, id, "approved")}
+                              onClick={() =>
+                                onActionUpdate(supplier.id, id, "approved")
+                              }
                               className="group/approve relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                             >
                               <CheckCircle className="h-4 w-4 group-hover/approve:scale-110 transition-transform duration-300" />
@@ -328,7 +363,9 @@ export const SupplierCard: React.FC<any> = ({
                               <div className="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/approve:opacity-100 transition-opacity duration-300"></div>
                             </button>
                             <button
-                              onClick={() => onActionUpdate(supplier.id ,id, "rejected")}
+                              onClick={() =>
+                                onActionUpdate(supplier.id, id, "rejected")
+                              }
                               className="group/reject relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 text-white text-sm font-semibold rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                             >
                               <XCircle className="h-4 w-4 group-hover/reject:scale-110 transition-transform duration-300" />

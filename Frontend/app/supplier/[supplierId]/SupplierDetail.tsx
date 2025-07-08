@@ -120,7 +120,7 @@ export default function SupplierDetail({ supplier }: any) {
 
   supplier.product_name = product?.name || "Default";
   const currentSupplier = supplier;
-  
+
   // Fetch supplier news from backend
   const [supplierNews, setSupplierNews] = useState<any[]>([]);
   const [readMoreList, setReadMoreList] = useState<boolean[]>([]);
@@ -128,7 +128,7 @@ export default function SupplierDetail({ supplier }: any) {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        if(currentSupplier.company_name !== undefined){
+        if (currentSupplier.company_name !== undefined) {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/api/news/${encodeURIComponent(
               currentSupplier.company_name
@@ -138,7 +138,7 @@ export default function SupplierDetail({ supplier }: any) {
             }
           );
           const data = await res.json();
-          console.log('news data: ', data);
+          console.log("news data: ", data);
           if (data && Array.isArray(data.news)) {
             setSupplierNews(data.news);
             setReadMoreList(new Array(data.news.length).fill(false));
@@ -165,33 +165,55 @@ export default function SupplierDetail({ supplier }: any) {
   const individualRisks = [
     {
       name: "Quality Risk",
-      score: Math.round(currentSupplier.risk_subfactors?.quality_risk_score ?? 30),
-      category: calculateRiskLevel(currentSupplier.risk_subfactors?.quality_risk_score ?? 30),
+      score: Math.round(
+        currentSupplier.risk_subfactors?.quality_risk_score ?? 30
+      ),
+      category: calculateRiskLevel(
+        currentSupplier.risk_subfactors?.quality_risk_score ?? 30
+      ),
     },
     {
       name: "Logistics Risk",
-      score: Math.round(currentSupplier.risk_subfactors?.logistics_risk_score ?? 30),
-      category: calculateRiskLevel(currentSupplier.risk_subfactors?.logistics_risk_score ?? 30),
+      score: Math.round(
+        currentSupplier.risk_subfactors?.logistics_risk_score ?? 30
+      ),
+      category: calculateRiskLevel(
+        currentSupplier.risk_subfactors?.logistics_risk_score ?? 30
+      ),
     },
     {
       name: "Operational Risk",
-      score: Math.round(currentSupplier.risk_subfactors?.operational_risk_score ?? 30),
-      category: calculateRiskLevel(currentSupplier.risk_subfactors?.operational_risk_score ?? 30),
+      score: Math.round(
+        currentSupplier.risk_subfactors?.operational_risk_score ?? 30
+      ),
+      category: calculateRiskLevel(
+        currentSupplier.risk_subfactors?.operational_risk_score ?? 30
+      ),
     },
     {
       name: "Legal Risk",
-      score: Math.round(currentSupplier.risk_subfactors?.legal_dispute_score ?? 30),
-      category: calculateRiskLevel(currentSupplier.risk_subfactors?.legal_dispute_score ?? 30),
+      score: Math.round(
+        currentSupplier.risk_subfactors?.legal_risk_score ?? 30
+      ),
+      category: calculateRiskLevel(
+        currentSupplier.risk_subfactors?.legal_risk_score ?? 30
+      ),
     },
     {
       name: "ESG Risk",
       score: Math.round(currentSupplier.risk_subfactors?.esg_risk_score ?? 30),
-      category: calculateRiskLevel(currentSupplier.risk_subfactors?.esg_risk_score ?? 30),
+      category: calculateRiskLevel(
+        currentSupplier.risk_subfactors?.esg_risk_score ?? 30
+      ),
     },
     {
       name: "Geo Location Risk",
-      score: Math.round(currentSupplier.risk_subfactors?.geopolitical_risk_score ?? 30),
-      category: calculateRiskLevel(currentSupplier.risk_subfactors?.geopolitical_risk_score ?? 30),
+      score: Math.round(
+        currentSupplier.risk_subfactors?.geopolitical_risk_score ?? 30
+      ),
+      category: calculateRiskLevel(
+        currentSupplier.risk_subfactors?.geopolitical_risk_score ?? 30
+      ),
     },
   ];
 
@@ -274,7 +296,9 @@ export default function SupplierDetail({ supplier }: any) {
             <Clock className="w-7 h-7 text-orange-600 dark:text-orange-400" />
           </div>
           <h3 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1">
-            {currentSupplier.risk_subfactors?.in_transit_delays_days && 5}
+            {currentSupplier.risk_subfactors?.in_transit_delays_days
+              ? currentSupplier.risk_subfactors?.in_transit_delays_days
+              : "5"}
           </h3>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             In Transit Delay Days
@@ -300,7 +324,9 @@ export default function SupplierDetail({ supplier }: any) {
             <Star className="w-7 h-7 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1">
-            {Math.floor(currentSupplier.risk_subfactors?.product_defect_rate * 100 && 50)}
+            {Math.floor(
+              currentSupplier.risk_subfactors?.product_defect_rate * 100 && 50
+            )}
           </h3>
           <p className="text-sm text-gray-700 dark:text-gray-300">
             Defect Rate
@@ -323,7 +349,9 @@ export default function SupplierDetail({ supplier }: any) {
           </h3>
           <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
             {supplierNews.length === 0 && (
-              <div className="text-gray-500 dark:text-gray-400">No news found for this supplier.</div>
+              <div className="text-gray-500 dark:text-gray-400">
+                No news found for this supplier.
+              </div>
             )}
             {supplierNews.map((news, index) => {
               const isExpanded = readMoreList[index];
@@ -332,7 +360,7 @@ export default function SupplierDetail({ supplier }: any) {
                   key={index}
                   className="p-5 rounded-xl border bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:shadow-md"
                 >
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="mb-2">
                     <h4 className="font-semibold text-base text-gray-900 dark:text-white">
                       📰 {news.headline}
                     </h4>
@@ -341,16 +369,21 @@ export default function SupplierDetail({ supplier }: any) {
                         href={news.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-black dark:text-white hover:underline hover:cursor-pointer"
+                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                       >
-                        {news.source}
+                        Source: {news.source}
                       </a>
                     )}
                   </div>
+
                   <p className="text-sm leading-relaxed text-justify text-gray-700 dark:text-gray-300">
                     {isExpanded
                       ? news.summary
-                      : `${news.summary?.substring(0, 120) ?? ""}${news.summary && news.summary.length > 120 ? "... " : ""}`}
+                      : `${news.summary?.substring(0, 120) ?? ""}${
+                          news.summary && news.summary.length > 120
+                            ? "... "
+                            : ""
+                        }`}
                     {news.summary && news.summary.length > 120 && (
                       <button
                         className="ml-1 text-blue-500 font-medium"
@@ -375,4 +408,3 @@ export default function SupplierDetail({ supplier }: any) {
     </div>
   );
 }
-

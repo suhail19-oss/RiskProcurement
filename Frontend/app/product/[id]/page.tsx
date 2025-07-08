@@ -11,6 +11,11 @@ import {
   Award,
   Truck,
   ArrowRightCircle,
+  HandCoins,
+  BadgeDollarSignIcon,
+  BadgeDollarSign,
+  Mail,
+  CheckCircle,
 } from "lucide-react";
 import { products } from "../../data/products";
 
@@ -20,21 +25,21 @@ export default function ProductDetails() {
   const productId = params.id;
   const [productSuppliers, setProductSuppliers] = useState([]);
   useEffect(() => {
-
     const getSuppliers = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/suppliers`, {
-        method: "GET",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/suppliers`,
+        {
+          method: "GET",
+        }
+      );
       const data = await res.json();
       const productSup = data.suppliers
         .map((supplier: any, idx: number) => ({ ...supplier, supplierId: idx }))
         .filter((supplier: any) => supplier.product_id == productId);
-      //console.log("data: ", data.suppliers);
       console.log("productSupp: ", productSup);
-      // console.log('productId', productId);
 
       setProductSuppliers(productSup);
-    }
+    };
 
     getSuppliers();
   }, []);
@@ -97,12 +102,6 @@ export default function ProductDetails() {
                   <span className="text-base font-semibold text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 rounded-full">
                     {product.category}
                   </span>
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                      {product.rating}
-                    </span>
-                  </div>
                 </div>
 
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
@@ -142,7 +141,7 @@ export default function ProductDetails() {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {productSuppliers.map((supplier: any,index : any) => (
+              {productSuppliers.map((supplier: any, index: any) => (
                 <div
                   key={index}
                   className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-600 hover:border-blue-200 dark:hover:border-blue-400 transform hover:-translate-y-1"
@@ -154,74 +153,63 @@ export default function ProductDetails() {
                       </h3>
                       <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
                         <MapPin className="w-4 h-4" />
-                        <span>{supplier.location ? supplier.location: "Earth"}</span>
+                        <span>
+                          {supplier.location ? supplier.location : "Earth"}
+                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-1 bg-yellow-50 dark:bg-yellow-900/30 px-3 py-2 rounded-full">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {"Rating"}
-                      </span>
                     </div>
                   </div>
 
                   <div className="space-y-4 mb-8">
                     <div className="flex items-center space-x-3">
-                      <Award className="w-5 h-5 text-blue-500" />
+                      <CheckCircle className="w-5 h-5 text-blue-500" />
                       <span className="text-gray-600 dark:text-gray-400">
-                        Experience:
+                        First Pass Yield:
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
-                        {"Experience"}
+                        {Math.round(
+                          Number(supplier.risk_subfactors?.first_pass_yield)
+                        )}
                       </span>
                     </div>
 
                     <div className="flex items-center space-x-3">
                       <Truck className="w-5 h-5 text-green-500" />
                       <span className="text-gray-600 dark:text-gray-400">
-                        Delivery:
+                        Delivery Delay:
                       </span>
                       <span className="font-medium text-gray-900 dark:text-white">
                         {/* in case of no delay found the default is 5 days */}
-                        {supplier.risk_subfactors?.in_transit_delays_days ? supplier.risk_subfactors?.in_transit_delays_days : "5"}{" days"}
+                        {supplier.risk_subfactors?.in_transit_delays_days
+                          ? supplier.risk_subfactors?.in_transit_delays_days
+                          : "5"}
+                        {" days"}
                       </span>
                     </div>
 
                     <div className="flex items-center space-x-3">
-                      <Clock className="w-5 h-5 text-purple-500" />
+                      <BadgeDollarSign className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                       <span className="text-gray-600 dark:text-gray-400">
-                        Price Range:
-                      </span>
-                      <span className="font-bold text-green-600 dark:text-green-400">
-                        {/* if contract value not present then the company cantract value is 10000000  */}
-                        {supplier.risk_subfactors?.['contract_value(100m_800m)'] ?? "10000000"}
-                        {" Contract Value"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                      Specialties
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {/* {supplier.specialties.map((specialty, index) => (
-                        <span
-                          key={index}
-                          className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full font-medium"
-                        >
-                          {specialty}
+                        Contract Value:
+                        <span className="ml-1 font-bold text-green-700 dark:text-green-400">
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                          }).format(
+                            supplier?.risk_subfactors?.[
+                              "contract_value(100m_800m)"
+                            ] || 1000000000
+                          )}
                         </span>
-                      ))} */}
-                      {"Speciality"}
+                      </span>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <Phone className="w-5 h-5 text-gray-500" />
+                      <Mail className="w-5 h-5 text-gray-500" />
                       <a
-                        // href={`mailto:${supplier.email_domain}`}
                         href={"#"}
                         className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200 font-medium"
                       >

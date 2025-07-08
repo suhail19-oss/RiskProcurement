@@ -8,7 +8,7 @@ export default function SupplierPage({
 }: {
   params: Promise<{ supplierId: number }>;
 }) {
-  const { supplierId } = use(params); // 👈 unwrap the promise
+  const { supplierId } = use(params);
 
   const [supplier, setSupplier] = useState({});
 
@@ -21,7 +21,7 @@ export default function SupplierPage({
         }
       );
       const data = await res.json();
-      const s = data.suppliers[supplierId] // safer lookup
+      const s = data.suppliers[supplierId]; // safer lookup
       setSupplier(s);
     };
 

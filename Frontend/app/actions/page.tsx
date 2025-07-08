@@ -11,12 +11,6 @@ import {
   X,
 } from "lucide-react";
 import { SupplierCard } from "./SupplierCard";
-import {
-  suppliers as initialSuppliers,
-  violations as initialViolations,
-  suggestedActions,
-} from "../data/mockData";
-import { SuggestedAction } from "../types/supplier";
 import { v4 as uuidv4 } from "uuid";
 import { getGeminiRecommendation } from "../utils/gemini";
 
@@ -57,14 +51,19 @@ export default function HomePage() {
 
   useEffect(() => {
     const totalActive = suppliers
-    .map(supplier =>
-      supplier.violations.filter((v: any) => v.status === "pending").length
-    )
-    .reduce((sum, count) => sum + count, 0);
+      .map(
+        (supplier) =>
+          supplier.violations.filter((v: any) => v.status === "pending").length
+      )
+      .reduce((sum, count) => sum + count, 0);
     setActiveViolations(totalActive);
 
-    const totalPending = suppliers.map((supplier: any) => supplier.actions.filter((v: any) => v.status === "pending").length)
-    .reduce((sum,count) => sum+count, 0);
+    const totalPending = suppliers
+      .map(
+        (supplier: any) =>
+          supplier.actions.filter((v: any) => v.status === "pending").length
+      )
+      .reduce((sum, count) => sum + count, 0);
 
     setPendingActions(totalPending);
   }, [suppliers]);
@@ -118,18 +117,21 @@ export default function HomePage() {
     console.log("Recommendations:", recommendations);
   };
 
-  const handleActionUpdate = async (supplierId: string, actionId: string, status: string) => {
-
+  const handleActionUpdate = async (
+    supplierId: string,
+    actionId: string,
+    status: string
+  ) => {
     let supplier = suppliers.filter((s: any) => s.id === supplierId)[0];
     const action = supplier.actions.filter((a: any) => a.id === actionId)[0];
-    
-    if(action.status === status) return;
+
+    if (action.status === status) return;
 
     action.status = status;
     const otherActions = supplier.actions.filter((a: any) => a.id !== actionId);
     supplier.actions = [...otherActions, action];
     const otherSuppliers = suppliers.filter((s: any) => s.id !== supplierId);
-    if(status === "approved"){
+    if (status === "approved") {
       supplier = {
         ...supplier,
         violations: (() => {
@@ -144,7 +146,7 @@ export default function HomePage() {
         })(),
       };
     }
-    const updatedSuppliers = [...otherSuppliers,supplier];
+    const updatedSuppliers = [...otherSuppliers, supplier];
     setSuppliers(updatedSuppliers);
 
     const payload = {
@@ -174,14 +176,13 @@ export default function HomePage() {
     } catch (error) {
       console.error("Network or server error:", error);
     }
-
   };
 
   const filteredSuppliers = suppliers.filter((supplier: any) => {
     const matchesSearch =
       supplier.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       supplier.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      supplier.location?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesRisk =
       filterRisk === "all" || supplier.riskLevel === filterRisk;
@@ -238,7 +239,25 @@ export default function HomePage() {
         // console.log('acttions data from DB: ', actionsData);
 
         setDbSuppliers(suppliersData.suppliers || []);
-        setSuppliers(actionsData.actions || []);
+        const enrichedSuppliers = (actionsData.actions || []).map(
+          (supplier: any) => {
+            const latestAction = supplier.actions?.length
+              ? [...supplier.actions].sort(
+                  (a, b) =>
+                    new Date(b.createdAt || "").getTime() -
+                    new Date(a.createdAt || "").getTime()
+                )[0]
+              : null;
+
+            return {
+              ...supplier,
+              lastAssessment:
+                latestAction?.createdAt || latestAction?.lastAssessedAt || null,
+            };
+          }
+        );
+
+        setSuppliers(enrichedSuppliers);
       } catch (err) {
         setDbSuppliers([]);
         setSuppliers([]);
@@ -246,6 +265,27 @@ export default function HomePage() {
     };
     fetchFromDB();
   }, []);
+
+  const getSupplierLatestAssessment = (supplier: any) => {
+    if (!supplier?.actions?.length) return "N/A";
+
+    const sorted = [...supplier.actions].sort(
+      (a, b) =>
+        new Date(b.createdAt || "").getTime() -
+        new Date(a.createdAt || "").getTime()
+    );
+
+    const latest = sorted[0];
+    const date = latest?.createdAt || latest?.lastAssessedAt;
+
+    if (!date) return "N/A";
+
+    return new Date(date).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-slate-900 dark:via-slate-800/60 dark:to-gray-900">
@@ -365,9 +405,9 @@ export default function HomePage() {
             <SupplierCard
               key={supplier.id ?? index}
               supplier={supplier}
+              lastAssessmentDate={getSupplierLatestAssessment(supplier)}
               onActionUpdate={handleActionUpdate}
             />
-            //<p>{supplier?.name ?? "Name"}</p>
           ))}
         </div>
 
@@ -410,19 +450,19 @@ export default function HomePage() {
                   </label>
                   <select
                     value={newAction.supplierName}
-                    onChange={(e) =>
-                    {
-                      const supp = dbSuppliers.find((supplier) => supplier.company_name == e.target.value);
+                    onChange={(e) => {
+                      const supp = dbSuppliers.find(
+                        (supplier) => supplier.company_name == e.target.value
+                      );
                       const risk_s = supp.risk_score;
                       const risk_level = calculateRiskLevel(risk_s);
-                      console.log('risk_level: ', risk_level);
+                      console.log("risk_level: ", risk_level);
                       setNewAction({
                         ...newAction,
                         supplierName: e.target.value,
                         riskCategory: risk_level,
                       });
-                    }
-                    }
+                    }}
                     className="w-full mt-1 p-3 rounded-xl bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                   >
                     <option value="">Select a supplier</option>
@@ -477,7 +517,10 @@ export default function HomePage() {
                     try {
                       const id = uuidv4();
                       const now = new Date().toISOString();
-                      const newSupplier = dbSuppliers.find((supplier) => supplier.company_name == newAction.supplierName);
+                      const newSupplier = dbSuppliers.find(
+                        (supplier) =>
+                          supplier.company_name == newAction.supplierName
+                      );
                       newSupplier.id = id;
                       // Get the response from Gemini
                       const { violations: newViolations, recommendations } =
@@ -496,18 +539,20 @@ export default function HomePage() {
 
                       // Add new violations
                       if (newViolations && newViolations.length > 0) {
-                        const formattedViolations = newViolations.map((v: any) => ({
-                          id: uuidv4(),
-                          supplierId: id,
-                          type:
-                            v.category?.charAt(0).toUpperCase() +
-                              v.category.slice(1) || "General Risk",
-                          severity: v.severity.toLowerCase(),
-                          description: v.description,
-                          detectedDate: new Date().toISOString(),
-                          source: "Gemini AI",
-                          status: "pending",
-                        }));
+                        const formattedViolations = newViolations.map(
+                          (v: any) => ({
+                            id: uuidv4(),
+                            supplierId: id,
+                            type:
+                              v.category?.charAt(0).toUpperCase() +
+                                v.category.slice(1) || "General Risk",
+                            severity: v.severity.toLowerCase(),
+                            description: v.description,
+                            detectedDate: new Date().toISOString(),
+                            source: "Gemini AI",
+                            status: "pending",
+                          })
+                        );
                         newSupplier.violations = formattedViolations;
                       }
 
@@ -542,7 +587,7 @@ export default function HomePage() {
                         }
                       );
                       newSupplier.actions = newActions;
-                      console.log('newSupplier', newSupplier);
+                      console.log("newSupplier", newSupplier);
                       const actionDoc = {
                         company_name: newSupplier.company_name,
                         location: newSupplier.location,
@@ -552,25 +597,32 @@ export default function HomePage() {
                         risk_score: Math.round(newSupplier.risk_score),
                         risk_level: newSupplier.risk_level,
                         product_id: newSupplier.product_id,
+                        lastAssessment: new Date().toISOString(),
                       };
 
                       // Call the backend to create the action
-                      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/actions`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(actionDoc),
-                      });
+                      await fetch(
+                        `${process.env.NEXT_PUBLIC_API_URL}/api/actions`,
+                        {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(actionDoc),
+                        }
+                      );
+                      setSuppliers((prevSuppliers) =>
+                        prevSuppliers.map((s) =>
+                          s.company_name === actionDoc.company_name
+                            ? actionDoc
+                            : s
+                        )
+                      );
 
-                      setSuppliers([...suppliers, actionDoc]);
                       setIsModalOpen(false);
                       setNewAction({
                         supplierName: "",
                         riskCategory: "high",
                         articleSummary: "",
                       });
-
-
-
                     } catch (err) {
                       alert(
                         "Something went wrong while generating recommendation."

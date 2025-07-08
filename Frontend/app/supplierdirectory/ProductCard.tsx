@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Star, Eye, ArrowRightCircle } from "lucide-react";
+import { Eye, ArrowRightCircle } from "lucide-react";
 import { Product } from "../types/index";
 
 interface ProductCardProps {
@@ -43,19 +43,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <span className="text-sm font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 rounded-full">
               {product.category}
             </span>
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {product.rating}
-              </span>
-            </div>
           </div>
 
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
             {product.name}
           </h3>
 
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+          <p className="text-left text-gray-600 dark:text-gray-400 text-sm mb-4">
             {product.description}
           </p>
         </div>
