@@ -137,5 +137,6 @@ async def predict(input_data: RiskInput):
 
 
 # ✅ Export router so main.py can include it
+
 __all__ = ["router"]
 

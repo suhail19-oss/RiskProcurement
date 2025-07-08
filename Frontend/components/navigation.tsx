@@ -13,14 +13,16 @@ import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
+  { name: "Homepage", href: "/", icon: Home },
   { name: "Data Submission", href: "/data-submission", icon: Upload },
-  { name: "Analysis", href: "/esg-analysis", icon: Leaf },
+  { name: "ESG Analysis", href: "/esg-analysis", icon: Leaf },
   { name: "Analytics", href: "/assessment", icon: ClipboardCheck },
   { name: "TradeOff Simulator", href: "/trade-off-simulator", icon: Sliders },
   { name: "Supplier Directory", href: "/supplier-directory", icon: Database },
   { name: "Monitoring", href: "/monitoring", icon: Bell },
-]
+  { name: "Suppliers Directory", href: "/supplierdirectory", icon: Bell },
+  { name: "Actions", href: "/actions", icon: Bell },
+];
 
 export function Navigation() {
   const pathname = usePathname()
