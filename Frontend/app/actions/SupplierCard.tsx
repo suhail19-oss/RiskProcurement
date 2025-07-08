@@ -147,9 +147,7 @@ export const SupplierCard: React.FC<any> = ({ supplier, onActionUpdate }) => {
                         currency: "USD",
                         maximumFractionDigits: 0,
                       }).format(
-                        supplier?.risk_subfactors?.[
-                          "contract_value(100m_800m)"
-                        ] || 100000000
+                        supplier.contract_value ?? 1000000000
                       )}
                     </span>
                   ),

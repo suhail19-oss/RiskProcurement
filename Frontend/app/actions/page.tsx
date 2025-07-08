@@ -156,7 +156,7 @@ export default function HomePage() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/actions/${supplier.company_name}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/actions/${supplierId}`,
         {
           method: "PUT",
           headers: {
@@ -595,6 +595,7 @@ export default function HomePage() {
                         risk_level: newSupplier.risk_level,
                         product_id: newSupplier.product_id,
                         lastAssessment: new Date().toISOString(),
+                        contract_value: newSupplier?.risk_subfactors?.["contract_value(100m_800m)"] ?? 1000000000
                       };
 
                       // Call the backend to create the action
@@ -606,13 +607,7 @@ export default function HomePage() {
                           body: JSON.stringify(actionDoc),
                         }
                       );
-                      setSuppliers((prevSuppliers) =>
-                        prevSuppliers.map((s) =>
-                          s.company_name === actionDoc.company_name
-                            ? actionDoc
-                            : s
-                        )
-                      );
+                      setSuppliers([...suppliers, newSupplier]);
 
                       setIsModalOpen(false);
                       setNewAction({
