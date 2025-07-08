@@ -25,7 +25,7 @@ import { Leaf, Users, Shield, AlertCircle, CheckCircle, Star, TrendingUp, Award,
 import { Chatbot } from "@/components/chatbot"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-
+import { useToast } from "@/hooks/use-toast"
 
 
 function getStatusIcon(score: number) {
@@ -86,7 +86,8 @@ export default function ReliabilityAnalysis() {
     const [combinedDisruption, setCombinedDisruption] = useState("");
 
     const [reliabilityScore, setReliabilityScore] = useState<number | null>(null);
-
+    const [reliabilityScoreC, setReliabilityScoreC] = useState<number | null>(null);
+    const { toast } = useToast()
     type Supplier = {
         product_id: number;
         company_name: string;
@@ -128,16 +129,65 @@ export default function ReliabilityAnalysis() {
         fetchSuppliers();
     }, []);
 
-    // for Overall score 
     useEffect(() => {
-        if (selectedSupplier) {
-            // Find the full supplier data including ESG score
-            const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
-            setReliabilityScore(supplierWithScore?.reliability_score ?? null);
-        } else {
-            setReliabilityScore(0);
-        }
-    }, [selectedSupplier, suppliers]);
+        const fetchProfileAndSetCompany = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+
+                const response = await fetch("http://localhost:8000/profile/me", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch profile");
+                }
+
+                const data = await response.json();
+
+                // Just get company_name
+                const companyName = data.data.company_name;
+              
+                if (companyName) {
+                    // Set selectedSupplier
+                    setSelectedSupplier(companyName);
+                    // Optionally store in localStorage
+                    localStorage.setItem("company_name", companyName);
+
+                    // Find supplier with this name
+                    const supplierWithScore = suppliers.find(
+                        (s) => s.company_name === companyName
+                    );
+
+                    setReliabilityScore(supplierWithScore?.reliability_score ?? 0);
+                } else {
+                    // Fallback if company_name missing
+                    setSelectedSupplier("");
+                    setReliabilityScore(0);
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                toast({
+                    title: "Error",
+                    description: "Failed to load profile data",
+                    variant: "destructive",
+                });
+                // Fallback in case of error
+                setSelectedSupplier("");
+                setReliabilityScore(0);
+            } finally {
+
+            }
+        };
+
+        // Call the async function
+        fetchProfileAndSetCompany();
+    }, [suppliers]);
 
 
     // For the pei chart 
@@ -199,7 +249,14 @@ export default function ReliabilityAnalysis() {
 
         // R6
         const r6Score = (1 - combinedDisruptionValue) * 100;
-
+        
+        const reliabilityScoreCal =
+        (r1Score * 0.25) +
+        (r2Score * 0.15) +
+        (r3Score * 0.15) +
+        (r4Score * 0.15) +
+        (r5Score * 0.15) +
+        (r6Score * 0.15);
         // ✅ SET SCORES INTO YOUR STATE HOOKS:
         setAdjustedOnTimeDeliveryRate(r1Score.toFixed(2));
         setAverageLeadTimeDaysScore(r2Score.toFixed(2));
@@ -207,7 +264,7 @@ export default function ReliabilityAnalysis() {
         setIsoCertificationScore(r4Score.toFixed(2));
         setInfrastructureDisruptionSeverityScore(r5Score.toFixed(2));
         setCombinedDisruption(combinedDisruptionValue.toFixed(2));
-
+        setReliabilityScoreC(parseFloat(reliabilityScoreCal.toFixed(2)));
     }, [selectedSupplier, suppliers]);
 
 
@@ -268,38 +325,6 @@ export default function ReliabilityAnalysis() {
                     </p>
                 </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="flex justify-center"
-                >
-
-                    {activeTab === "reliability-analysis" && (
-                        <Select
-                            value={selectedSupplier}
-                            onValueChange={setSelectedSupplier}
-                        >
-                            <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
-                                <SelectValue placeholder="Select a supplier">
-                                    {selectedSupplier || "Select a supplier"}
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {suppliers.map((supplier) => (
-                                    <SelectItem
-                                        key={`${supplier.company_name}_${supplier.email_domain}_${supplier.product_id}`}
-                                        value={String(supplier.company_name)}
-                                        disabled={supplier.reliability_upload_status !== "success"}
-                                    >
-                                        {supplier.company_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
-                </motion.div>
-
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="">
                     <TabsContent value="reliability-analysis" className="space-y-6">
                         <motion.div
@@ -327,7 +352,7 @@ export default function ReliabilityAnalysis() {
                                             transition={{ duration: 0.5, delay: 0.4 }}
                                             className="text-6xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"
                                         >
-                                            {reliabilityScore !== null ? reliabilityScore.toFixed(1) : "N/A"}
+                                            {reliabilityScoreC !== null ? reliabilityScoreC.toFixed(1) : "N/A"}
                                         </motion.div>
                                         <div className="text-lg text-muted-foreground">out of 100</div>
                                         <Badge
@@ -343,12 +368,12 @@ export default function ReliabilityAnalysis() {
                                                             : "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
                                             )}
                                         >
-                                            {reliabilityScore !== null
-                                                ? reliabilityScore >= 85
+                                            {reliabilityScoreC !== null
+                                                ? reliabilityScoreC >= 85
                                                     ? "Excellent"
-                                                    : reliabilityScore >= 70
+                                                    : reliabilityScoreC >= 70
                                                         ? "Good"
-                                                        : reliabilityScore >= 50
+                                                        : reliabilityScoreC >= 50
                                                             ? "Fair"
                                                             : "Poor"
                                                 : "N/A"}{" "}

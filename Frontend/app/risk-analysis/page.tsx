@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils"
 
 
 
+
 function getStatusIcon(score: number) {
     if (score >= 90) {
         return (
@@ -84,7 +85,9 @@ export default function RiskAnalysis() {
     const [legalRiskScore, setLegalRiskScore] = useState("");
     const [esgRiskScore, setEsgRiskScore] = useState("");
     const [geoPoliticalRiskScore, setGeoPoliticalRiskScore] = useState("");
+    
 
+    
     const [riskScore, setRiskScore] = useState<number | null>(null);
 
     type Supplier = {
@@ -119,14 +122,62 @@ export default function RiskAnalysis() {
 
     // for Overall score 
     useEffect(() => {
-        if (selectedSupplier) {
-            // Find the full supplier data including ESG score
-            const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
-            setRiskScore(supplierWithScore?.risk_score ?? null);
-        } else {
-            setRiskScore(0);
-        }
-    }, [selectedSupplier, suppliers]);
+            const fetchProfileAndSetCompany = async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                        throw new Error("No authentication token found");
+                    }
+    
+                    const response = await fetch("http://localhost:8000/profile/me", {
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch profile");
+                    }
+    
+                    const data = await response.json();
+    
+                    // Just get company_name
+                    const companyName = data.data.company_name;
+                  
+                    if (companyName) {
+                        // Set selectedSupplier
+                        setSelectedSupplier(companyName);
+                        // Optionally store in localStorage
+                        localStorage.setItem("company_name", companyName);
+    
+                        // Find supplier with this name
+                        const supplierWithScore = suppliers.find(
+                            (s) => s.company_name === companyName
+                        );
+    
+                        setRiskScore(supplierWithScore?.risk_score  ?? 0);
+                    } else {
+                        // Fallback if company_name missing
+                        setSelectedSupplier("");
+                       setRiskScore(0);
+
+                    }
+                } catch (error) {
+                    console.error("Error fetching profile:", error);
+                  
+                    // Fallback in case of error
+                    setSelectedSupplier("");
+                    setRiskScore(0);
+                } finally {
+    
+                }
+            };
+    
+            // Call the async function
+            fetchProfileAndSetCompany();
+        }, [suppliers]);
+    
 
 
     // For the pei chart 
@@ -224,37 +275,6 @@ export default function RiskAnalysis() {
                     </p>
                 </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="flex justify-center"
-                >
-
-                    {activeTab === "riskEfficiency-analysis" && (
-                        <Select
-                            value={selectedSupplier}
-                            onValueChange={setSelectedSupplier}
-                        >
-                            <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
-                                <SelectValue placeholder="Select a supplier">
-                                    {selectedSupplier || "Select a supplier"}
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                {suppliers.map((supplier) => (
-                                    <SelectItem
-                                        key={`${supplier.company_name}_${supplier.email_domain}_${supplier.product_id}`}
-                                        value={String(supplier.company_name)}
-                                        disabled={supplier.risk_upload_status !== "success"}
-                                    >
-                                        {supplier.company_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
-                </motion.div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="">
                     <TabsContent value="riskEfficiency-analysis" className="space-y-6">
@@ -371,7 +391,7 @@ export default function RiskAnalysis() {
                                                                 style={{
                                                                     fontSize: '12px',
                                                                     fontWeight: 'bold',
-                                                                 
+
                                                                 }}
                                                             >
                                                                 {`${name}`}
@@ -411,7 +431,7 @@ export default function RiskAnalysis() {
                                                                     {payload[0].name}
                                                                 </p>
                                                                 <p>Value: {payload[0].value}</p>
-                                                                
+
                                                             </motion.div>
                                                         );
                                                     }}

@@ -25,126 +25,6 @@ import { Chatbot } from "@/components/chatbot"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
-
-// Initialize all scores with default values
-const initialEsgScores = {
-  overall: 0,
-  environmental: {
-    score: 0,
-    factors: [
-      { name: "GHG Score", score: 0, status: "fair", description: "Greenhouse gas emissions performance" },
-      { name: "Energy Efficiency Score", score: 0, status: "fair", description: "Energy consumption efficiency" },
-      { name: "Water Efficiency Score", score: 0, status: "fair", description: "Water usage efficiency" },
-      { name: "Waste Recycling Score", score: 0, status: "fair", description: "Waste recycling rate" },
-      { name: "Compliance Score", score: 0, status: "fair", description: "Environmental compliance record" },
-      { name: "Renewable Energy Score", score: 0, status: "fair", description: "Renewable energy usage" },
-      { name: "Biodiversity Score", score: 0, status: "fair", description: "Biodiversity impact" },
-      { name: "Climate Risk Management Score", score: 0, status: "fair", description: "Climate risk measures" },
-    ],
-  },
-  social: {
-    score: 0,
-    factors: [
-      { name: "Retention Score", score: 0, status: "fair", description: "Employee retention rate" },
-      { name: "Safety Score", score: 0, status: "fair", description: "Workplace safety performance" },
-      { name: "Diversity Score", score: 0, status: "fair", description: "Workforce diversity" },
-      { name: "Community Investment Score", score: 0, status: "fair", description: "Community investment level" },
-      { name: "Customer Satisfaction Score", score: 0, status: "fair", description: "Customer satisfaction (NPS)" },
-      { name: "Human Rights Score", score: 0, status: "fair", description: "Human rights compliance" },
-      { name: "Training Score", score: 0, status: "fair", description: "Employee training hours" },
-    ],
-  },
-  governance: {
-    score: 0,
-    factors: [
-      { name: "Board Independence Score", score: 0, status: "fair", description: "Board independence" },
-      { name: "Compensation Alignment Score", score: 0, status: "fair", description: "Executive compensation alignment" },
-      { name: "Audit Committee Score", score: 0, status: "fair", description: "Audit committee independence" },
-      { name: "Shareholder Rights Score", score: 0, status: "fair", description: "Shareholder rights protection" },
-      { name: "Transparency Score", score: 0, status: "fair", description: "ESG disclosure transparency" },
-      { name: "Anti-Corruption Score", score: 0, status: "fair", description: "Anti-corruption measures" },
-      { name: "Tax Transparency Score", score: 0, status: "fair", description: "Tax jurisdiction transparency" },
-    ],
-  },
-}
-
-
-
-// Input data state structure
-const initialInputData = {
-  environmental: {
-    companyGHGEmissions: 0,
-    companyEnergy: 0,
-    companyWaterWithdrawal: 0,
-    wasteRecycled: 0,
-    totalWasteGenerated: 0,
-    numberOfEnvironmentalFines: 0,
-    renewableEnergy: 0,
-    totalEnergy: 0,
-    impactScore: 0,
-    measuresImplemented: 0,
-  },
-  social: {
-    employeeTurnover: 0,
-    injuryRate: 0,
-    numberOfDiverseEmployees: 0,
-    totalEmployees: 0,
-    communityInvestment: 0,
-    totalRevenue: 0,
-    netPromoterScore: 0,
-    reportedViolations: 0,
-    avgTrainingHours: 0,
-  },
-  governance: {
-    independentDirectors: 0,
-    totalDirectors: 0,
-    ceoPayRatio: 0,
-    independentAuditMembers: 0,
-    totalAuditMembers: 0,
-    shareholderFriendlyPolicies: 0,
-    disclosedESGMetrics: 0,
-    corruptionIncidents: 0,
-    disclosedTaxJurisdictions: 0,
-    totalOperatingJurisdictions: 0,
-  },
-}
-
-const radarData = [
-  { subject: "GHG Score", A: 0, fullMark: 100 },
-  { subject: "Energy Efficiency", A: 0, fullMark: 100 },
-  { subject: "Water Efficiency", A: 0, fullMark: 100 },
-  { subject: "Waste Recycling", A: 0, fullMark: 100 },
-  { subject: "Renewable Energy", A: 0, fullMark: 100 },
-]
-
-const pieData = [
-  { name: "Environmental", value: 0, color: "#10b981" },
-  { name: "Social", value: 0, color: "#3b82f6" },
-  { name: "Governance", value: 0, color: "#8b5cf6" },
-]
-
-// Supplier Ranking Data
-const supplierRankings = [
-  {
-    id: 1,
-    name: "Frod",
-    rank: 1,
-    esgScore: 90,
-    costScore: 85,
-    riskLevel: "Low",
-    certifications: ["ISO 14001", "B-Corp", "Carbon Neutral"],
-    location: "California, USA",
-    category: "Technology",
-    trend: "up",
-    improvement: "+5%",
-    recommendations: [
-      "Expand renewable energy initiatives",
-      "Enhance supply chain transparency",
-      "Implement circular economy practices",
-    ],
-  }
-]
-
 const betterSuppliers = [
   {
     name: "NextGen Sustainable Tech",
@@ -255,96 +135,96 @@ export default function ESGAnalysis() {
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [recAccordionOpen, setRecAccordionOpen] = useState(false);
 
-// Function to fetch recommendations from Gemini
-const fetchRecommendations = async (supplier_name: string) => {
-  console.log("⏳ STARTING fetchRecommendations");
-  setLoadingRecommendations(true);
-  setRecommendations([]);
-  
-  try {
-    const supplier = suppliers.find(s => {
-      const match = s.company_name === supplier_name;
-      return match;
-    });
+  // Function to fetch recommendations from Gemini
+  const fetchRecommendations = async (supplier_name: string) => {
+    console.log("⏳ STARTING fetchRecommendations");
+    setLoadingRecommendations(true);
+    setRecommendations([]);
 
-    if (!supplier) {
-      console.error("Supplier not found", {
-        searchedName: supplier_name,
-        availableNames: suppliers.map(s => s.company_name)
+    try {
+      const supplier = suppliers.find(s => {
+        const match = s.company_name === supplier_name;
+        return match;
       });
-      setRecommendations(["Supplier data not available"]);
-      return;
-    }
-    localStorage.setItem("remainingScores", JSON.stringify([
-  "Cost Efficiency: 88\nRisk Score: 12\nReliability Score: 95"
-]));
+
+      if (!supplier) {
+        console.error("Supplier not found", {
+          searchedName: supplier_name,
+          availableNames: suppliers.map(s => s.company_name)
+        });
+        setRecommendations(["Supplier data not available"]);
+        return;
+      }
+      localStorage.setItem("remainingScores", JSON.stringify([
+        "Cost Efficiency: 88\nRisk Score: 12\nReliability Score: 95"
+      ]));
 
 
-    const esgScores = supplier?.esg_subfactor_scores || 
-                     JSON.parse(supplier?.esg_subfactor_scores || "{}");
-    
-    const response = await fetch("http://localhost:8000/api/gemini-recommendations-esgScore", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt: "Suggest improvements for: " + JSON.stringify({
-          company: supplier_name,
-          scores: esgScores
+      const esgScores = supplier?.esg_subfactor_scores ||
+        JSON.parse(supplier?.esg_subfactor_scores || "{}");
+
+      const response = await fetch("http://localhost:8000/api/gemini-recommendations-esgScore", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Suggest improvements for: " + JSON.stringify({
+            company: supplier_name,
+            scores: esgScores
+          }),
         }),
-      }),
-    });
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      setRecommendations(["Failed to fetch recommendations from Gemini."]);
-      return;
+      if (!response.ok) {
+        const errorText = await response.text();
+        setRecommendations(["Failed to fetch recommendations from Gemini."]);
+        return;
+      }
+
+      const data = await response.json();
+
+      let points: string[] = [];
+
+      const rawText =
+        Array.isArray(data.recommendations)
+          ? data.recommendations.join(" ")
+          : typeof data.recommendations === "string"
+            ? data.recommendations
+            : typeof data === "string"
+              ? data
+              : "";
+
+      if (rawText) {
+        points = rawText
+          .split(/(?<=[.?!])\s+/) // split on end of sentence punctuation + space
+          .map((sentence: string) => sentence.replace(/^[-•*]\s*/, "").trim()) // remove starting bullet markers
+          .filter((sentence: string) => sentence.length > 0)
+          .map((sentence: string) => ` ${sentence}`);
+      }
+
+      setRecommendations(points.length ? points : ["No recommendations received."]);
+    } catch (err) {
+      setRecommendations(["Error fetching recommendations."]);
     }
-    
-    const data = await response.json();
-
-    let points: string[] = [];
-
-    const rawText =
-      Array.isArray(data.recommendations)
-        ? data.recommendations.join(" ")
-        : typeof data.recommendations === "string"
-        ? data.recommendations
-        : typeof data === "string"
-        ? data
-        : "";
-
-    if (rawText) {
-      points = rawText
-        .split(/(?<=[.?!])\s+/) // split on end of sentence punctuation + space
-        .map((sentence:string) => sentence.replace(/^[-•*]\s*/, "").trim()) // remove starting bullet markers
-        .filter((sentence:string) => sentence.length > 0)
-        .map((sentence:string) => ` ${sentence}`);
-    }
-
-    setRecommendations(points.length ? points : ["No recommendations received."]);
-  } catch (err) {
-    setRecommendations(["Error fetching recommendations."]);
-  }
-  setLoadingRecommendations(false);
-};
+    setLoadingRecommendations(false);
+  };
 
 
   // Supplier type definition
   type Supplier = {
-  _id: string; // MongoDB uses _id
-  company_name: string;
-  esg_upload_status?: "success" | "pending" | "failed";
-  esg_final_score?: number;
-  esg_E_score?: number;
-  esg_S_score?: number;
-  esg_G_score?: number;
-  esg_category_scores?: {
-    Environmental?: Record<string, number>;
-    Social?: Record<string, number>;
-    Governance?: Record<string, number>;
-  };
-  esg_subfactor_scores?: string; // JSON string
-  // Add other fields as needed
+    _id: string; // MongoDB uses _id
+    company_name: string;
+    esg_upload_status?: "success" | "pending" | "failed";
+    esg_final_score?: number;
+    esg_E_score?: number;
+    esg_S_score?: number;
+    esg_G_score?: number;
+    esg_category_scores?: {
+      Environmental?: Record<string, number>;
+      Social?: Record<string, number>;
+      Governance?: Record<string, number>;
+    };
+    esg_subfactor_scores?: string; // JSON string
+    // Add other fields as needed
   };
 
   //fetchins suppliers
@@ -361,26 +241,75 @@ const fetchRecommendations = async (supplier_name: string) => {
   }, []);
 
   // for Overall score 
-  useEffect(() => {
-    if (selectedSupplier) {
-      // Find the full supplier data including ESG score
-      const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
-      setESGScore(supplierWithScore?.esg_final_score ?? null);
-    } else {
-      setESGScore(null);
-    } 
-  }, [selectedSupplier, suppliers]);
+ useEffect(() => {
+            const fetchProfileAndSetCompany = async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                        throw new Error("No authentication token found");
+                    }
+    
+                    const response = await fetch("http://localhost:8000/profile/me", {
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch profile");
+                    }
+    
+                    const data = await response.json();
+    
+                    // Just get company_name
+                    const companyName = data.data.company_name;
+                  
+                    if (companyName) {
+                        // Set selectedSupplier
+                        setSelectedSupplier(companyName);
+                        // Optionally store in localStorage
+                        localStorage.setItem("company_name", companyName);
+    
+                        // Find supplier with this name
+                        const supplierWithScore = suppliers.find(
+                            (s) => s.company_name === companyName
+                        );
+    
+                        setESGScore(supplierWithScore?.esg_final_score  ?? 0);
+                    } else {
+                        // Fallback if company_name missing
+                        setSelectedSupplier("");
+                       setESGScore(0);
+
+                    }
+                } catch (error) {
+                    console.error("Error fetching profile:", error);
+                   
+                    // Fallback in case of error
+                    setSelectedSupplier("");
+                    setESGScore(0);
+                } finally {
+    
+                }
+            };
+    
+            // Call the async function
+            fetchProfileAndSetCompany();
+        }, [suppliers]);
+    
+
 
 
   // For the pei chart 
   useEffect(() => {
     const fetchCompanyESGData = () => {
       try {
-        
+
         // Find the specific company by ID
         const supplier = suppliers.find(s => s.company_name === selectedSupplier);
-        
-        if ( supplier ) {
+
+        if (supplier) {
           setEScore(supplier.esg_E_score || 0);
           setSScore(supplier.esg_S_score || 0);
           setGScore(supplier.esg_G_score || 0);
@@ -391,64 +320,64 @@ const fetchRecommendations = async (supplier_name: string) => {
           setGScore(0);
         }
       } catch (err) {
-  
+
       }
     };
 
     fetchCompanyESGData();
-  }, [selectedSupplier] ) ;
+  }, [selectedSupplier]);
 
   useEffect(() => {
-      const supplier = suppliers.find(s => s.company_name === selectedSupplier)
+    const supplier = suppliers.find(s => s.company_name === selectedSupplier)
 
-      try {
-        if (!supplier) return;
+    try {
+      if (!supplier) return;
 
-        const data = typeof supplier.esg_subfactor_scores === 'string' 
-        ? JSON.parse(supplier.esg_subfactor_scores) 
+      const data = typeof supplier.esg_subfactor_scores === 'string'
+        ? JSON.parse(supplier.esg_subfactor_scores)
         : supplier.esg_subfactor_scores;
 
-        
-        if (data && data.Environmental) {
-          setGhgScore(data.Environmental["GHG Score"] ?? "");
-          setEnergyEfficiencyScore(data.Environmental["Energy Score"] ?? ""); // Fixed
-          setWaterEfficiencyScore(data.Environmental["Water Score"] ?? ""); // Fixed
-          setWasteRecyclingScore(data.Environmental["Waste Score"] ?? ""); // Fixed
-          setComplianceScore(data.Environmental["Compliance Score"] ?? "");
-          setRenewableEnergyScore(data.Environmental["Renewable Score"] ?? ""); // Fixed
-          setBiodiversityScore(data.Environmental["Biodiversity Score"] ?? "");
-          setClimateRiskManagementScore(data.Environmental["Climate Risk Score"] ?? ""); // Fixed
-        }
 
-        // 👥 Social
-        if (data && data.Social) {
-          setRetentionScore(data.Social["Retention Score"] ?? "");
-          setSafetyScore(data.Social["Safety Score"] ?? "");
-          setDiversityScore(data.Social["Diversity Score"] ?? "");
-          setCommunityInvestmentScore(data.Social["Community Score"] ?? ""); // Fixed
-          setCustomerSatisfactionScore(data.Social["Customer Score"] ?? ""); // Fixed
-          setHumanRightsScore(data.Social["Human Rights Score"] ?? "");
-          setTrainingScore(data.Social["Training Score"] ?? "");
-        }
-
-        // 🏛 Governance
-        if (data && data.Governance) {
-          setBoardIndependenceScore(data.Governance["Board Independence"] ?? ""); // Fixed
-          setCompensationAlignmentScore(data.Governance["Compensation Score"] ?? ""); // Fixed
-          setAuditCommitteeScore(data.Governance["Audit Score"] ?? ""); // Fixed
-          setShareholderRightsScore(data.Governance["Shareholder Score"] ?? ""); // Fixed
-          setTransparencyScore(data.Governance["Transparency Score"] ?? "");
-          setAntiCorruptionScore(data.Governance["Anti-Corruption"] ?? ""); // Fixed
-          setTaxTransparencyScore(data.Governance["Tax Transparency"] ?? "");
-        }
-      
-      } catch (err) {
-        console.error("Failed to parse final_subfactor_scores:", err);
+      if (data && data.Environmental) {
+        setGhgScore(data.Environmental["GHG Score"] ?? "");
+        setEnergyEfficiencyScore(data.Environmental["Energy Score"] ?? ""); // Fixed
+        setWaterEfficiencyScore(data.Environmental["Water Score"] ?? ""); // Fixed
+        setWasteRecyclingScore(data.Environmental["Waste Score"] ?? ""); // Fixed
+        setComplianceScore(data.Environmental["Compliance Score"] ?? "");
+        setRenewableEnergyScore(data.Environmental["Renewable Score"] ?? ""); // Fixed
+        setBiodiversityScore(data.Environmental["Biodiversity Score"] ?? "");
+        setClimateRiskManagementScore(data.Environmental["Climate Risk Score"] ?? ""); // Fixed
       }
+
+      // 👥 Social
+      if (data && data.Social) {
+        setRetentionScore(data.Social["Retention Score"] ?? "");
+        setSafetyScore(data.Social["Safety Score"] ?? "");
+        setDiversityScore(data.Social["Diversity Score"] ?? "");
+        setCommunityInvestmentScore(data.Social["Community Score"] ?? ""); // Fixed
+        setCustomerSatisfactionScore(data.Social["Customer Score"] ?? ""); // Fixed
+        setHumanRightsScore(data.Social["Human Rights Score"] ?? "");
+        setTrainingScore(data.Social["Training Score"] ?? "");
+      }
+
+      // 🏛 Governance
+      if (data && data.Governance) {
+        setBoardIndependenceScore(data.Governance["Board Independence"] ?? ""); // Fixed
+        setCompensationAlignmentScore(data.Governance["Compensation Score"] ?? ""); // Fixed
+        setAuditCommitteeScore(data.Governance["Audit Score"] ?? ""); // Fixed
+        setShareholderRightsScore(data.Governance["Shareholder Score"] ?? ""); // Fixed
+        setTransparencyScore(data.Governance["Transparency Score"] ?? "");
+        setAntiCorruptionScore(data.Governance["Anti-Corruption"] ?? ""); // Fixed
+        setTaxTransparencyScore(data.Governance["Tax Transparency"] ?? "");
+      }
+
+    } catch (err) {
+      console.error("Failed to parse final_subfactor_scores:", err);
+    }
 
   }, [selectedSupplier]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!selectedSupplier) {
       // Reset all scores if no supplier is selected
       resetAllScores();
@@ -456,7 +385,7 @@ const fetchRecommendations = async (supplier_name: string) => {
     }
 
     const supplier = suppliers.find(s => s.company_name === selectedSupplier);
-    
+
     if (!supplier) {
       resetAllScores();
       return;
@@ -476,7 +405,7 @@ const fetchRecommendations = async (supplier_name: string) => {
         : null;
 
       if (data) {
-         if (data.Environmental) {
+        if (data.Environmental) {
           setGhgScore(data.Environmental["GHG Score"] ?? "");
           setEnergyEfficiencyScore(data.Environmental["Energy Score"] ?? ""); // Fixed
           setWaterEfficiencyScore(data.Environmental["Water Score"] ?? ""); // Fixed
@@ -535,7 +464,7 @@ const fetchRecommendations = async (supplier_name: string) => {
 
   return (
     <div className="relative pt-20 min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      
+
       <div className="container mx-auto p-6 space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -551,40 +480,10 @@ const fetchRecommendations = async (supplier_name: string) => {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex justify-center"
-        >
-        
-        { activeTab === "esg-analysis" && (
-          <Select 
-            value={selectedSupplier} 
-            onValueChange={setSelectedSupplier}
-          >
-            <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
-              <SelectValue placeholder="Select a supplier">
-                {selectedSupplier || "Select a supplier"}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {suppliers.map((supplier) => (
-                <SelectItem
-                  key={supplier.company_name}
-                  value={String(supplier.company_name)}
-                  disabled={supplier.esg_upload_status !== "success"}
-                >
-                  {supplier.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </motion.div>
+       
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="">
-         
+
 
           <TabsContent value="esg-analysis" className="space-y-6">
             <motion.div
@@ -598,8 +497,8 @@ const fetchRecommendations = async (supplier_name: string) => {
                 <CardHeader>
                   <CardTitle>Overall ESG Score</CardTitle>
                   <CardDescription>
-                    {selectedSupplier 
-                      ? `For ${selectedSupplier.company_name}` 
+                    {selectedSupplier
+                      ? `For ${selectedSupplier}`
                       : "Select a supplier to view score"}
                   </CardDescription>
                 </CardHeader>
@@ -672,9 +571,9 @@ const fetchRecommendations = async (supplier_name: string) => {
 
                   <div className="flex justify-center space-x-4 mt-4">
                     {[
-                      { name: "Environmental", value: eScore || 0 , color: "#22c55e" },
-                      { name: "Social", value: sScore || 0 , color: "#3b82f6" },
-                      { name: "Governance", value: gScore || 0 , color: "#f59e0b" },
+                      { name: "Environmental", value: eScore || 0, color: "#22c55e" },
+                      { name: "Social", value: sScore || 0, color: "#3b82f6" },
+                      { name: "Governance", value: gScore || 0, color: "#f59e0b" },
                     ].map((entry, index) => (
                       <motion.div
                         key={index}
@@ -1110,95 +1009,95 @@ const fetchRecommendations = async (supplier_name: string) => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                      <div className="space-y-4">
-  {/* Sort suppliers by esg_final_score in descending order and then map */}
-  {suppliers
-    .filter(supplier => supplier.esg_upload_status === "success")
-    .sort((a, b) => (b.esg_final_score || 0) - (a.esg_final_score || 0))
-    .map((supplier, index) => (
-      <motion.div
-        key={supplier._id || index}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-      >
-        <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="text-3xl font-bold text-primary">#{index + 1}</div>
-                    {/* getTrendIcon(supplier.trend) */}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold">{supplier.company_name}</h3>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      {/* Optional: Add location/category if available */}
-                      {/* <span>{supplier.location}</span>
+                    <div className="space-y-4">
+                      {/* Sort suppliers by esg_final_score in descending order and then map */}
+                      {suppliers
+                        .filter(supplier => supplier.esg_upload_status === "success")
+                        .sort((a, b) => (b.esg_final_score || 0) - (a.esg_final_score || 0))
+                        .map((supplier, index) => (
+                          <motion.div
+                            key={supplier._id || index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                          >
+                            <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
+                              <CardContent className="p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                  <div className="flex items-center space-x-4">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="text-3xl font-bold text-primary">#{index + 1}</div>
+                                      {/* getTrendIcon(supplier.trend) */}
+                                    </div>
+                                    <div>
+                                      <h3 className="text-xl font-semibold">{supplier.company_name}</h3>
+                                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                                        {/* Optional: Add location/category if available */}
+                                        {/* <span>{supplier.location}</span>
                       <span>•</span>
                       <span>{supplier.category}</span> */}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="text-3xl font-bold text-green-600">
+                                      {supplier.esg_final_score?.toFixed(1) || 'N/A'}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">Overall Score</div>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-4 mb-4">
+                                  <div className="text-center">
+                                    <div className="text-lg font-semibold">
+                                      {supplier.esg_final_score?.toFixed(1) || 'N/A'}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">ESG Score</div>
+                                    <Progress
+                                      value={supplier.esg_final_score || 0}
+                                      className="mt-1"
+                                    />
+                                  </div>
+                                  {/* Add other score columns if needed */}
+                                </div>
+
+                                <Accordion type="single" collapsible className="space-y-4">
+                                  <AccordionItem value={`recommendations-${index}`} className="border-none">
+                                    <AccordionTrigger
+                                      className="text-sm font-medium hover:no-underline"
+                                      onClick={async () => {
+                                        if (!recAccordionOpen) {
+                                          await fetchRecommendations(supplier.company_name); // Pass supplier ID
+                                          setRecAccordionOpen(true);
+                                        } else {
+                                          setRecAccordionOpen(false);
+                                        }
+                                      }}
+                                    >
+                                      View Improvement Recommendations
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      {loadingRecommendations ? (
+                                        <div className="text-sm text-muted-foreground mb-2">
+                                          Loading recommendations...
+                                        </div>
+                                      ) : (
+                                        recommendations.length > 0 && (
+                                          <ul className="list-disc pl-5 space-y-1 mb-2">
+                                            {recommendations.map((rec, idx) => (
+                                              <li key={idx} className="text-sm">{rec}</li>
+                                            ))}
+                                          </ul>
+                                        )
+                                      )}
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))}
                     </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-green-600">
-                    {supplier.esg_final_score?.toFixed(1) || 'N/A'}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Overall Score</div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="text-center">
-                  <div className="text-lg font-semibold">
-                    {supplier.esg_final_score?.toFixed(1) || 'N/A'}
-                  </div>
-                  <div className="text-sm text-muted-foreground">ESG Score</div>
-                  <Progress 
-                    value={supplier.esg_final_score || 0} 
-                    className="mt-1" 
-                  />
-                </div>
-                {/* Add other score columns if needed */}
-              </div>
-
-              <Accordion type="single" collapsible className="space-y-4">
-                <AccordionItem value={`recommendations-${index}`} className="border-none">
-                  <AccordionTrigger
-                    className="text-sm font-medium hover:no-underline"
-                    onClick={async () => {
-                      if (!recAccordionOpen) {
-                        await fetchRecommendations(supplier.company_name); // Pass supplier ID
-                        setRecAccordionOpen(true);
-                      } else {
-                        setRecAccordionOpen(false);
-                      }
-                    }}
-                  >
-                    View Improvement Recommendations
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    {loadingRecommendations ? (
-                      <div className="text-sm text-muted-foreground mb-2">
-                        Loading recommendations...
-                      </div>
-                    ) : (
-                      recommendations.length > 0 && (
-                        <ul className="list-disc pl-5 space-y-1 mb-2">
-                          {recommendations.map((rec, idx) => (
-                            <li key={idx} className="text-sm">{rec}</li>
-                          ))}
-                        </ul>
-                      )
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </CardContent>
-          </Card>
-          </motion.div>
-            ))}
-              </div>
                   </CardContent>
                 </Card>
               </div>

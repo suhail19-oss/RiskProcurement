@@ -28,8 +28,8 @@ from fpdf import FPDF
 
 # App internals
 from app.database import db
+from app.routes import test, auth, esg, recommendations, reportGeneration, costEfficiency, reliability,risk
 
-from app.routes import test, auth, esg, recommendations, reportGeneration, costEfficiency, reliability
 from app.routes import risk_model 
 from app.services.gemini_service import gemini_service
 
@@ -80,9 +80,11 @@ app.include_router(reportGeneration.router)
 app.include_router(profile.router)
 app.include_router(costEfficiency.router)
 app.include_router(reliability.router)
+app.include_router(risk.router)
 app.include_router(risk_model.router, prefix="/api")
 
-app.include_router(risk_model.router, prefix="/api")
+
+app.include_router(risk_model.router, prefix="/api/model")
 
 # ------------------- Custom Exception Handler -------------------
 @app.exception_handler(RequestValidationError)

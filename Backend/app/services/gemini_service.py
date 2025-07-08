@@ -384,3 +384,103 @@ Document text:
                 "error": str(e),
                 "status": "error"
             }
+        
+    async def extract_risk_data(self, file_content: bytes, filename: str) -> Dict[str, Any]:
+        logger.info("Starting Gemini 1.5 Flash Reliability data extraction...")
+        
+        try:
+            document_text = self.extract_text_from_pdf(file_content)
+            
+            if not document_text.strip():
+                raise ValueError("No text could be extracted from the document.")
+            
+            prompt = """You are an expert risk data extraction specialist. Extract the following EXACT fields from the report:
+
+            ### Required Fields (must include all):
+            {
+                "in_transit_delays_days": "float",
+                "war_zone_flag": "float",
+                "first_pass_yield": "float",
+                "iso_certification_score": "float",
+                "infrastructure_disruption_severity": "float",
+                "legal_disputes_last_6_months": "float",
+                "govt_sanctions_penalties": "string",
+                "product_defect_rate": "float",
+                "esg": "float"
+                "labor_violations_(6_months)": "string"
+                "news_sentiment_score": "float"
+                "natural_disaster_frequency_(last_6_months)": "float"
+                "trade_policy_changes_(tariffs,_bans)": "string"
+                "adjusted_on_time_delivery_rate": "float"
+                "strike_days": "float"
+            }
+
+
+            ### Return Format (STRICT JSON):
+            {
+                "result": {
+                    "in_transit_delays_days": 4.5,
+                    "war_zone_flag": 1.0,
+                    "first_pass_yield": 93.2,
+                    "iso_certification_score": 87.5,
+                    "infrastructure_disruption_severity": 0.4,
+                    "legal_disputes_last_6_months": 2.0,
+                    "govt_sanctions_penalties": "moderate",
+                    "product_defect_rate": 1.7,
+                    "esg": "75.0,
+                    "labor_violations_(6_months)": "minor",
+                    "news_sentiment_score": 0.4,
+                    "natural_disaster_frequency_(last_6_months)": 1.0,
+                    "trade_policy_changes_(tariffs,_bans)": "major",
+                    "adjusted_on_time_delivery_rate": 85.2,
+                    "strike_days": 3.0
+                },
+               
+            }
+
+            Document text:
+            """ + document_text
+
+            response = self.model.generate_content(prompt)
+            raw_response = response.text.strip()
+            
+            # Response cleaning with enhanced pattern matching
+            patterns = [
+                r'```json(.*?)```',  # ```json {...} ```
+                r'```(.*?)```',      # ``` {...} ```
+                r'{(.*?)}'           # raw {...}
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, raw_response, re.DOTALL)
+                if match:
+                    raw_response = match.group(1).strip()
+                    break
+
+            try:
+                extracted_data = json.loads(raw_response)
+                if not isinstance(extracted_data, dict):
+                    raise ValueError("Top-level response is not a dictionary")
+                
+                        
+                return {
+                    "result": extracted_data.get("result", {}),
+                    "status": "success"
+                }
+                
+            except Exception as e:
+                logger.error(f"JSON parsing failed: {e}\nRaw response: {raw_response}")
+                return {
+                    "result": {},
+                    "error": f"Data parsing error: {str(e)}",
+                    "status": "error"
+                }
+            
+        except Exception as e:
+            logger.error(f"Extraction failed: {e}")
+            return {
+                "result": {},
+                "error": str(e),
+                "status": "error"
+            }
+ 

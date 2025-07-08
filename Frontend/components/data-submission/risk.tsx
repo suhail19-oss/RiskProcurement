@@ -92,7 +92,10 @@ export default function Risk() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [hasData, setHasData] = useState(false);
+
   const [uploadedFiles, setUploadedFiles] = useState<{ riskDocument?: File }>({});
+
+
 
   const [expandedSections, setExpandedSections] = useState({
     operational: true,
@@ -103,6 +106,28 @@ export default function Risk() {
     logistics: false,
     documents: false
   });
+  const [isAvail, setIsAvail] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState("")
+  type Supplier = {
+    product_id: number;
+    company_name: string;
+    email_domain: string;
+    location: string;
+    risk_score: number;
+    risk_upload_status: "success" | "pending" | "failed";
+    risk_subfactors: {
+      quality_risk_score: number;
+      logistics_risk_score: number;
+      esg_risk_score: number;
+      operational_risk_score: number;
+      geopolitical_risk_score: number;
+      compliance_legal_risk_score: number;
+    };
+  };
+
+  //fetchins suppliers
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+
 
   const toggleSection = (sectionId: SectionId) => {
     setExpandedSections(prev => ({
@@ -174,34 +199,115 @@ export default function Risk() {
   };
 
   useEffect(() => {
+    if (!email) return;
+
     const checkData = async () => {
       try {
-        const dbResponse = await fetch('http://localhost:8000/get-risk-prefill', 
-        {
-          headers: { "email": email }
+        console.log("Checking for prefill data for email:", email);
+        const dbResponse = await fetch("http://localhost:8000/get-risk-prefill", {
+          headers: { email },
         });
-        
+
+
+        if (dbResponse.status === 404) {
+
+          setIsAvail(true);
+
+
+        }
+
         if (dbResponse.ok) {
           const dbData = await dbResponse.json();
           console.log("Prefilled from DB:", dbData.result);
           setHasData(true);
           updateRiskFormFields(dbData.result);
-          console.log( dbData.result )
           return;
         }
-        
-        setHasData(false);
+
+        setHasData(false); // For any other unexpected failure
       } catch (err) {
         console.error("error:", err);
       }
-    }
-    checkData();
-  }, [])
+    };
 
-  const handleFileUpload = async (key: string, file: File) => {
-    // Placeholder implementation
-    return;
-  };
+    checkData();
+  }, [email]);
+
+
+
+  const handleFileUpload = async (key: string, file: File, isAvail: boolean, userEmail: string) => {
+  if (!isAvail) return;
+  console.log("File to upload:", file);
+
+  try {
+    // Step 1: Upload file to /submit-risk-report
+    const formData = new FormData();
+    formData.append("file", file);
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+    const email = userData.email;
+    formData.append("email", email); // Ensure this is the supplier's email address
+    console.log("Form data prepared:", formData);
+
+    const riskReportResponse = await fetch("http://localhost:8000/submit-risk-report", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!riskReportResponse.ok) {
+      const err = await riskReportResponse.json();
+      throw new Error(err.detail || "Failed to upload risk report");
+    }
+
+    console.log("Risk report uploaded successfully");
+    const { result, status } = await riskReportResponse.json();
+
+    if (status !== "success") {
+      throw new Error("Risk extraction failed.");
+    }
+
+    // Step 1.5: Map result keys to match expected input format for /predict
+    const formattedResult = {
+      "In_Transit_Delays_Days": result.in_transit_delays_days,
+      "War_Zone_Flag": result.war_zone_flag,
+      "First_Pass_Yield": result.first_pass_yield,
+      "ISO_Certification_Score": result.iso_certification_score,
+      "Infrastructure_Disruption_Severity": result.infrastructure_disruption_severity,
+      "Legal_Disputes_Last_6_Months": result.legal_disputes_last_6_months,
+      "Govt_Sanctions_Penalties": result.govt_sanctions_penalties,
+      "Product_Defect_Rate": result.product_defect_rate,
+      "ESG": result.esg,
+      "Labor_Violations_6_months": result["labor_violations_(6_months)"],
+      "News_Sentiment_Score": result.news_sentiment_score,
+      "Natural_disaster_frequency_last_6_months": result["natural_disaster_frequency_(last_6_months)"],
+      "Trade_policy_changes_tariffs_bans": result["trade_policy_changes_(tariffs,_bans)"],
+      "Adjusted_On_Time_Delivery_Rate": result.adjusted_on_time_delivery_rate,
+      "Strike_Days": result.strike_days,
+      "email": userEmail, // Final field appended
+    };
+
+    // Step 2: Send formatted result to /predict
+    const predictResponse = await fetch("http://localhost:8000/api/model/predict", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formattedResult),
+    });
+
+    if (!predictResponse.ok) {
+      const err = await predictResponse.json();
+      throw new Error(err.detail || "Prediction failed");
+    }
+
+    const prediction = await predictResponse.json();
+    return prediction;
+  } catch (error) {
+    console.error("Error during file upload and prediction:", error);
+    throw error;
+  }
+};
+
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -211,16 +317,16 @@ export default function Risk() {
           <span className="text-sm font-medium text-foreground">Submission Progress</span>
           <span className="text-sm text-muted-foreground">{hasData ? 100 : uploadProgress}% Complete</span>
         </div>
-        <Progress 
-          value={hasData ? 100 : uploadProgress} 
+        <Progress
+          value={hasData ? 100 : uploadProgress}
           className="h-2 transition-all duration-500"
         />
-        
+
         <div className={`mt-4 p-4 rounded-lg flex items-start gap-3 transition-colors duration-200
-            ${hasData 
-              ? "bg-background border border-primary/30" 
-              : "bg-background border border-destructive/30"
-            }`}
+            ${hasData
+            ? "bg-background border border-primary/30"
+            : "bg-background border border-destructive/30"
+          }`}
         >
           {hasData ? (
             <>
@@ -229,8 +335,8 @@ export default function Risk() {
                 <p className="font-medium text-foreground">Risk data successfully processed</p>
                 <p className="text-sm text-muted-foreground mt-1">
                   Risk factors analyzed.{" "}
-                  <a 
-                    href="/risk-analysis" 
+                  <a
+                    href="/risk-analysis"
                     className="text-primary hover:text-primary/80 underline transition-colors"
                   >
                     View full analysis
@@ -414,7 +520,8 @@ export default function Risk() {
                         type="file"
                         onChange={(e) => {
                           const file = e.target.files?.[0]
-                          if (file) handleFileUpload("riskDocument", file)
+                          if (file) handleFileUpload("riskDocument", file, isAvail, email);
+
                         }}
                         className="hidden"
                         id="risk-document-upload"

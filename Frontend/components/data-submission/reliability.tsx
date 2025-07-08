@@ -83,30 +83,30 @@ export default function Reliability() {
     checkData(); 
   }, []);
 
-  const handleFinalRelSubmit = async () => {
-    try {
-        const response = await fetch("http://localhost:8000/submit-reliability-report", {
-        method: "POST",
-        headers: {
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }), // Send as JSON
-        });
+const handleFinalRelSubmit = async (selectedFile: File, email: string) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", selectedFile);  // Ensure this is a File object
+    formData.append("email", email);        // Email as plain string
 
-        if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || "Failed to calculate ESG score");
-        }
+    const response = await fetch("http://localhost:8000/submit-reliability-report", {
+      method: "POST",
+      body: formData, // No need to manually set Content-Type
+    });
 
-        const data = await response.json();
-        
-        console.log("ESG scores calculated:", data);
-        return data;
-    } catch (err: any) {
-        console.error("ESG Calculation Error:", err);
-        throw err;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to submit reliability report");
     }
-    };
+
+    const data = await response.json();
+    console.log("Reliability scores calculated:", data);
+    return data;
+  } catch (err: any) {
+    console.error("Reliability Submission Error:", err);
+    throw err;
+  }
+};
 
       // <---- Handles file uploads ---->
   const handleFileUpload = async (key: string, file: File) => {
@@ -146,7 +146,7 @@ export default function Reliability() {
 
     // calling function to 
     try {
-      await handleFinalRelSubmit();
+      await handleFinalRelSubmit(file,email);
       setUploadProgress(100);
     } catch (err) {
     console.error("Final submission failed (non-blocking):", err);
