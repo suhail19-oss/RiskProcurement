@@ -27,10 +27,6 @@ class ProfileUpdate(BaseModel):
     role: Optional[str] = None
     
     class Config:
-<<<<<<< HEAD
-        from_attributes = True
-=======
         from_attributes = True
 
         
->>>>>>> supplier
