@@ -82,6 +82,8 @@ app.include_router(costEfficiency.router)
 app.include_router(reliability.router)
 app.include_router(risk_model.router, prefix="/api")
 
+app.include_router(risk_model.router, prefix="/api")
+
 # ------------------- Custom Exception Handler -------------------
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -217,6 +219,7 @@ def clean_nan_values(obj):
     else:
         return obj
       
+
 @app.get("/api/news/{supplier_name}")
 async def get_news_by_supplier(supplier_name: str):
     try:
@@ -280,3 +283,4 @@ async def update_action(
     except Exception as e:
         logger.exception("Error updating action")
         return {"error": str(e)}
+

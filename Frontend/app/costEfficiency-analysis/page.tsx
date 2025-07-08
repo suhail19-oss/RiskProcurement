@@ -91,6 +91,7 @@ export default function CostEfficiencyAnalysis() {
     const [tradePolicyScore, setTradePolicyScore] = useState("");
     const [warZoneScore, setWarZoneScore] = useState("");
     const [contractValueScore, setContractValueScore] = useState("");
+    const [legalDisputeScore, setLegalDisputeScore] = useState("");  
 
     type Supplier = {
         product_id: number;
@@ -185,25 +186,56 @@ export default function CostEfficiencyAnalysis() {
         fetchCompanyESGData();
     }, [selectedSupplier]);
 
-    useEffect(() => {
-        const supplier = suppliers.find(s => s.company_name === selectedSupplier);
+   useEffect(() => {
+  const supplier = suppliers.find(s => s.company_name === selectedSupplier);
 
-        if (!supplier || !supplier.cost_efficiency_normalized_scores) return;
+  if (!supplier || !supplier.cost_subfactors) return;
 
-        const cost = supplier.cost_efficiency_normalized_scores;
+  const cost = supplier.cost_subfactors;
 
-        setUnitPriceScore(cost.unit_price_score?.toString() ?? "");
-        setVolumeDiscountScore(cost.volume_discount_score?.toString() ?? "");
-        setPaymentTermsScore(cost.payment_terms_score?.toString() ?? "");
-        setTransitDelayScore(cost.transit_delay_score?.toString() ?? "");
-        setFpyScore(cost.fpy_score?.toString() ?? "");
-        setRecallScore(cost.recall_score?.toString() ?? "");
-        setSanctionsScore(cost.sanctions_score?.toString() ?? "");
-        setLaborViolationScore(cost.labor_violation_score?.toString() ?? "");
-        setTradePolicyScore(cost.trade_policy_score?.toString() ?? "");
-        setWarZoneScore(cost.war_zone_score?.toString() ?? "");
-        setContractValueScore(cost.contract_value_score?.toString() ?? "");
-    }, [selectedSupplier, suppliers]);
+  // Convert raw fields to numbers safely
+  const unitPriceBenchmarkingNum = Number(cost.unit_price_benchmarking) || 0;
+  const volumeDiscountPotentialNum = Number(cost.volume_discount_potential) || 0;
+  const paymentTermsFlexibilityNum = Number(cost.payment_terms_flexibility) || 0;
+  const inTransitDelaysDaysNum = Number(cost.in_transit_delay_days) || 0;
+  const fpyNormalizedNum = Number(cost.first_pass_yield) || 0;
+  const recallScoreOutOf100Num = Number(cost.recall_score) || 0;
+  const legalDisputeScoreNum = Number(cost.legal_dispute_score) || 0;
+  const sanctionScoreNum = Number(cost.sanction_score) || 0;
+  const laborViolationRiskNum = Number(cost.labor_violation_risk) || 0;
+  const tradePolicyNormNum = Number(cost.trade_policy_norm) || 0;
+  const warZoneNormNum = Number(cost.war_zone_norm) || 0;
+  const contractValueNum = Number(cost.contract_value) || 0;
+
+  // Compute scores
+  const unitPriceScore = unitPriceBenchmarkingNum * 100;
+  const volumeDiscountScore = volumeDiscountPotentialNum * 100;
+  const paymentTermsScore = paymentTermsFlexibilityNum * 100;
+  const transitDelayScore = (1 - inTransitDelaysDaysNum / 30) * 100;
+  const fpyScore = fpyNormalizedNum * 100;
+  const recallScore = 100 - recallScoreOutOf100Num;
+  const legalDisputeScore = (1 - legalDisputeScoreNum) * 100;
+  const sanctionsScore = (1 - sanctionScoreNum) * 100;
+  const laborViolationScore = (1 - laborViolationRiskNum) * 100;
+  const tradePolicyScore = (1 - tradePolicyNormNum) * 100;
+  const warZoneScore = (1 - warZoneNormNum) * 100;
+  const contractValueScore = ((contractValueNum - 100000000) / 700000000) * 100;
+
+  // Set scores to state hooks
+  setUnitPriceScore(unitPriceScore.toFixed(2));
+  setVolumeDiscountScore(volumeDiscountScore.toFixed(2));
+  setPaymentTermsScore(paymentTermsScore.toFixed(2));
+  setTransitDelayScore(transitDelayScore.toFixed(2));
+  setFpyScore(fpyScore.toFixed(2));
+  setRecallScore(recallScore.toFixed(2));
+  setLegalDisputeScore(legalDisputeScore.toFixed(2));
+  setSanctionsScore(sanctionsScore.toFixed(2));
+  setLaborViolationScore(laborViolationScore.toFixed(2));
+  setTradePolicyScore(tradePolicyScore.toFixed(2));
+  setWarZoneScore(warZoneScore.toFixed(2));
+  setContractValueScore(contractValueScore.toFixed(2));
+
+}, [selectedSupplier, suppliers]);
 
 
     useEffect(() => {
@@ -220,22 +252,7 @@ export default function CostEfficiencyAnalysis() {
             return;
         }
 
-        // Set Cost Subfactors
-        if (supplier.cost_subfactors) {
-            const cost = supplier.cost_efficiency_normalized_scores;
-
-            setUnitPriceScore(cost.unit_price_score?.toString() ?? "");
-            setVolumeDiscountScore(cost.volume_discount_score?.toString() ?? "");
-            setPaymentTermsScore(cost.payment_terms_score?.toString() ?? "");
-            setTransitDelayScore(cost.transit_delay_score?.toString() ?? "");
-            setFpyScore(cost.fpy_score?.toString() ?? "");
-            setRecallScore(cost.recall_score?.toString() ?? "");
-            setSanctionsScore(cost.sanctions_score?.toString() ?? "");
-            setLaborViolationScore(cost.labor_violation_score?.toString() ?? "");
-            setTradePolicyScore(cost.trade_policy_score?.toString() ?? "");
-            setWarZoneScore(cost.war_zone_score?.toString() ?? "");
-            setContractValueScore(cost.contract_value_score?.toString() ?? "");
-        }
+        
     }, [selectedSupplier, suppliers]);
 
 
@@ -468,7 +485,7 @@ export default function CostEfficiencyAnalysis() {
                                                                     {payload[0].name}
                                                                 </p>
                                                                 <p>Value: {payload[0].value}</p>
-                                                                <p>{(payload[0].payload.percent * 100).toFixed(1)}%</p>
+                                                               
                                                             </motion.div>
                                                         );
                                                     }}
@@ -476,47 +493,7 @@ export default function CostEfficiencyAnalysis() {
                                             </PieChart>
                                         </ResponsiveContainer>
 
-                                        <motion.div
-                                            className="flex flex-wrap justify-center gap-2 mt-6"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.5, duration: 0.5 }}
-                                        >
-                                            {[
-                                                { name: "Unit Price", value: Number(unitPriceScore), color: "#22c55e" },
-                                                { name: "Volume Discount", value: Number(volumeDiscountScore), color: "#3b82f6" },
-                                                { name: "Payment Terms", value: Number(paymentTermsScore), color: "#f59e0b" },
-                                                { name: "Transit Delay", value: Number(transitDelayScore), color: "#ec4899" },
-                                                { name: "FPY", value: Number(fpyScore), color: "#8b5cf6" },
-                                                { name: "Recall", value: Number(recallScore), color: "#ef4444" },
-                                                { name: "Sanctions", value: Number(sanctionsScore), color: "#14b8a6" },
-                                                { name: "Labor Violation", value: Number(laborViolationScore), color: "#f97316" },
-                                                { name: "Trade Policy", value: Number(tradePolicyScore), color: "#eab308" },
-                                                { name: "War Zone", value: Number(warZoneScore), color: "#0ea5e9" },
-                                                { name: "Contract Value", value: Number(contractValueScore), color: "#10b981" },
-                                            ].map((entry, index) => (
-                                                <motion.div
-                                                    key={`legend-${index}`}
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    className="flex items-center px-3 py-1 rounded-full cursor-pointer"
-                                                    style={{
-                                                        backgroundColor: `${entry.color}20`,
-                                                        border: `1px solid ${entry.color}`,
-                                                    }}
-                                                >
-                                                    <div
-                                                        className="w-3 h-3 rounded-full mr-2"
-                                                        style={{ backgroundColor: entry.color }}
-                                                    />
-                                                    <span className="text-sm font-medium">
-                                                        {entry.name}: {entry.value}
-                                                    </span>
-                                                </motion.div>
-                                            ))}
-                                        </motion.div>
-
-                                       
+                                     
                                     </motion.div>
                                 </CardContent>
                             </Card>
@@ -554,7 +531,8 @@ export default function CostEfficiencyAnalysis() {
                                                 { name: "Labor Violation Score", score: laborViolationScore, description: "Risk of labor violations" },
                                                 { name: "Trade Policy Score", score: tradePolicyScore, description: "Exposure to trade policy changes" },
                                                 { name: "War Zone Score", score: warZoneScore, description: "Exposure to war zones" },
-                                                { name: "Contract Value Score", score: contractValueScore, description: "Contract value contribution" }
+                                                { name: "Contract Value Score", score: contractValueScore, description: "Contract value contribution" },
+                                                { name: "Legal Disupte Score", score: legalDisputeScore, description: "Legal Dispute Score" }
                                             ]
                                                 .map((item, index) => (
                                                     <motion.div

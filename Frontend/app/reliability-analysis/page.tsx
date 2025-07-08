@@ -99,7 +99,7 @@ export default function ReliabilityAnalysis() {
             average_lead_time_days: number;
             product_defect_rate: number;
             iso_certification_score: number;
-            infrastructure_disruption_severity_score: number;
+            infrastructure_disruption_severity: number;
             strike_days: number;
             natural_disaster_frequency: number;
             reporting_year: number;
@@ -165,18 +165,51 @@ export default function ReliabilityAnalysis() {
     useEffect(() => {
         const supplier = suppliers.find(s => s.company_name === selectedSupplier);
 
-        if (!supplier || !supplier.reliability_normalized_scores) return;
+        if (!supplier || !supplier.reliability_subfactors) return;
 
-        const reliability = supplier.reliability_normalized_scores;
+        const reliability = supplier.reliability_subfactors;
 
-        setAdjustedOnTimeDeliveryRate(reliability.adjusted_on_time_delivery_rate?.toString() ?? "");
-        setAverageLeadTimeDaysScore(reliability.average_lead_time_days_score?.toString() ?? "");
-        setProductDefectRate(reliability.product_defect_rate?.toString() ?? "");
-        setIsoCertificationScore(reliability.iso_certification_score?.toString() ?? "");
-        setInfrastructureDisruptionSeverityScore(reliability.infrastructure_disruption_severity_score?.toString() ?? "");
-        setCombinedDisruption(reliability.combined_disruption?.toString() ?? "");
+        // Convert to numbers safely
+        const adjustedOnTimeDeliveryRateNum = Number(reliability.adjusted_on_time_delivery_rate) || 0;
+        const averageLeadTimeDaysNum = Number(reliability.average_lead_time_days) || 0;
+        const productDefectRateNum = Number(reliability.product_defect_rate) || 0;
+        const isoCertificationScoreNum = Number(reliability.iso_certification_score) || 0;
+        const infrastructureDisruptionSeverityNum = Number(reliability.infrastructure_disruption_severity) || 0;
+        const strikeDaysNum = Number(reliability.strike_days) || 0;
+        const naturalDisasterFrequencyNum = Number(reliability.natural_disaster_frequency) || 0;
+
+        // R1
+        const r1Score = adjustedOnTimeDeliveryRateNum;
+
+        // R2
+        const r2Score = Math.max(0, 100 - (averageLeadTimeDaysNum * 3.33));
+
+        // R3
+        const defectRatePercent = productDefectRateNum < 1 ? productDefectRateNum * 100 : productDefectRateNum;
+        const r3Score = Math.max(0, 100 - (defectRatePercent * 20));
+
+        // R4
+        const r4Score = isoCertificationScoreNum * 100;
+
+        // R5
+        const r5Score = (1 - infrastructureDisruptionSeverityNum) * 100;
+
+        // Combined Disruption
+        const combinedDisruptionValue = Math.min(1.0, (strikeDaysNum / 30) + (naturalDisasterFrequencyNum / 5));
+
+        // R6
+        const r6Score = (1 - combinedDisruptionValue) * 100;
+
+        // ✅ SET SCORES INTO YOUR STATE HOOKS:
+        setAdjustedOnTimeDeliveryRate(r1Score.toFixed(2));
+        setAverageLeadTimeDaysScore(r2Score.toFixed(2));
+        setProductDefectRate(r3Score.toFixed(2));
+        setIsoCertificationScore(r4Score.toFixed(2));
+        setInfrastructureDisruptionSeverityScore(r5Score.toFixed(2));
+        setCombinedDisruption(combinedDisruptionValue.toFixed(2));
 
     }, [selectedSupplier, suppliers]);
+
 
 
     useEffect(() => {
@@ -193,17 +226,17 @@ export default function ReliabilityAnalysis() {
             return;
         }
 
-        // Set reliability Subfactors
-        if (supplier.reliability_subfactors) {
-            const reliability = supplier.reliability_normalized_scores;
+        // // Set reliability Subfactors
+        // if (supplier.reliability_subfactors) {
+        //     const reliability = supplier.reliability_normalized_scores;
 
-            setAdjustedOnTimeDeliveryRate(reliability.adjusted_on_time_delivery_rate?.toString() ?? "");
-            setAverageLeadTimeDaysScore(reliability.average_lead_time_days_score?.toString() ?? "");
-            setProductDefectRate(reliability.product_defect_rate?.toString() ?? "");
-            setIsoCertificationScore(reliability.iso_certification_score?.toString() ?? "");
-            setInfrastructureDisruptionSeverityScore(reliability.infrastructure_disruption_severity_score?.toString() ?? "");
-            setCombinedDisruption(reliability.combined_disruption?.toString() ?? "");
-        }
+        //     setAdjustedOnTimeDeliveryRate(reliability.adjusted_on_time_delivery_rate?.toString() ?? "");
+        //     setAverageLeadTimeDaysScore(reliability.average_lead_time_days_score?.toString() ?? "");
+        //     setProductDefectRate(reliability.product_defect_rate?.toString() ?? "");
+        //     setIsoCertificationScore(reliability.iso_certification_score?.toString() ?? "");
+        //     setInfrastructureDisruptionSeverityScore(reliability.infrastructure_disruption_severity_score?.toString() ?? "");
+        //     setCombinedDisruption(reliability.combined_disruption?.toString() ?? "");
+        // }
     }, [selectedSupplier, suppliers]);
 
 
@@ -268,7 +301,7 @@ export default function ReliabilityAnalysis() {
                 </motion.div>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="">
-                    <TabsContent value="reliabilityEfficiency-analysis" className="space-y-6">
+                    <TabsContent value="reliability-analysis" className="space-y-6">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -382,7 +415,7 @@ export default function ReliabilityAnalysis() {
                                                                 style={{
                                                                     fontSize: '12px',
                                                                     fontWeight: 'bold',
-                                                                   
+
                                                                 }}
                                                             >
                                                                 {`${name}`}
@@ -422,48 +455,13 @@ export default function ReliabilityAnalysis() {
                                                                     {payload[0].name}
                                                                 </p>
                                                                 <p>Value: {payload[0].value}</p>
-                                                               
+
                                                             </motion.div>
                                                         );
                                                     }}
                                                 />
                                             </PieChart>
                                         </ResponsiveContainer>
-
-                                        <motion.div
-                                            className="flex flex-wrap justify-center gap-2 mt-6"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.5, duration: 0.5 }}
-                                        >
-                                            {[
-                                                { name: "Adjusted On time Delievery Rate", value: Number(adjustedOnTimeDeliveryRate), color: "#22c55e" },
-                                                { name: "Average Lead Time Delay Score", value: Number(averageLeadTimeDaysScore), color: "#3b82f6" },
-                                                { name: "Product Defect rate", value: Number(productDefectRate), color: "#f59e0b" },
-                                                { name: "ISO Certification Score", value: Number(isoCertificationScore), color: "#ec4899" },
-                                                { name: "Infrastructure Disruption Severity Score", value: Number(infrastructureDisruptionSeverityScore), color: "#8b5cf6" },
-                                                { name: "Combined Disruption Score", value: Number(combinedDisruption), color: "#ef4444" },
-                                            ].map((entry, index) => (
-                                                <motion.div
-                                                    key={`legend-${index}`}
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    className="flex items-center px-3 py-1 rounded-full cursor-pointer"
-                                                    style={{
-                                                        backgroundColor: `${entry.color}20`,
-                                                        border: `1px solid ${entry.color}`,
-                                                    }}
-                                                >
-                                                    <div
-                                                        className="w-3 h-3 rounded-full mr-2"
-                                                        style={{ backgroundColor: entry.color }}
-                                                    />
-                                                    <span className="text-sm font-medium">
-                                                        {entry.name}: {entry.value}
-                                                    </span>
-                                                </motion.div>
-                                            ))}
-                                        </motion.div>
 
                                     </motion.div>
                                 </CardContent>
