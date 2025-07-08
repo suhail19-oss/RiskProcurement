@@ -80,7 +80,7 @@ export default function GuidancePage() {
   const router = useRouter()
 
   useEffect(() => {
-    console.log("Guidance page: useEffect triggered")
+    console.log("Guidance page: useEffect triggered") 
     console.log("Guidance page: loading:", loading, "isAuthenticated:", isAuthenticated, "userData:", userData)
     
     // Wait for auth hook to finish loading
@@ -124,9 +124,9 @@ export default function GuidancePage() {
       
       // Redirect based on role
       const redirectPaths = {
-        "Procurement Analyst": "/data-submission",
-        "Vendor Manager": "/supplier-directory", 
-        "Sustainability Head": "/assessment",
+        "Procurement Analyst": "/supplierdirectory",
+        "Vendor Manager": "/supplierdirectory", 
+        "Sustainability Head": "/supplierdirectory",
         "Supplier": "/data-submission"
       }
       

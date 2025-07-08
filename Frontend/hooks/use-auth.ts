@@ -57,6 +57,7 @@ export function useAuth() {
         console.log("useAuth: No auth data found")
         setUserData(null)
         setIsAuthenticated(false)
+        router.push( "/auth" )
       }
     } catch (error) {
       console.error("useAuth: Error checking auth status:", error)

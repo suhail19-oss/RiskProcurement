@@ -12,17 +12,21 @@ import { Menu, Leaf, Home, Upload, Sliders, Database, ClipboardCheck, Bell, LogO
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
 
-const navigation = [
+const company = [
   { name: "Homepage", href: "/", icon: Home },
-  { name: "Data Submission", href: "/data-submission", icon: Upload },
-  { name: "ESG Analysis", href: "/esg-analysis", icon: Leaf },
-  { name: "Analytics", href: "/assessment", icon: ClipboardCheck },
+  { name: "Analysis", href: "/esg-analysis", icon: Leaf },
   { name: "TradeOff Simulator", href: "/trade-off-simulator", icon: Sliders },
-  { name: "Supplier Directory", href: "/supplier-directory", icon: Database },
   { name: "Monitoring", href: "/monitoring", icon: Bell },
   { name: "Suppliers Directory", href: "/supplierdirectory", icon: Bell },
   { name: "Actions", href: "/actions", icon: Bell },
-];
+]
+
+const supplier = [ 
+  { name: "Homepage", href: "/", icon: Home },
+  { name: "Data Submission", href: "/data-submission", icon: Upload },
+  { name: "Analysis", href: "/esg-analysis", icon: Leaf },
+  { name: "Analytics", href: "/assessment", icon: ClipboardCheck },
+]
 
 export function Navigation() {
   const pathname = usePathname()
@@ -104,7 +108,7 @@ export function Navigation() {
 
 {/* Desktop Navigation */}
 <div className="hidden md:flex items-center space-x-8">
-  {navigation.map((item) =>
+  {( userData?.role === "Supplier" ? supplier : company ).map((item) =>
     item.name === "Analysis" ? (
       <Popover key={item.href}>
         <PopoverTrigger asChild>
@@ -264,7 +268,7 @@ function MobileNav({ onLogout }: { userData: any; onLogout: () => void }) {
       )}
 
       <div className="flex flex-col space-y-4">
-        {navigation.map((item) => {
+        { (userData.role === "supplier" ? supplier : company).map((item) => {
           const Icon = item.icon
           return (
             <Link
