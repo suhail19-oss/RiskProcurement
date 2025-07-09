@@ -155,7 +155,7 @@ export const SupplierCard: React.FC<any> = ({ supplier, onActionUpdate }) => {
                 {
                   icon: <AlertCircle className="h-5 w-5 text-[white]" />,
                   label: "Penalties",
-                  value: `${supplier.risk_subfactors?.legal_risk_score ?? 30}%`,
+                  value: `${supplier.penalty ?? 30}%`,
                   gradient: "from-[#E2142D] to-red-700",
                 },
 

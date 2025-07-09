@@ -257,7 +257,7 @@ export default function HomePage() {
                 latestAction?.createdAt || latestAction?.lastAssessedAt || null,
             };
           })
-          .sort((a, b) => {
+          .sort((a: any, b: any) => {
             const aDate = new Date(a.lastAssessment || 0).getTime();
             const bDate = new Date(b.lastAssessment || 0).getTime();
             return bDate - aDate;
@@ -590,7 +590,8 @@ export default function HomePage() {
                         contract_value:
                           newSupplier?.risk_subfactors?.[
                             "contract_value(100m_800m)"
-                          ] ?? 1000000000,
+                          ] ?? 1000000000,   
+                        penalty: (newSupplier?.risk_subfactors?.legal_dispute_score ? Math.round(newSupplier.risk_subfactors.legal_dispute_score*100) : 30)
                       };
 
                       // Call the backend to create the action
