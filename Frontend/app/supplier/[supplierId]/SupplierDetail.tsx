@@ -243,9 +243,9 @@ export default function SupplierDetail({ supplier, supplierId }: any) {
             <Building className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {currentSupplier.company_name}
-            </h1>
+            <span className="text-3xl font-bold bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text "> {currentSupplier.company_name}</span>
+           
+          
             <p className="text-lg text-gray-600 dark:text-gray-300">
               <MapPin className="inline w-4 h-4 mr-1" />
               {currentSupplier.location}

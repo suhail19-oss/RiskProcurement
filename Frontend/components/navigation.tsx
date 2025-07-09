@@ -11,9 +11,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Menu, Leaf, Home, Upload, Sliders, Database, ClipboardCheck, Bell, LogOut, Building, Mail, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
+import Image from "next/image";
 
 const company = [
-  { name: "Homepage", href: "/", icon: Home },
+  { name: "Home", href: "/", icon: Home },
   { name: "Analysis", href: "/esg-analysis", icon: Leaf },
   { name: "TradeOff Simulator", href: "/trade-off-simulator", icon: Sliders },
   { name: "Monitoring", href: "/monitoring", icon: Bell },
@@ -21,11 +22,11 @@ const company = [
   { name: "Actions", href: "/actions", icon: Bell },
 ]
 
-const supplier = [ 
-  { name: "Homepage", href: "/", icon: Home },
+const supplier = [
+  { name: "Home", href: "/", icon: Home },
   { name: "Data Submission", href: "/data-submission", icon: Upload },
-  { name: "Analysis", href: "/esg-analysis", icon: Leaf },
-  { name: "Analytics", href: "/assessment", icon: ClipboardCheck },
+  { name: "Score-Analysis", href: "/esg-analysis", icon: Leaf },
+  { name: "Actions", href: "/assessment", icon: ClipboardCheck },
 ]
 
 export function Navigation() {
@@ -98,87 +99,45 @@ export function Navigation() {
 
               <div className="absolute inset-0 h-8 w-8 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all" />
             </div>
-            <span className="font-heading font-bold text-xl bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent">
+            <span className="font-heading font-bold text-xl bg-gradient-to-r from-[#E2142D] to-[#E2142D] bg-clip-text text-transparent">
               ProcurePro
             </span>
-
+            {/* <div className="absolute inset-0 h-16 w-16 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all" /> */}
+            {/* Tech Mahindra Logo */}
+            <Image
+              src="/techm.png"
+              alt="Tech Mahindra"
+              width={64}
+              height={64}
+              className="ml-10 h-16 w-auto object-contain"
+              priority
+            />
           </Link>
 
-    
-
-{/* Desktop Navigation */}
-<div className="hidden md:flex items-center space-x-8">
-  {( userData?.role === "Supplier" ? supplier : company ).map((item) =>
-    item.name === "Analysis" ? (
-      <Popover key={item.href}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            className={cn(
-              "relative text-sm font-medium transition-all duration-200 hover:text-primary px-0",
-              pathname === "/esg-analysis"
-                ? "text-[#E2142D] font-semibold dark:text-[#E2142D]"
-                : "text-foreground/90 hover:text-foreground dark:hover:text-[#a21caf]"
-            )}
-          >
-            {item.name}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-56 p-0" align="start">
-          <div className="flex flex-col">
-            <Link
-              href="/esg-analysis"
-              className={cn(
-                "px-4 py-2 hover:bg-accent text-sm",
-                pathname === "/esg-analysis" && "bg-accent font-semibold"
-              )}
-            >
-              ESG Analysis
-            </Link>
-            <Link
-              href="/risk-analysis"
-              className="px-4 py-2 hover:bg-accent text-sm"
-            >
-              Risk Analysis
-            </Link>
-            <Link
-              href="/costEfficiency-analysis"
-              className="px-4 py-2 hover:bg-accent text-sm"
-            >
-              Cost Efficiency Analysis
-            </Link>
-            <Link
-              href="/reliability-analysis"
-              className="px-4 py-2 hover:bg-accent text-sm"
-            >
-              Reliability Analysis
-            </Link>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex flex-1 justify-center items-center space-x-8">
+            {(userData?.role === "Supplier" ? supplier : company).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "relative text-sm font-medium transition-all duration-200 hover:text-primary",
+                  pathname === item.href
+                    ? "text-[#E2142D] font-semibold dark:text-[#E2142D]"
+                    : "text-foreground/90 hover:text-foreground dark:hover:text-[#a21caf]"
+                )}
+              >
+                {item.name}
+                {pathname === item.href && (
+                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-blue-600 rounded-full" />
+                )}
+              </Link>
+            ))}
           </div>
-        </PopoverContent>
-      </Popover>
-    ) : (
-      <Link
-        key={item.href}
-        href={item.href}
-        className={cn(
-          "relative text-sm font-medium transition-all duration-200 hover:text-primary",
-          pathname === item.href
-            ? "text-[#E2142D] font-semibold dark:text-[#E2142D]"
-            : "text-foreground/90 hover:text-foreground dark:hover:text-[#a21caf]"
-        )}
-      >
-        {item.name}
-        {pathname === item.href && (
-          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-blue-600 rounded-full" />
-        )}
-      </Link>
-    )
-  )}
-</div>
 
           {/* User Profile and Theme Toggle */}
           <div className="flex items-center space-x-4">
-            <ThemeToggle />
+
             {isAuthenticated ? (
               <Popover>
                 <PopoverTrigger asChild>
@@ -249,15 +208,15 @@ function MobileNav({ onLogout }: { userData: any; onLogout: () => void }) {
       {userData && (
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
           <Avatar className="h-10 w-10">
-           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-  {userData?.email
-    ? userData.email
-        .split(" ")
-        .map((n: string) => n[0])
-        .join("")
-        .toUpperCase()
-    : "?"}
-</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+              {userData?.email
+                ? userData.email
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")
+                  .toUpperCase()
+                : "?"}
+            </AvatarFallback>
 
           </Avatar>
           <div className="flex-1">
@@ -268,7 +227,7 @@ function MobileNav({ onLogout }: { userData: any; onLogout: () => void }) {
       )}
 
       <div className="flex flex-col space-y-4">
-        { (userData.role === "supplier" ? supplier : company).map((item) => {
+        {(userData?.role === "Supplier" ? supplier : company).map((item) => {
           const Icon = item.icon
           return (
             <Link

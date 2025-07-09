@@ -65,16 +65,10 @@ const CircularProgress = ({ value, label }) => {
             transform="rotate(-90 80 80)"
           />
           <defs>
-            {/* Background gradient matching bg-gradient-to-br from-primary/5 to-blue-500/5 */}
-            <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(0, 0%, 9%, 0.05)" /> {/* --primary at 5% opacity */}
-              <stop offset="100%" stopColor="hsl(217, 91%, 60%, 0.05)" /> {/* blue-500 equivalent at 5% opacity */}
-            </linearGradient>
-            
-            {/* Progress gradient - using your chart colors for better visibility */}
-            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsl(198, 30.90%, 31.80%)" /> {/* --chart-3 */}
-              <stop offset="100%" stopColor="hsl(173, 58%, 39%)" /> {/* --chart-2 */}
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+             <stop offset="0%" stopColor="#2563eb" />
+<stop offset="100%" stopColor="#2563eb" />
+
             </linearGradient>
             
             <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">

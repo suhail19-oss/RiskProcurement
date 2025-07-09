@@ -14,7 +14,7 @@ export default function Hero() {
       {/* Subtle grid lines */}
       <div className="absolute inset-0 opacity-10 dark:opacity-25 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBzdHJva2Utd2lkdGg9IjAuNSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')]"></div>
 
-      <div className="container mx-auto px-4 flex flex-col items-center justify-center text-center max-w-4xl">
+      <div className="container mx-auto px-4 flex flex-col items-center justify-center text-center max-w-4xl mt-12">
         <Badge variant="outline" className="mb-6 sm:mb-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-6 py-2 border-gray-300 dark:border-gray-600">
           <Globe className="h-4 w-4 mr-2" />
           Transforming Resilient Procurement

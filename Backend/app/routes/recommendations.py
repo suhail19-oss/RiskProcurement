@@ -70,7 +70,7 @@ async def gemini_recommendations(request: GeminiRecommendationRequest):
         # Compose the prompt for Gemini
         full_prompt = (
             f"You are an expert ESG consultant. "
-            f"Given the following Current Environmental score and Target Score that supplier want to reach, suggest actionable techniques to reach target scores. "
+            f"Given the following Current Environmental score that supplier want to reach, suggest actionable techniques to improve scores. "
             f"Respond as a concise list of improvement points, each as a separate bullet:\n\n. Response everything in normal text, no bold or italic test."
             f"Give only normal text with no bold words, no special characters."
             f"{request.prompt}"
@@ -108,15 +108,15 @@ async def gemini_recommendations(request: GeminiRecommendationRequest):
 @router.post("/api/gemini-recommendations-sScore")
 async def gemini_recommendations(request: GeminiRecommendationRequest):
     """
-    Accepts a prompt (should include esg_category_scores in the text), sends to Gemini, and returns improvement suggestions as points.
+    Accepts a prompt (should include cost_efficiency_score in the text), sends to Gemini, and returns improvement suggestions as points.
     """
     import re
 
     try:
         # Compose the prompt for Gemini
         full_prompt = (
-            f"You are an expert ESG consultant. "
-            f"Given the following Current Social score and Target Score that supplier want to reach, suggest actionable techniques to reach target scores. "
+            f"You are an expert cost Efficiency score consultant. "
+            f"Given the following Current cost_score  that supplier want to reach, suggest actionable techniques to improve scores. "
             f"Respond as a concise list of improvement points, each as a separate bullet:\n\n. Response everything in normal text, no bold or italic test."
             f"Give only normal text with no bold words, no special characters."
             f"{request.prompt}"
@@ -154,15 +154,15 @@ async def gemini_recommendations(request: GeminiRecommendationRequest):
 @router.post("/api/gemini-recommendations-gScore")
 async def gemini_recommendations(request: GeminiRecommendationRequest):
     """
-    Accepts a prompt (should include esg_category_scores in the text), sends to Gemini, and returns improvement suggestions as points.
+    Accepts a prompt (should include risk_score in the text), sends to Gemini, and returns improvement suggestions as points.
     """
     import re
 
     try:
         # Compose the prompt for Gemini
         full_prompt = (
-            f"You are an expert ESG consultant. "
-            f"Given the following Current Governance score and Target Score that supplier want to reach, suggest actionable techniques to reach target scores. "
+            f"You are an expert risk consultant. "
+            f"Given the following Current risk_score that supplier want to reach, suggest actionable techniques to improve scores. "
             f"Respond as a concise list of improvement points, each as a separate bullet:\n\n. Response everything in normal text, no bold or italic test."
             f"Give only normal text with no bold words, no special characters."
             f"{request.prompt}"
@@ -208,8 +208,8 @@ async def gemini_recommendations(request: GeminiRecommendationRequest):
     try:
         # Compose the prompt for Gemini
         full_prompt = (
-            f"You are an expert ESG consultant. "
-            f"Given the following Current Cost score and Target Score that supplier want to reach, suggest actionable techniques to reach target scores. "
+            f"You are an expert reliability score consultant. "
+            f"Given the following Current reliability_score that supplier want to reach, suggest actionable techniques to improve scores. "
             f"Respond as a concise list of improvement points, each as a separate bullet:\n\n. Response everything in normal text, no bold or italic test."
             f"Give only normal text with no bold words, no special characters."
             f"{request.prompt}"
@@ -254,7 +254,7 @@ async def gemini_recommendations(request: GeminiRecommendationRequest):
         # Compose the prompt for Gemini
         full_prompt = (
             f"You are an expert ESG consultant. "
-            f"Given the following Current Risk score and Target Score that supplier want to reach, suggest actionable techniques to reach target scores. "
+            f"Given the following Current Risk score that supplier want to reach, suggest actionable techniques to improve scores. "
             f"Respond as a concise list of improvement points, each as a separate bullet:\n\n. Response everything in normal text, no bold or italic test."
             f"Give only normal text with no bold words, no special characters."
             f"{request.prompt}"
@@ -299,7 +299,7 @@ async def gemini_recommendations(request: GeminiRecommendationRequest):
         # Compose the prompt for Gemini
         full_prompt = (
             f"You are an expert ESG consultant. "
-            f"Given the following Current Reliability score and Target Score that supplier want to reach, suggest actionable techniques to reach target scores. "
+            f"Given the following Current Reliability score that supplier want to reach, suggest actionable techniques to improve scores. "
             f"Respond as a concise list of improvement points, each as a separate bullet:\n\n. Response everything in normal text, no bold or italic test."
             f"Give only normal text with no bold words, no special characters."
             f"{request.prompt}"

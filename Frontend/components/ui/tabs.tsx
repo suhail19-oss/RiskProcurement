@@ -28,14 +28,12 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap px-6 py-3 text-lg font-large", // Changed to text-lg
+      "inline-flex items-center justify-center whitespace-nowrap px-6 py-3 text-lg font-large",
       "focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
       "flex-1 h-full rounded-none transition-all duration-300 ease-in-out",
-      // Inactive state
       "bg-background text-foreground/80 hover:brightness-95",
-      // Active state with subtle gradient
-      "data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90",
-      "data-[state=active]:via-blue-500/80 data-[state=active]:to-purple-600/90",
+      // Active state with blue background and white text
+      "data-[state=active]:bg-red-500",
       "data-[state=active]:text-white data-[state=active]:font-semibold",
       "data-[state=active]:shadow-sm",
       className
