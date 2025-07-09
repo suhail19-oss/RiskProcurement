@@ -18,7 +18,7 @@ interface GeminiResponse {
   violations: {
     description: string;
     severity: "Low" | "Medium" | "High";
-    category: string; // ✅ Add this
+    category: string;
   }[];
   recommendations: {
     title: string;
@@ -146,7 +146,9 @@ export default function HomePage() {
         })(),
       };
     }
-    const updatedSuppliers = [...otherSuppliers, supplier];
+    const updatedSuppliers = suppliers.map((s) =>
+      s.id === supplierId ? supplier : s
+    );
     setSuppliers(updatedSuppliers);
 
     const payload = {
@@ -239,8 +241,8 @@ export default function HomePage() {
         // console.log('acttions data from DB: ', actionsData);
 
         setDbSuppliers(suppliersData.suppliers || []);
-        const enrichedSuppliers = (actionsData.actions || []).map(
-          (supplier: any) => {
+        const enrichedSuppliers = (actionsData.actions || [])
+          .map((supplier: any) => {
             const latestAction = supplier.actions?.length
               ? [...supplier.actions].sort(
                   (a, b) =>
@@ -254,8 +256,12 @@ export default function HomePage() {
               lastAssessment:
                 latestAction?.createdAt || latestAction?.lastAssessedAt || null,
             };
-          }
-        );
+          })
+          .sort((a: any, b: any) => {
+            const aDate = new Date(a.lastAssessment || 0).getTime();
+            const bDate = new Date(b.lastAssessment || 0).getTime();
+            return bDate - aDate;
+          });
 
         setSuppliers(enrichedSuppliers);
       } catch (err) {
@@ -271,16 +277,17 @@ export default function HomePage() {
 
     const sorted = [...supplier.actions].sort(
       (a, b) =>
-        new Date(b.createdAt || "").getTime() -
-        new Date(a.createdAt || "").getTime()
+        new Date(b.createdAt || b.lastAssessedAt || 0).getTime() -
+        new Date(a.createdAt || a.lastAssessedAt || 0).getTime()
     );
 
     const latest = sorted[0];
     const date = latest?.createdAt || latest?.lastAssessedAt;
 
-    if (!date) return "N/A";
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) return "N/A";
 
-    return new Date(date).toLocaleDateString("en-IN", {
+    return parsedDate.toLocaleDateString("en-IN", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -376,23 +383,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Filter className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-              <select
-                value={filterRisk}
-                onChange={(e) => setFilterRisk(e.target.value)}
-                className="px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              >
-                <option value="all">All Risk Levels</option>
-                <option value="low">Low Risk</option>
-                <option value="medium">Medium Risk</option>
-                <option value="high">High Risk</option>
-              </select>
-            </div>
-
             <button
               onClick={() => setIsModalOpen(true)}
-              className="ml-auto px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all"
+              className="ml-auto px-4 py-3 bg-[#E2142D] text-white font-semibold rounded-xl hover:bg-[#c81029] transition-all"
             >
               + Recommend Action
             </button>
@@ -531,8 +524,6 @@ export default function HomePage() {
                         alert("No recommendations generated. Try again.");
                         return;
                       }
-                      // Add the new supplier
-                      //setSuppliers((prev: any) => [newSupplier, ...prev]);
 
                       // Add new violations
                       if (newViolations && newViolations.length > 0) {
@@ -584,7 +575,8 @@ export default function HomePage() {
                         }
                       );
                       newSupplier.actions = newActions;
-                      console.log("newSupplier", newSupplier);
+                      newSupplier.lastAssessment = new Date().toISOString(); // ✅ Important for sorting and immediate UI update
+
                       const actionDoc = {
                         company_name: newSupplier.company_name,
                         location: newSupplier.location,
@@ -594,8 +586,12 @@ export default function HomePage() {
                         risk_score: Math.round(newSupplier.risk_score),
                         risk_level: newSupplier.risk_level,
                         product_id: newSupplier.product_id,
-                        lastAssessment: new Date().toISOString(),
-                        contract_value: newSupplier?.risk_subfactors?.["contract_value(100m_800m)"] ?? 1000000000
+                        lastAssessment: newSupplier.lastAssessment,
+                        contract_value:
+                          newSupplier?.risk_subfactors?.[
+                            "contract_value(100m_800m)"
+                          ] ?? 1000000000,   
+                        penalty: (newSupplier?.risk_subfactors?.legal_dispute_score ? Math.round(newSupplier.risk_subfactors.legal_dispute_score*100) : 30)
                       };
 
                       // Call the backend to create the action
@@ -607,7 +603,7 @@ export default function HomePage() {
                           body: JSON.stringify(actionDoc),
                         }
                       );
-                      setSuppliers([...suppliers, newSupplier]);
+                      setSuppliers([newSupplier, ...suppliers]);
 
                       setIsModalOpen(false);
                       setNewAction({
@@ -622,7 +618,7 @@ export default function HomePage() {
                       console.error(err);
                     }
                   }}
-                  className="w-full py-3 mt-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700"
+                  className="w-full py-3 mt-4 bg-[#E2142D] text-white font-semibold rounded-xl hover:bg-[#c81029] transition-all"
                 >
                   Submit and Recommend
                 </button>

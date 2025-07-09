@@ -37,5 +37,6 @@ class ActionDocument(BaseModel):
     violations: List[Violation]
     actions: List[ActionItem]
     contract_value: int
+    penalty: int
     class Config:
         from_attributes = True
