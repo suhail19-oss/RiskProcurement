@@ -1,4 +1,5 @@
 # main.py
+from http.client import HTTPException
 import os
 import json
 import logging
@@ -143,7 +144,7 @@ async def get_all_suppliers():
             content={"error": str(e)},
         )
 
-@app.get("/api/suppliers-with-products")
+@app.get("/api/suppliers-status")
 async def get_suppliers_with_products():
     try:
         # Use MongoDB aggregation to join suppliers with products
@@ -287,4 +288,147 @@ async def update_action(
         logger.exception("Error updating action")
         return {"error": str(e)}
 
+from bson import ObjectId
+from datetime import datetime
+import json
 
+def serialize_mongo_document(doc):
+    """Convert MongoDB document to JSON serializable format"""
+    if doc is None:
+        return None
+    
+    if isinstance(doc, list):
+        return [serialize_mongo_document(item) for item in doc]
+    
+    if isinstance(doc, dict):
+        serialized = {}
+        for key, value in doc.items():
+            if isinstance(value, ObjectId):
+                serialized[key] = str(value)
+            elif isinstance(value, datetime):
+                serialized[key] = value.isoformat()
+            elif isinstance(value, dict):
+                serialized[key] = serialize_mongo_document(value)
+            elif isinstance(value, list):
+                serialized[key] = serialize_mongo_document(value)
+            else:
+                serialized[key] = value
+        return serialized
+    
+    return doc
+
+from datetime import datetime
+from bson import ObjectId
+
+@app.post("/api/send-document-reminder")
+async def send_document_reminder(request: dict):
+    try:
+        supplier_email = request.get("supplierEmail")
+        company_name = request.get("companyName")
+        document_type = request.get("documentType")
+        reminder_type = request.get("reminderType", "both")
+        
+        # Store in-app notification for the supplier
+        notification = {
+            "supplier_email": supplier_email,
+            "company_name": company_name,
+            "message": f"Please upload your {document_type} document to complete your supplier assessment",
+            "document_type": document_type,
+            "type": "document_reminder",
+            "created_at": datetime.utcnow(),
+            "read": False,
+            "priority": "high",
+            "from_role": "company",
+            "to_role": "supplier"
+        }
+        
+        result = await db.notifications.insert_one(notification)
+        
+        # Optional: Send email notification here
+        if reminder_type in ["both", "email"]:
+            # TODO: Implement email sending logic
+            pass
+        
+        return {"success": True, "message": "Reminder sent successfully"}
+        
+    except Exception as e:
+        logger.exception("Error sending reminder")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/supplier-notifications")
+async def get_supplier_notifications(request: Request):
+    try:
+        email = request.headers.get("email")
+        if not email:
+            raise HTTPException(status_code=400, detail="Email header required")
+        
+        email_domain = email.split('@')[1]
+        
+        # Get unread notifications for this supplier
+        notifications = await db.notifications.find({
+            "supplier_email": email_domain,
+            "read": False
+        }).sort("created_at", -1).to_list(length=50)
+        
+        # Serialize MongoDB documents to JSON-compatible format
+        serialized_notifications = serialize_mongo_document(notifications)
+        
+        return {"notifications": serialized_notifications}
+        
+    except Exception as e:
+        logger.exception("Error fetching notifications")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/mark-notification-read")
+async def mark_notification_read(request: dict):
+    try:
+        notification_id = request.get("notificationId")
+        
+        if not notification_id:
+            raise HTTPException(status_code=400, detail="Notification ID required")
+        
+        # Convert string ID to ObjectId
+        try:
+            object_id = ObjectId(notification_id)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid notification ID format")
+        
+        result = await db.notifications.update_one(
+            {"_id": object_id},
+            {"$set": {"read": True, "read_at": datetime.utcnow()}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        return {"success": True, "message": "Notification marked as read"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Error marking notification as read")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/company-notifications")
+async def get_company_notifications(request: Request):
+    try:
+        email = request.headers.get("email")
+        if not email:
+            raise HTTPException(status_code=400, detail="Email header required")
+        
+        email_domain = email.split('@')[1]
+        
+        # Get notifications for this company
+        notifications = await db.notifications.find({
+            "company_name": {"$regex": email_domain, "$options": "i"},
+            "from_role": "company"
+        }).sort("created_at", -1).to_list(length=50)
+        
+        # Serialize MongoDB documents
+        serialized_notifications = serialize_mongo_document(notifications)
+        
+        return {"notifications": serialized_notifications}
+        
+    except Exception as e:
+        logger.exception("Error fetching company notifications")
+        raise HTTPException(status_code=500, detail=str(e))
