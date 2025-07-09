@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -42,7 +41,7 @@ interface Supplier {
 
 const BarChart: React.FC<{ data: any[] }> = ({ data }) => {
   const maxScore = Math.max(...data.map((item) => item.score), 50);
-  
+
   return (
     <div className="space-y-4">
       {data.map((item, index) => {
@@ -92,9 +91,8 @@ const BarChart: React.FC<{ data: any[] }> = ({ data }) => {
   );
 };
 
-export default function SupplierDetail({ supplier, supplierId }: any ) {
-
-  console.log( supplier ) ; 
+export default function SupplierDetail({ supplier, supplierId }: any) {
+  console.log(supplier);
 
   const mockSupplier: Supplier = {
     id: "1",
@@ -120,7 +118,7 @@ export default function SupplierDetail({ supplier, supplierId }: any ) {
     product: "Advanced Electronics & IoT Solutions",
   };
 
-  const product = products.find((p: any) => p.id == supplier?.product_id );
+  const product = products.find((p: any) => p.id == supplier?.product_id);
 
   supplier.product_name = product?.name || "Default";
   const currentSupplier = supplier;
@@ -241,7 +239,7 @@ export default function SupplierDetail({ supplier, supplierId }: any ) {
       <div className="flex items-center justify-between mt-12 flex-wrap gap-4">
         {/* Left: Company Info */}
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-purple-600 dark:bg-purple-500 rounded-lg flex items-center justify-center">
+          <div className="w-12 h-12 bg-[#E2142D] rounded-lg flex items-center justify-center">
             <Building className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -257,7 +255,7 @@ export default function SupplierDetail({ supplier, supplierId }: any ) {
 
         {/* Right: Product Supplied */}
         <div className="flex items-center space-x-2">
-          <Package className="w-10 h-10 text-purple-600 dark:text-purple-400" />
+          <Package className="w-10 h-10 text-[#E2142D] dark:text-[#E2142D]" />
           <p className="text-xl font-medium text-gray-800 dark:text-gray-200">
             {currentSupplier.product_name}
           </p>

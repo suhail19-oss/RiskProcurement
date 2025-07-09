@@ -27,16 +27,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
+      {/* Top Nav Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-[#E2142D] rounded-lg flex items-center justify-center">
                   <Grid className="w-5 h-5 text-white" />
                 </div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-xl font-bold text-[#E2142D] dark:text-[#E2142D]">
                   SupplierHub
                 </h1>
               </div>
@@ -50,8 +50,20 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Search and Filter Section */}
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 1. Explore Header */}
+        <div className="text-center space-y-4 mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            Explore Products & Suppliers
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            Gain product insights, evaluate supplier risks, and optimize
+            sourcing with AI-powered clarity.
+          </p>
+        </div>
+
+        {/* 2. Search and Filter Section */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4 items-center">
             <div className="flex-1 relative">
@@ -61,7 +73,7 @@ export default function Home() {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#E2142D] focus:border-transparent"
               />
             </div>
 
@@ -69,7 +81,7 @@ export default function Home() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 pr-8 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 pr-8 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#E2142D] focus:border-transparent"
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
@@ -82,7 +94,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Products Grid */}
+        {/* 3. Products Grid */}
         <div
           className={`grid gap-6 ${
             viewMode === "grid"
@@ -95,6 +107,7 @@ export default function Home() {
           ))}
         </div>
 
+        {/* 4. No Results */}
         {filteredProducts.length === 0 && (
           <div className="text-center py-16">
             <div className="text-gray-400 dark:text-gray-500 mb-4">
