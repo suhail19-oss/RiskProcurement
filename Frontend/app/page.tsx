@@ -3,34 +3,15 @@
 import React, { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CircularProgress } from "@/components/CircularProgress"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Brain } from "lucide-react";
-import {
-  ShieldAlert,
-} from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts"
+
 import {
   User,
   TrendingDown,
-  Info,
   DollarSign,
   Clock,
   Heart,
@@ -47,14 +28,16 @@ import {
   Target,
   Zap,
   CheckCircle,
-  ArrowRight,
   FileText,
   TrendingUp,
   Globe,
   Award,
-  AlertTriangle,
   Search,
 } from "lucide-react"
+import Hero from "@/components/Hero"
+import Chart from "@/components/chart"
+import Metrics from "@/components/metrics"
+
 
 // Animation variants
 const cardVariants = {
@@ -534,53 +517,14 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview")
 
   return (
-    <div className="relative pt-20 min-h-screen bg-gradient-to-br from-background via-background to-primary/5 w-full">
-      <div className="w-full px-4 py-8 space-y-12 md:space-y-16">
+    <div className="relative min-h-screen w-full">
+      <div className="w-full px-8">
+
         {/* Enhanced Hero Section */}
-        <section className="w-full py-16 md:py-16 lg:py-20 relative overflow-hidden bg-gradient-to-br from-[#2563eb]/10 via-white via-30% to-[#a21caf]/10 dark:from-black dark:via-[#2563eb]/10 dark:via-40% dark:to-[#a21caf]/10">
-          <div className="absolute inset-0 pointer-events-none z-0 animate-gradient-x bg-gradient-to-r from-[#E2142D]/10 via-[#2563eb]/10 via-40% to-[#a21caf]/10" />
-
-          <div className="w-full max-w-4xl mx-auto text-center space-y-6 relative z-10">
-            <Badge className="px-4 py-1.5 border-[#2563eb] text-[#2563eb] bg-white/80 dark:bg-black/80 font-semibold tracking-wide shadow-md">
-              <Globe className="h-3 w-3 mr-2" />
-              Transforming Resilient Procurement
-            </Badge>
-
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight md:leading-tight font-['Inter','IBM Plex Sans',sans-serif]">
-              <span className="bg-gradient-to-r from-[#E2142D] to-[#E2142D] bg-clip-text text-transparent animate-gradient-text">
-                ProcurePro:
-              </span>{" "}
-              Smarter Procurement. Greater Impact.
-            </h1>
-
-            <div className="flex justify-center items-center gap-2">
-              <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
-                Scale at Speed
-              </span>
-            </div>
-
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Empowering smarter, Resilient procurement with AI-driven ESG insights.
-            </p>
-
-            <div className="flex justify-center gap-4 pt-4">
-              <Link href="/auth">
-                <Button className="px-6 h-11 rounded-lg bg-gradient-to-r from-[#E2142D] to-[#2563eb] hover:from-[#E2142D]/90 hover:to-[#2563eb]/80 transition-all duration-300 hover:shadow-xl font-bold text-white text-lg tracking-wide shadow-lg hover:scale-105 transform">
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="#about">
-                <Button variant="outline" className="px-6 h-11 rounded-lg border-[#2563eb] text-[#2563eb] font-bold hover:bg-[#2563eb]/10 transition-all duration-300 hover:scale-105 transform">
-                  Learn More
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+        < Hero /> 
 
         {/* About Section */}
-        <section id="about" className="w-full space-y-8 md:space-y-16">
+        <section id="about" className="w-full px-10 pt-10 space-y-10 md:space-y-16" >
           {/* Vision & Mission */}
           <div className="w-full grid lg:grid-cols-2 gap-8 lg:gap-10 items-start">
             {/* Vision */}
@@ -590,19 +534,19 @@ export default function Dashboard() {
                   <Target className="h-3 w-3 mr-2" />
                   Our Vision
                 </Badge>
-                <h2 className="text-2xl sm:text-3xl font-extrabold mb-2 font-['Inter','IBM Plex Sans',sans-serif]">
+                <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 lg:mb-6">
                   Redefining Business with{" "}
-                  <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text">
+                  <span className="gradient-text">
                     Purpose and Performance
                   </span>
                 </h2>
-                <p className="text-muted-foreground leading-relaxed mb-6 text-base">
+                <p className="text-base lg:text-lg text-muted-foreground leading-relaxed mb-4 lg:mb-6">
                   We envision a future where every procurement decision is a step toward a more resilient, responsible, and high-performing supply chain.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 justify-items-center">
-                  <CircularProgress value={85} label="Sustainable Sourcing" color="#E2142D" />
-                  <CircularProgress value={88} label="Social Responsibility Compliance" color="#2563eb" />
-                  <CircularProgress value={83} label="Ethical & Regulatory Governance" color="#a21caf" />
+                  <CircularProgress value={85} label="Sustainable Sourcing"  />
+                  <CircularProgress value={88} label="Social Responsibility Compliance" />
+                  <CircularProgress value={83} label="Ethical & Regulatory Governance" />
                 </div>
               </div>
             </div>
@@ -614,16 +558,16 @@ export default function Dashboard() {
                   <Lightbulb className="h-3 w-3 mr-2" />
                   Our Mission
                 </Badge>
-                <h2 className="text-2xl sm:text-3xl font-extrabold mb-2 font-['Inter','IBM Plex Sans',sans-serif]">
+                <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 lg:mb-6">
                   Empowering Procurement.{" "}
-                  <span className="bg-gradient-to-r from-[#2563eb] via-[#E2142D] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text">
+                  <span className="gradient-text">
                     Driving Resilient Value.
                   </span>
                 </h2>
-                <p className="text-muted-foreground leading-relaxed text-base mb-6">
+                <p className="text-base lg:text-lg text-muted-foreground leading-relaxed mb-4 lg:mb-6">
                   Our mission is to transform the procurement landscape by equipping organizations with data-driven insights that go beyond ESG.
                 </p>
-                <Card className="w-full group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-[#E2142D]/5 via-[#2563eb]/10 to-[#a21caf]/10 backdrop-blur-sm animate-fade-in">
+                <Card className="border-0 bg-gradient-to-br from-primary/5 to-blue-500/5">
                   <CardContent className="p-6 space-y-6">
                     <div className="flex items-center space-x-4">
                       <Award className="h-8 w-8 text-[#E2142D] animate-pulse" />
@@ -641,19 +585,19 @@ export default function Dashboard() {
           </div>
 
           {/* Values */}
-          <div className="w-full">
+          <div className="space-y-8 lg:space-y-12">
             <div className="text-center">
               <Badge variant="outline" className="mb-4 border-[#a21caf] text-[#a21caf] bg-white/80 dark:bg-black/80 font-semibold">
                 <Heart className="h-3 w-3 mr-2" />
                 Our Values
               </Badge>
-              <h2 className="text-3xl sm:text-4xl font-extrabold mb-2 font-['Inter','IBM Plex Sans',sans-serif]">
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">
                 What Drives Us{" "}
-                <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text">
+                <span className="gradient-text">
                   Every Day
                 </span>
               </h2>
-              <p className="text-muted-foreground max-w-3xl mx-auto text-base mb-2">
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
                 Guiding our products, partnerships, and decisions at every step of the journey.
               </p>
             </div>
@@ -664,7 +608,7 @@ export default function Dashboard() {
                 return (
                   <Card
                     key={index}
-                    className="w-full group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-[#E2142D]/5 via-[#2563eb]/10 to-[#a21caf]/10 backdrop-blur-sm animate-fade-in"
+                    className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-primary/5 to-blue-500/5"
                   >
                     <CardHeader>
                       <div
@@ -692,13 +636,13 @@ export default function Dashboard() {
                 <Users className="h-3 w-3 mr-2" />
                 Our Team
               </Badge>
-              <h2 className="text-3xl sm:text-4xl font-extrabold mb-2 font-['Inter','IBM Plex Sans',sans-serif]">
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">
                 Meet the{" "}
-                <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text">
+                <span className="gradient-text">
                   Visionaries
                 </span>
               </h2>
-              <p className="text-muted-foreground max-w-3xl mx-auto text-base">
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
                 A diverse team with decades of experience in sustainability, tech, and strategy.
               </p>
             </div>
@@ -736,13 +680,13 @@ export default function Dashboard() {
                 <Globe className="h-4 w-4 mr-2" />
                 Core Services
               </Badge>
-              <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6">
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">
                 Everything You Need for{" "}
-                <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text">
+                <span className="gradient-text">
                   Procurement Success
                 </span>
               </h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
                 Our comprehensive suite of services covers every aspect of procurement, from initial
                 assessment to ongoing optimization.
               </p>
@@ -754,7 +698,7 @@ export default function Dashboard() {
                 return (
                   <Card
                     key={index}
-                    className="w-full group hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-[#E2142D]/5 via-[#2563eb]/10 to-[#a21caf]/10 backdrop-blur-sm animate-fade-in"
+                    className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-background/50 backdrop-blur-sm"
                   >
                     <CardHeader>
                       <div
@@ -783,7 +727,7 @@ export default function Dashboard() {
         </section>
 
         {/* Network Analysis Dashboard */}
-        <section className="w-full bg-gradient-to-b from-white/50 to-gray-100/50 dark:from-gray-900/50 dark:to-gray-800/50">
+        <section className="w-full">
           <div className="w-full px-4 sm:px-6 lg:px-8 mx-auto">
             <div className="text-center mb-10 md:mb-12">
               <Badge
@@ -792,449 +736,22 @@ export default function Dashboard() {
               >
                 Supply Chain Network
               </Badge>
-              <h2 className="text-3xl sm:text-4xl  md:text-5xl font-extrabold bg-gradient-to-r from-[#2563eb] via-[#7c3aed] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text mb-3">
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6 gradient-text ">
                 Supplier Risk Dashboard
               </h2>
               <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
                 Visualize supplier risk and connectivity across your entire supply chain in real time.
               </p>
             </div>
-          
-            {/* Enhanced Network Graph Visualization */}
-            <div className="relative w-full h-[200px] sm:h-[400px] md:h-[400px] flex items-center justify-center mb-10 md:mb-12 px-4">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-purple-50/30 dark:from-gray-800/50 dark:to-gray-900/50 rounded-3xl"></div>
-              <svg className="w-full h-full" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid meet">
-                {/* Animated Background Grid */}
-                <defs>
-                  <pattern
-                    id="grid"
-                    width="40"
-                    height="40"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <path
-                      d="M 40 0 L 0 0 0 40"
-                      fill="none"
-                      stroke="currentColor"
-                      className="text-gray-200 dark:text-gray-700"
-                      strokeWidth="0.8"
-                      opacity="0.3"
-                    />
-                  </pattern>
-                  <linearGradient
-                    id="nodeGradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="100%"
-                  >
-                    <stop offset="0%" stopColor="#2563EB" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#1D4ED8" stopOpacity="1" />
-                  </linearGradient>
-                  <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="5" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-
-                <rect width="100%" height="100%" fill="url(#grid)" rx="20" />
-
-                {/* Connection Lines with Animation */}
-                <g className="opacity-60">
-                  {/* Top suppliers */}
-                  <line
-                    x1="400"
-                    y1="250"
-                    x2="300"
-                    y2="100"
-                    stroke="#10B981"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    className="animate-pulse"
-                    strokeDasharray="8,8"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      values="0;16"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                  <line
-                    x1="400"
-                    y1="250"
-                    x2="500"
-                    y2="100"
-                    stroke="#10B981"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    className="animate-pulse"
-                    strokeDasharray="8,8"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      values="0;16"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                  {/* Side suppliers */}
-                  <line
-                    x1="400"
-                    y1="250"
-                    x2="150"
-                    y2="250"
-                    stroke="#EF4444"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    className="animate-pulse"
-                  />
-                  <line
-                    x1="400"
-                    y1="250"
-                    x2="650"
-                    y2="250"
-                    stroke="#10B981"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    className="animate-pulse"
-                    strokeDasharray="8,8"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      values="0;16"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                  {/* Bottom suppliers */}
-                  <line
-                    x1="400"
-                    y1="250"
-                    x2="250"
-                    y2="450"
-                    stroke="#F59E0B"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeDasharray="5,5"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      values="0;10"
-                      dur="1.5s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                  <line
-                    x1="400"
-                    y1="250"
-                    x2="550"
-                    y2="450"
-                    stroke="#F59E0B"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeDasharray="5,5"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      values="0;10"
-                      dur="1.5s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                </g>
-
-                {/* Central Node with Pulsing Effect */}
-                <circle
-                  cx="400"
-                  cy="250"
-                  r="50"
-                  fill="url(#nodeGradient)"
-                  stroke="#2563EB"
-                  strokeWidth="4"
-                  filter="url(#glow)"
-                  className="shadow-xl"
-                >
-                  <animate
-                    attributeName="r"
-                    values="50;55;50"
-                    dur="3s"
-                    repeatCount="indefinite"
-                  />
-                </circle>
-                <text
-                  x="400"
-                  y="260"
-                  textAnchor="middle"
-                  className="text-xl font-bold fill-white"
-                >
-                  HUB
-                </text>
-
-                {/* Supplier Nodes */}
-                {/* Top Left - Supplier A */}
-                <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
-                  <circle
-                    cx="300"
-                    cy="100"
-                    r="30"
-                    fill="#047857"
-                    className="animate-pulse shadow-md group-hover:shadow-lg group-hover:shadow-green-200/50"
-                  >
-                    <animate
-                      attributeName="opacity"
-                      values="0.7;1;0.7"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                  <text
-                    x="300"
-                    y="105"
-                    textAnchor="middle"
-                    className="text-sm font-semibold fill-white"
-                  >
-                    LOW
-                  </text>
-                  <text
-                    x="300"
-                    y="60"
-                    textAnchor="middle"
-                    className="mb-2text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
-                  >
-                    Supplier A
-                  </text>
-                </g>
-
-                {/* Top Right - Supplier B */}
-                <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
-                  <circle
-                    cx="500"
-                    cy="100"
-                    r="30"
-                    fill="#047857"
-                    className="animate-pulse shadow-md group-hover:shadow-lg group-hover:shadow-green-200/50"
-                  >
-                    <animate
-                      attributeName="opacity"
-                      values="0.7;1;0.7"
-                      dur="2.2s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                  <text
-                    x="500"
-                    y="105"
-                    textAnchor="middle"
-                    className="text-sm font-semibold fill-white"
-                  >
-                    LOW
-                  </text>
-                  <text
-                    x="500"
-                    y="60"
-                    textAnchor="middle"
-                    className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
-                  >
-                    Supplier B
-                  </text>
-                </g>
-
-                {/* Left - High Risk Supplier */}
-                <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
-                  <circle cx="150" cy="250" r="30" fill="#B91C1C" className="shadow-md group-hover:shadow-lg group-hover:shadow-red-200/50">
-                    <animate
-                      attributeName="r"
-                      values="30;35;30"
-                      dur="1s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                  <text
-                    x="150"
-                    y="255"
-                    textAnchor="middle"
-                    className="text-sm font-semibold fill-white"
-                  >
-                    HIGH
-                  </text>
-                  <text
-                    x="150"
-                    y="210"
-                    textAnchor="middle"
-                    className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
-                  >
-                    Supplier F
-                  </text>
-                </g>
-
-                {/* Right - Supplier C */}
-                <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
-                  <circle
-                    cx="650"
-                    cy="250"
-                    r="30"
-                    fill="#047857"
-                    className="animate-pulse shadow-md group-hover:shadow-lg group-hover:shadow-green-200/50"
-                  >
-                    <animate
-                      attributeName="opacity"
-                      values="0.7;1;0.7"
-                      dur="2.4s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                  <text
-                    x="650"
-                    y="255"
-                    textAnchor="middle"
-                    className="text-sm font-semibold fill-white"
-                  >
-                    LOW
-                  </text>
-                  <text
-                    x="650"
-                    y="210"
-                    textAnchor="middle"
-                    className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
-                  >
-                    Supplier C
-                  </text>
-                </g>
-
-                {/* Bottom Left - Supplier E */}
-                <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
-                  <circle cx="250" cy="450" r="30" fill="#B45309" className="shadow-md group-hover:shadow-lg group-hover:shadow-yellow-200/50">
-                    <animate
-                      attributeName="opacity"
-                      values="0.8;1;0.8"
-                      dur="1.8s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                  <text
-                    x="250"
-                    y="455"
-                    textAnchor="middle"
-                    className="text-sm font-semibold fill-white"
-                  >
-                    MED
-                  </text>
-                  <text
-                    x="250"
-                    y="410"
-                    textAnchor="middle"
-                    className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
-                  >
-                    Supplier E
-                  </text>
-                </g>
-
-                {/* Bottom Right - Supplier D */}
-                <g className="group cursor-pointer hover:scale-110 transition-transform duration-300">
-                  <circle cx="550" cy="450" r="30" fill="#B45309" className="shadow-md group-hover:shadow-lg group-hover:shadow-yellow-200/50">
-                    <animate
-                      attributeName="opacity"
-                      values="0.8;1;0.8"
-                      dur="1.6s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                  <text
-                    x="550"
-                    y="455"
-                    textAnchor="middle"
-                    className="text-sm font-semibold fill-white"
-                  >
-                    MED
-                  </text>
-                  <text
-                    x="550"
-                    y="410"
-                    textAnchor="middle"
-                    className="text-base font-medium fill-gray-700 dark:fill-gray-300 group-hover:font-bold"
-                  >
-                    Supplier D
-                  </text>
-                </g>
-              </svg>
-            </div>
-
-            {/* Enhanced Risk Metrics with Charts */}
-            <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6 px-4">
-              <div className="p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-900/30 dark:to-green-900/20 border border-green-200/80 dark:border-green-700/30 shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="text-green-600 dark:text-green-400" size={20} />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Low Risk
-                    </span>
-                  </div>
-                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">50%</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div
-                    className="h-2 bg-green-600 dark:bg-green-400 rounded-full relative overflow-hidden"
-                    style={{ width: '50%' }}
-                  >
-                    <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
-                  </div>
-                </div>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold text-green-600 dark:text-green-400">+2%</span> from last month
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-yellow-50 to-yellow-100/50 dark:from-yellow-900/30 dark:to-yellow-900/20 border border-yellow-200/80 dark:border-yellow-700/30 shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <ShieldAlert className="text-yellow-500 dark:text-yellow-400" size={20} />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Medium Risk
-                    </span>
-                  </div>
-                  <span className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">33%</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div
-                    className="h-2 bg-yellow-500 dark:bg-yellow-400 rounded-full relative overflow-hidden"
-                    style={{ width: '33%' }}
-                  >
-                    <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
-                  </div>
-                </div>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold text-yellow-500 dark:text-yellow-400">-1%</span> from last month
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/30 dark:to-red-900/20 border border-red-200/80 dark:border-red-700/30 shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <AlertTriangle className="text-red-500 dark:text-red-400" size={20} />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      High Risk
-                    </span>
-                  </div>
-                  <span className="text-2xl font-bold text-red-500 dark:text-red-400">17%</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div
-                    className="h-2 bg-red-500 dark:bg-red-400 rounded-full relative overflow-hidden"
-                    style={{ width: '17%' }}
-                  >
-                    <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
-                  </div>
-                </div>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold text-red-500 dark:text-red-400">-1%</span> from last month
-                </p>
-              </div>
+            
+            <div className="grid grid-cols-2 px-8 ">
+              <Metrics/>
+              <Chart/>
             </div>
           </div>
         </section>
         <section id="features" className="w-full py-0">
-          <div className="w-full px-4">
+          <div className="pt-20 space-y-8 lg:space-y-12">
             <div className="text-center mb-16">
               <Badge
                 variant="outline"
@@ -1243,9 +760,9 @@ export default function Dashboard() {
                 <Shield className="h-4 w-4 mr-2" />
                 Risk Intelligence Features
               </Badge>
-              <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6">
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">
                 Next-Gen{" "}
-                <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text">
+                <span className="gradient-text">
                   Risk Management
                 </span>
               </h2>
@@ -1253,7 +770,7 @@ export default function Dashboard() {
                 Unlock actionable insights and proactive risk mitigation with our advanced AI-powered features.
               </p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 px-8">
               {riskFeatures.map((feature, index) => (
                 <div
                   key={index}
@@ -1289,11 +806,11 @@ export default function Dashboard() {
         {/* Detailed Service Tabs */}
         <section className="w-full py-10">
           <div className="w-full px-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="text-center mb-12">
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-extrabold mb-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full px-8 ">
+              <div className="my-10 text-center mb-12">
+                <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6">
                   Explore Our{" "}
-                  <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text">
+                  <span className="gradient-text">
                     Service Details
                   </span>
                 </h2>
@@ -1333,7 +850,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <Card className="w-full border-0 bg-gradient-to-br from-[#E2142D]/5 via-[#2563eb]/10 to-[#a21caf]/10 shadow-lg backdrop-blur-sm animate-fade-in">
+                  <Card className="w-full border-0 bg-gradient-to-br from-primary/5 to-blue-500/5 shadow-lg backdrop-blur-sm animate-fade-in">
                     <CardContent className="p-8">
                       <div className="space-y-6">
                         <div className="text-center">
@@ -1544,7 +1061,9 @@ export default function Dashboard() {
                             <span className="text-sm">{feature}</span>
                           </div>
                         ))}
-                        <Button className={`w-full ${plan.popular ? "bg-gradient-to-r from-primary to-blue-600" : ""}`}>
+                        <Button className={`w-full ${plan.popular 
+                          ? "bg-gradient-to-r from-primary/90 via-primary/70 to-blue-600/70" 
+                          : ""}`}>
                           Get Started
                         </Button>
                       </CardContent>
