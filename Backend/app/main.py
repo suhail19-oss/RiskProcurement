@@ -18,6 +18,7 @@ from app.schemas.actions_schemas import ActionDocument
 from fastapi import Body
 from fastapi import HTTPException
 from fastapi import HTTPException
+from app.routes import analysis
 
 # Google Gemini
 import google.generativeai as genai
@@ -84,6 +85,7 @@ app.include_router(profile.router)
 app.include_router(costEfficiency.router)
 app.include_router(reliability.router)
 app.include_router(risk.router)
+app.include_router(analysis.router)
 app.include_router(risk_model.router, prefix="/api")
 
 

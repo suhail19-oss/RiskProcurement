@@ -15,7 +15,7 @@ import Image from "next/image";
 
 const company = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Analysis", href: "/esg-analysis", icon: Leaf },
+  { name: "Analysis", href: "/analysis", icon: Leaf },
   { name: "TradeOff Simulator", href: "/trade-off-simulator", icon: Sliders },
   { name: "Monitoring", href: "/monitoring", icon: Bell },
   { name: "Suppliers Directory", href: "/supplierdirectory", icon: Bell },
@@ -25,7 +25,7 @@ const company = [
 const supplier = [
   { name: "Home", href: "/", icon: Home },
   { name: "Data Submission", href: "/data-submission", icon: Upload },
-  { name: "Score-Analysis", href: "/esg-analysis", icon: Leaf },
+  { name: "Score-Analysis", href: "/analysis", icon: Leaf },
   { name: "Actions", href: "/assessment", icon: ClipboardCheck },
 ]
 
