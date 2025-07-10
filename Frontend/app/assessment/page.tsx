@@ -45,6 +45,7 @@ import {
 import { Chatbot } from "@/components/chatbot"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 
 const validationSteps = [
   { id: 1, name: "Data Collection", status: "completed", duration: "2 minutes" },
@@ -70,30 +71,6 @@ const reportTemplates = [
 
 ]
 
-
-function getRiskColor(risk: string) {
-  switch (risk) {
-    case "Low":
-      return "text-green-600 bg-green-100 dark:bg-green-900/20"
-    case "Medium":
-      return "text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20"
-    case "High":
-      return "text-red-600 bg-red-100 dark:bg-red-900/20"
-    default:
-      return "text-gray-600 bg-gray-100 dark:bg-gray-900/20"
-  }
-}
-
-function getTrendIcon(trend: string) {
-  switch (trend) {
-    case "improving":
-      return <TrendingUp className="h-4 w-4 text-green-600" />
-    case "declining":
-      return <TrendingUp className="h-4 w-4 text-red-600 rotate-180" />
-    default:
-      return <div className="h-4 w-4 rounded-full bg-gray-400" />
-  }
-}
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -135,7 +112,8 @@ export default function AssessmentPage() {
   const [isAiLoadingRi, setIsAiLoadingRi] = useState(false);
   const [isAiLoadingRe, setIsAiLoadingRe] = useState(false);
 
-  
+
+
   type Supplier = {
     product_id: number;
     company_name: string;
@@ -145,6 +123,39 @@ export default function AssessmentPage() {
     risk_score: number;
     cost_score: number;
     esg_score: number;
+    esg_final_score: number;
+    reliability_subfactors: {
+      adjusted_on_time_delivery_rate: number;
+      average_lead_time_days: number;
+      product_defect_rate: number;
+      iso_certification_score: number;
+      infrastructure_disruption_severity: number;
+      strike_days: number;
+      natural_disaster_frequency: number;
+      reporting_year: number;
+    };
+    cost_subfactors: {
+      unit_price_benchmarking: number;
+      volume_discount_potential: number;
+      payment_terms_flexibility: number;
+      in_transit_delay_days: number;
+      old_in_transit_delay_factor: number;
+      new_in_transit_delay_factor: number;
+      normalized_in_transit_delay_factor: number;
+      first_pass_yield: number;
+      legal_disputes: number;
+      legal_dispute_score: number;
+      contract_value: number;
+      war_zone_norm: number;
+      trade_policy_norm: number;
+      labor_violation_risk: number;
+      recall_score: number;
+      govt_sanctions: string | null;
+      war_zone_flag: number;
+      labor_violations: string;
+      trade_policy_changes: string;
+      sanction_score: number;
+    };
   };
 
   const [esgScore, setEsgScore] = useState<number | null>(null);
@@ -153,10 +164,186 @@ export default function AssessmentPage() {
   const [reliabilityScore, setReliabilityScore] = useState<number | null>(null);
 
 
+
   //fetchins suppliers
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
-   const supplierWithScore = suppliers.find(
+  useEffect(() => {
+    const fetchProfileAndSetCompany = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
+
+        const response = await fetch("http://localhost:8000/profile/me", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+
+        const data = await response.json();
+
+        // Just get company_name
+        const companyName = data.data.company_name;
+
+        if (companyName) {
+          // Set selectedSupplier
+          setSelectedSupplier(companyName);
+          // Optionally store in localStorage
+          localStorage.setItem("company_name", companyName);
+
+
+        } else {
+          // Fallback if company_name missing
+          setSelectedSupplier("");
+
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+
+        // Fallback in case of error
+        setSelectedSupplier("");
+
+      } finally {
+
+      }
+    };
+
+    // Call the async function
+    fetchProfileAndSetCompany();
+  }, [suppliers]);
+
+  useEffect(() => {
+    const supplier = suppliers.find(s => s.company_name === selectedSupplier);
+
+    if (!supplier || !supplier.reliability_subfactors) return;
+
+    const reliability = supplier.reliability_subfactors;
+
+    // Convert to numbers safely
+    const adjustedOnTimeDeliveryRateNum = Number(reliability.adjusted_on_time_delivery_rate) || 0;
+    const averageLeadTimeDaysNum = Number(reliability.average_lead_time_days) || 0;
+    const productDefectRateNum = Number(reliability.product_defect_rate) || 0;
+    const isoCertificationScoreNum = Number(reliability.iso_certification_score) || 0;
+    const infrastructureDisruptionSeverityNum = Number(reliability.infrastructure_disruption_severity) || 0;
+    const strikeDaysNum = Number(reliability.strike_days) || 0;
+    const naturalDisasterFrequencyNum = Number(reliability.natural_disaster_frequency) || 0;
+
+    // R1
+    const r1Score = adjustedOnTimeDeliveryRateNum;
+
+    // R2
+    const r2Score = Math.max(0, 100 - (averageLeadTimeDaysNum * 3.33));
+
+    // R3
+    const defectRatePercent = productDefectRateNum < 1 ? productDefectRateNum * 100 : productDefectRateNum;
+    const r3Score = Math.max(0, 100 - (defectRatePercent * 20));
+
+    // R4
+    const r4Score = isoCertificationScoreNum * 100;
+
+    // R5
+    const r5Score = (1 - infrastructureDisruptionSeverityNum) * 100;
+
+    // Combined Disruption
+    const combinedDisruptionValue = Math.min(1.0, (strikeDaysNum / 30) + (naturalDisasterFrequencyNum / 5));
+
+    // R6
+    const r6Score = (1 - combinedDisruptionValue) * 100;
+
+    const reliabilityScoreCal =
+      (r1Score * 0.25) +
+      (r2Score * 0.15) +
+      (r3Score * 0.15) +
+      (r4Score * 0.15) +
+      (r5Score * 0.15) +
+      (r6Score * 0.15);
+    // ✅ SET SCORES INTO YOUR STATE HOOKS:
+    setAdjustedOnTimeDeliveryRate(r1Score.toFixed(2));
+    setAverageLeadTimeDaysScore(r2Score.toFixed(2));
+    setProductDefectRate(r3Score.toFixed(2));
+    setIsoCertificationScore(r4Score.toFixed(2));
+    setInfrastructureDisruptionSeverityScore(r5Score.toFixed(2));
+    setCombinedDisruption(combinedDisruptionValue.toFixed(2));
+    setReliabilityScore(parseFloat(reliabilityScoreCal.toFixed(2)));
+  }, [selectedSupplier, suppliers]);
+
+  useEffect(() => {
+    const supplier = suppliers.find(s => s.company_name === selectedSupplier);
+
+    if (!supplier || !supplier.cost_subfactors) return;
+
+    const cost = supplier.cost_subfactors;
+
+    // Convert raw fields to numbers safely
+    const unitPriceBenchmarkingNum = Number(cost.unit_price_benchmarking) || 0;
+    const volumeDiscountPotentialNum = Number(cost.volume_discount_potential) || 0;
+    const paymentTermsFlexibilityNum = Number(cost.payment_terms_flexibility) || 0;
+    const inTransitDelaysDaysNum = Number(cost.in_transit_delay_days) || 0;
+    const fpyNormalizedNum = Number(cost.first_pass_yield) || 0;
+    const recallScoreOutOf100Num = Number(cost.recall_score) || 0;
+    const legalDisputeScoreNum = Number(cost.legal_dispute_score) || 0;
+    const sanctionScoreNum = Number(cost.sanction_score) || 0;
+    const laborViolationRiskNum = Number(cost.labor_violation_risk) || 0;
+    const tradePolicyNormNum = Number(cost.trade_policy_norm) || 0;
+    const warZoneNormNum = Number(cost.war_zone_norm) || 0;
+    const contractValueNum = Number(cost.contract_value) || 0;
+
+    // Compute scores
+    const unitPriceScore = unitPriceBenchmarkingNum * 100;
+    const volumeDiscountScore = volumeDiscountPotentialNum * 100;
+    const paymentTermsScore = paymentTermsFlexibilityNum * 100;
+    const transitDelayScore = (1 - inTransitDelaysDaysNum / 30) * 100;
+    const fpyScore = fpyNormalizedNum * 100;
+    const recallScore = 100 - recallScoreOutOf100Num;
+    const legalDisputeScore = (1 - legalDisputeScoreNum) * 100;
+    const sanctionsScore = (1 - sanctionScoreNum) * 100;
+    const laborViolationScore = (1 - laborViolationRiskNum) * 100;
+    const tradePolicyScore = (1 - tradePolicyNormNum) * 100;
+    const warZoneScore = (1 - warZoneNormNum) * 100;
+    const contractValueScore = ((contractValueNum - 100000000) / 700000000) * 100;
+
+    const costEfficiencyScoreCal =
+      (unitPriceScore * 0.20) +
+      (volumeDiscountScore * 0.10) +
+      (paymentTermsScore * 0.10) +
+      (transitDelayScore * 0.10) +
+      (fpyScore * 0.10) +
+      (recallScore * 0.10) +
+      (legalDisputeScore * 0.05) +
+      (sanctionsScore * 0.05) +
+      (laborViolationScore * 0.05) +
+      (tradePolicyScore * 0.05) +
+      (warZoneScore * 0.05) +
+      (contractValueScore * 0.05);
+
+    // Set the final score to the state hook as number with 2 decimal precision
+    setCostEfficiencyScore(parseFloat(costEfficiencyScoreCal.toFixed(2)));
+
+    // Set scores to state hooks
+    setUnitPriceScore(unitPriceScore.toFixed(2));
+    setVolumeDiscountScore(volumeDiscountScore.toFixed(2));
+    setPaymentTermsScore(paymentTermsScore.toFixed(2));
+    setTransitDelayScore(transitDelayScore.toFixed(2));
+    setFpyScore(fpyScore.toFixed(2));
+    setRecallScore(recallScore.toFixed(2));
+    setLegalDisputeScore(legalDisputeScore.toFixed(2));
+    setSanctionsScore(sanctionsScore.toFixed(2));
+    setLaborViolationScore(laborViolationScore.toFixed(2));
+    setTradePolicyScore(tradePolicyScore.toFixed(2));
+    setWarZoneScore(warZoneScore.toFixed(2));
+    setContractValueScore(contractValueScore.toFixed(2));
+
+  }, [selectedSupplier, suppliers]);
+
+
+  const supplierWithScore = suppliers.find(
     (s) => s.company_name === selectedSupplier
   );
 
@@ -164,7 +351,7 @@ export default function AssessmentPage() {
     setIsAiLoading(true);
     try {
       // Compose the prompt with the environmental score
-      const prompt = `Current ESG score: ${supplierWithScore?.esg_score} and Target Score is: ${esgScore}`;
+      const prompt = `Current ESG score: ${supplierWithScore?.esg_score} `;
       const response = await fetch("http://localhost:8000/api/gemini-recommendations-eScore", {
         method: "POST",
         headers: {
@@ -192,7 +379,7 @@ export default function AssessmentPage() {
     setIsAiLoadingS(true);
     try {
       // Compose the prompt with the environmental score
-      const prompt = `Current cost Effieciency score: ${supplierWithScore?.cost_score} and Target Score is: ${costEfficiencyScore}`;
+      const prompt = `Current cost Effieciency score: ${supplierWithScore?.cost_score} `;
       const response = await fetch("http://localhost:8000/api/gemini-recommendations-sScore", {
         method: "POST",
         headers: {
@@ -220,7 +407,7 @@ export default function AssessmentPage() {
     setIsAiLoadingG(true);
     try {
       // Compose the prompt with the environmental score
-      const prompt = `Current risk score: ${supplierWithScore?.risk_score} and Target Score is: ${riskScore}`;
+      const prompt = `Current risk score: ${supplierWithScore?.risk_score}`;
       const response = await fetch("http://localhost:8000/api/gemini-recommendations-gScore", {
         method: "POST",
         headers: {
@@ -248,7 +435,7 @@ export default function AssessmentPage() {
     setIsAiLoadingC(true);
     try {
       // Compose the prompt with the environmental score
-      const prompt = `Current reliability score: ${supplierWithScore?.reliability_score} and Target Score is: ${reliabilityScore}`;
+      const prompt = `Current reliability score: ${supplierWithScore?.reliability_score} `;
       const response = await fetch("http://localhost:8000/api/gemini-recommendations-cScore", {
         method: "POST",
         headers: {
@@ -329,117 +516,102 @@ export default function AssessmentPage() {
   }, []);
 
 
- const downloadReport = async (reportId: number) => {
-  try {
-    // 1. Extract data from localStorage
-    const company_name = "Supplier";
-   
-    const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
-    const cost_score = supplierWithScore?.cost_score?? 0;
-    const risk_score = supplierWithScore?.risk_score ?? 0;
-    const reliability_score = supplierWithScore?.reliability_score ?? 0;
-    const esg_score = supplierWithScore?.esg_score ?? 0;
+  const downloadReport = async (reportId: number) => {
+    try {
+      // 1. Extract data from localStorage
+      const company_name = "Supplier";
 
-    console.log("Supplier Scores:", { esg_score, cost_score, risk_score, reliability_score });
+      const supplierWithScore = suppliers.find(s => s.company_name === selectedSupplier);
+      const cost_score = costEfficiencyScore ?? 0;
+      const risk_score = supplierWithScore?.risk_score ?? 0;
+      const reliability_score = reliabilityScore ?? 0;
+      const esg_score = supplierWithScore?.esg_score ?? supplierWithScore?.esg_final_score ?? 0;
 
-    // 3. Prepare payload
-    const payload = {
-      company_name,
-      esg_score,
-      cost_score,
-      risk_score,
-      reliability_score
-    };
+      console.log("Supplier Scores:", { esg_score, cost_score, risk_score, reliability_score });
 
-    // 4. Send request to backend
-    const response = await fetch("http://localhost:8000/generate-esg-report", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-    console.log("Response status:", response);
-    if (!response.ok) {
-      throw new Error("Failed to generate report");
+      // 3. Prepare payload
+      const payload = {
+        company_name,
+        esg_score,
+        cost_score,
+        risk_score,
+        reliability_score,
+        aiSuggestionE,
+        aiSuggestionS,
+        aiSuggestionG,
+        aiSuggestionC
+      };
+
+      // 4. Send request to backend
+      const response = await fetch("http://localhost:8000/generate-esg-report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+      console.log("Response status:", response);
+      if (!response.ok) {
+        throw new Error("Failed to generate report");
+      }
+
+      // 5. Convert response to blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${company_name}_ESG_Report.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Error downloading report:", error);
     }
+  };
 
-    // 5. Convert response to blob and download
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${company_name}_ESG_Report.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+  const [adjustedOnTimeDeliveryRate, setAdjustedOnTimeDeliveryRate] = useState("");
+  const [averageLeadTimeDaysScore, setAverageLeadTimeDaysScore] = useState("");
+  const [productDefectRate, setProductDefectRate] = useState("");
+  const [isoCertificationScore, setIsoCertificationScore] = useState("");
+  const [infrastructureDisruptionSeverityScore, setInfrastructureDisruptionSeverityScore] = useState("");
+  const [combinedDisruption, setCombinedDisruption] = useState("");
 
-  } catch (error) {
-    console.error("Error downloading report:", error);
-  }
-};
-
- 
-
-
+  const [unitPriceScore, setUnitPriceScore] = useState("");
+  const [volumeDiscountScore, setVolumeDiscountScore] = useState("");
+  const [paymentTermsScore, setPaymentTermsScore] = useState("");
+  const [transitDelayScore, setTransitDelayScore] = useState("");
+  const [fpyScore, setFpyScore] = useState("");
+  const [recallScore, setRecallScore] = useState("");
+  const [sanctionsScore, setSanctionsScore] = useState("");
+  const [laborViolationScore, setLaborViolationScore] = useState("");
+  const [tradePolicyScore, setTradePolicyScore] = useState("");
+  const [warZoneScore, setWarZoneScore] = useState("");
+  const [contractValueScore, setContractValueScore] = useState("");
+  const [legalDisputeScore, setLegalDisputeScore] = useState("");
   return (
     <div className="relative pt-20 min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Header */}
         <div className="text-center">
+          
           <h1 className="text-4xl font-bold font-heading mb-4">
-            Analysis & <span className="gradient-text">Reporting Center</span>
+             <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text ">Analysis  & Reporting Center</span>
           </h1>
           <p className="text-xl text-muted-foreground">
             Comprehensive ESG evaluation with real-time validation, benchmarking, and automated reporting
           </p>
         </div>
 
-        {/* Supplier Selection */}
-        <div className="flex justify-center">
-          <Select
-            value={selectedSupplier}
-            onValueChange={setSelectedSupplier}
-          >
-            <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
-              <SelectValue placeholder="Select a supplier">
-                {selectedSupplier || "Select a supplier"}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {suppliers.map((supplier) => (
-                <SelectItem
-                  key={`${supplier.company_name}_${supplier.email_domain}_${supplier.product_id}`}
-                  value={String(supplier.company_name)}
-
-                >
-                  {supplier.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-
-
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Reduce tab width so all 6 tabs fit in a line */}
           <TabsList className="flex w-full justify-between gap-2">
             <TabsTrigger value="scoring" className="flex-1 min-w-5 px-2 py-1 text-xs">
               Scoring
             </TabsTrigger>
-
-            <TabsTrigger value="risk" className="flex-1 min-w-5 px-2 py-1 text-xs">
-              Risk Analysis
-            </TabsTrigger>
             <TabsTrigger value="ai" className="flex-1 min-w-5 px-2 py-1 text-xs">
-              AI Analysis
+              Actions
             </TabsTrigger>
-            <TabsTrigger value="benchmarking" className="flex-1 min-w-5 px-2 py-1 text-xs">
-              Benchmarking
-            </TabsTrigger>
-
           </TabsList>
 
           <TabsContent value="scoring" className="space-y-6">
@@ -490,266 +662,279 @@ export default function AssessmentPage() {
             </Card>
           </TabsContent>
 
+
           <TabsContent value="ai" className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center">
-                  <Bot className="h-6 w-6 mr-3 text-primary" />
-                  AI Analysis & Optimization
-                </CardTitle>
-                <CardDescription>
-                  Enter your scores for each factor and let AI suggest optimization techniques.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-8">
-                  {/* Environmental */}
+            {/* Horizontal Cards Grid */}
+            <div className="grid grid-cols-1 gap-6">
+              {/* ESG Card */}
+              <Card className="transition-all duration-300 hover:shadow-lg bg-green-100">
+                <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <div className="flex items-center mb-2">
-                      <h3 className="font-semibold mr-3">ESG</h3>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                        {`Current Score: ${supplierWithScore?.esg_score ?? "N/A"}`}
-                      </span>
-                    </div>
-
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      placeholder="Enter Target Score"
-                      value={esgScore !== null ? esgScore : ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setEsgScore(val === "" ? null : Number(val));
-                      }}
-                      className="mb-2"
-                    />
-
-                    <Button
-                      size="sm"
-                      onClick={() => handleAiAnalyzeE("environmental")}
-                      disabled={isAiLoading || !esgScore}
-                    >
-                      Analyze
-                    </Button>
-                    <Textarea
-                      className="mt-2"
-                      rows={4}
-                      value={aiSuggestionE}
-                      readOnly
-                      placeholder="AI optimization suggestions will appear here."
-                    />
-                    <Button
-                      size="sm"
-                      className="mt-2 bg-red-600 text-white hover:bg-green-700 transition-colors"
-                      onClick={() => handleDownload(aiSuggestionE)}
-                      disabled={!aiSuggestionE}
-                    >
-                      Download Analysis
-                    </Button>
+                    <CardTitle className="text-xl font-semibold text-black">ESG</CardTitle>
+                    <CardDescription>
+                      Current Score: {supplierWithScore?.esg_score ?? supplierWithScore?.esg_final_score ?? "N/A"}
+                    </CardDescription>
                   </div>
-                  {/* Social */}
-                  <div>
-                    <div className="flex items-center mb-2">
-                      <h3 className="font-semibold mr-3">Cost Efficiency Score</h3>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                        {`Current Score: ${supplierWithScore?.cost_score ?? "N/A"}`}
-                      </span>
-                    </div>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      placeholder="Enter Target Score"
-                      value={costEfficiencyScore !== null ? costEfficiencyScore : ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setCostEfficiencyScore(val === "" ? null : Number(val));
-                      }}
-                      className="mb-2"
-                    />
-
-                    <Button
-                      size="sm"
-                      onClick={() => handleAiAnalyzeS("social")}
-                      disabled={isAiLoadingS || !costEfficiencyScore}
-                    >
-                      Analyze
-                    </Button>
-                    <Textarea
-                      className="mt-2"
-                      rows={4}
-                      value={aiSuggestionS}
-                      readOnly
-                      placeholder="AI optimization suggestions will appear here."
-                    />
-                    <Button
-                      size="sm"
-                      className="mt-2 bg-red-600 text-white hover:bg-green-700 transition-colors"
-                      onClick={() => handleDownloadS(aiSuggestionS)}
-                      disabled={!aiSuggestionS}
-                    >
-                      Download Analysis
-                    </Button>
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-2 gap-8 mt-8">
-                  {/* Governance */}
-                  <div>
-                    <div className="flex items-center mb-2">
-                      <h3 className="font-semibold mr-3">Overall Risk Score</h3>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                        {`Current Score: ${supplierWithScore?.risk_score ?? "N/A"}`}
-                      </span>
-                    </div>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      placeholder="Enter Target Score"
-                      value={riskScore !== null ? riskScore : ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setRiskScore(val === "" ? null : Number(val));
-                      }}
-                      className="mb-2"
-                    />
-
-                    <Button
-                      size="sm"
-                      onClick={() => handleAiAnalyzeG("governance")}
-                      disabled={isAiLoadingG || !riskScore}
-                    >
-                      Analyze
-                    </Button>
-                    <Textarea
-                      className="mt-2"
-                      rows={4}
-                      value={aiSuggestionG}
-                      readOnly
-                      placeholder="AI optimization suggestions will appear here."
-                    />
-                    <Button
-                      size="sm"
-                      className="mt-2 bg-red-600 text-white hover:bg-green-700 transition-colors"
-                      onClick={() => handleDownloadG(aiSuggestionG)}
-                      disabled={!aiSuggestionG}
-                    >
-                      Download Analysis
-                    </Button>
-                  </div>
-                  {/* Risk Factor */}
-                  <div>
-                    <div className="flex items-center mb-2">
-                      <h3 className="font-semibold mr-3">Reliability Factor</h3>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                        {`Current Score: ${supplierWithScore?.reliability_score ?? "N/A"}`}
-                      </span>
-                    </div>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      placeholder="Enter Target Score"
-                      value={reliabilityScore !== null ? reliabilityScore : ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setReliabilityScore(val === "" ? null : Number(val));
-                      }}
-                      className="mb-2"
-                    />
-
-                    <Button
-                      size="sm"
-                      onClick={() => handleAiAnalyzeC("risk")}
-                      disabled={isAiLoadingRi || !reliabilityScore}
-                    >
-                      Analyze
-                    </Button>
-                    <Textarea
-                      className="mt-2"
-                      rows={4}
-                      value={aiSuggestionRi}
-                      readOnly
-                      placeholder="AI optimization suggestions will appear here."
-                    />
-                    <Button
-                      size="sm"
-                      className="mt-2 bg-red-600 text-white hover:bg-green-700 transition-colors"
-                      onClick={() => handleDownloadRi(aiSuggestionRi)}
-                      disabled={!aiSuggestionRi}
-                    >
-                      Download Analysis
-                    </Button>
-                  </div>
-                </div>
-
-              </CardContent>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-2xl flex items-center">
-                        <FileText className="h-6 w-6 mr-3 text-primary" />
-                        Report
-                      </CardTitle>
-                      <CardDescription>Generate and download comprehensive reports</CardDescription>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filter
-                      </Button>
-
-                    </div>
-                  </div>
+                  <Button
+                    onClick={() => handleAiAnalyzeE("environmental")}
+                    disabled={isAiLoading || !(supplierWithScore?.esg_score || supplierWithScore?.esg_final_score)}
+                    className="bg-red-500 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Analyze
+                  </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {reportTemplates.map((report) => (
-                      <div
-                        key={report.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all duration-200"
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="p-2 bg-primary/10 rounded-full">
-                            <FileText className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold">{report.name}</h3>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <span>{report.type}</span>
-                              <span>•</span>
-                              <span>Last generated: {report.lastGenerated}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <Badge className={getStatusColor(report.status)}>{report.status}</Badge>
-                          <div className="flex space-x-2">
+                  {isAiLoading && (
+                    <div className="w-full mb-4">
+                      <div className="text-sm text-gray-600 mb-1">Analyzing...</div>
 
+                    </div>
+                  )}
+
+                  {aiSuggestionE && (
+                    <div className="mt-4">
+                      <Accordion type="single" collapsible>
+                        <AccordionItem value="esg-suggestion">
+                          <AccordionTrigger className="text-sm font-medium">
+                            View AI Suggestions
+                          </AccordionTrigger>
+                          <AccordionContent className="p-4 bg-gray-50 rounded-lg mt-2">
+                            <div className="prose prose-sm max-w-none">
+                              {aiSuggestionE.split('\n').map((paragraph, i) => (
+                                <p key={i}>{paragraph}</p>
+                              ))}
+                            </div>
                             <Button
-                              variant="outline"
                               size="sm"
-                              onClick={() => downloadReport(report.id)}
-                              disabled={report.status !== "Ready"}
+                              className="mt-4 bg-red-500 text-white hover:bg-red-700 transition-colors"
+                              onClick={() => handleDownload(aiSuggestionE)}
                             >
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
+                              Download Analysis
                             </Button>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Cost Efficiency Score Card */}
+              <Card className="transition-all duration-300 hover:shadow-lg bg-blue-100">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-black">Cost Efficiency Score</CardTitle>
+                    <CardDescription>
+                      Current Score: {costEfficiencyScore ?? "N/A"}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => handleAiAnalyzeS("social")}
+                    disabled={isAiLoadingS || !costEfficiencyScore}
+                    className="bg-red-500 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Analyze
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {isAiLoadingS && (
+                    <div className="w-full mb-4">
+                      <div className="text-sm text-gray-600 mb-1">Analyzing...</div>
+
+                    </div>
+                  )}
+                  {aiSuggestionS && (
+                    <div className="mt-4">
+                      <Accordion type="single" collapsible>
+                        <AccordionItem value="cost-suggestion">
+                          <AccordionTrigger className="text-sm font-medium">
+                            View AI Suggestions
+                          </AccordionTrigger>
+                          <AccordionContent className="p-4 bg-gray-50 rounded-lg mt-2">
+                            <div className="prose prose-sm max-w-none">
+                              {aiSuggestionS.split('\n').map((paragraph, i) => (
+                                <p key={i}>{paragraph}</p>
+                              ))}
+                            </div>
+                            <Button
+                              size="sm"
+                              className="mt-4 bg-red-500 text-white hover:bg-red-700 transition-colors"
+                              onClick={() => handleDownloadS(aiSuggestionS)}
+                            >
+                              Download Analysis
+                            </Button>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Overall Risk Score Card */}
+              <Card className="transition-all duration-300 hover:shadow-lg bg-yellow-100">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-black">Overall Risk Score</CardTitle>
+                    <CardDescription>
+                      Current Score: {supplierWithScore?.risk_score.toFixed(2) ?? "N/A"}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => handleAiAnalyzeG("governance")}
+                    disabled={isAiLoadingG || !(supplierWithScore?.risk_score)}
+                    className="bg-red-500 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Analyze
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {isAiLoadingG && (
+                    <div className="w-full mb-4">
+                      <div className="text-sm text-gray-600 mb-1">Analyzing...</div>
+
+                    </div>
+                  )}
+                  {aiSuggestionG && (
+                    <div className="mt-4">
+                      <Accordion type="single" collapsible>
+                        <AccordionItem value="risk-suggestion">
+                          <AccordionTrigger className="text-sm font-medium">
+                            View AI Suggestions
+                          </AccordionTrigger>
+                          <AccordionContent className="p-4 bg-gray-50 rounded-lg mt-2">
+                            <div className="prose prose-sm max-w-none">
+                              {aiSuggestionG.split('\n').map((paragraph, i) => (
+                                <p key={i}>{paragraph}</p>
+                              ))}
+                            </div>
+                            <Button
+                              size="sm"
+                              className="mt-4 bg-red-500 text-white hover:bg-red-700 transition-colors"
+                              onClick={() => handleDownloadG(aiSuggestionG)}
+                            >
+                              Download Analysis
+                            </Button>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Reliability Card */}
+              <Card className="transition-all duration-300 hover:shadow-lg bg-pink-100">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-black">Reliability Factor</CardTitle>
+                    <CardDescription>
+                      Current Score: {reliabilityScore ?? "N/A"}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => handleAiAnalyzeC("reliability")}
+                    disabled={isAiLoadingC || !reliabilityScore}
+                    className="bg-red-500 text-white hover:bg-red-700 transition-colors"
+                  >
+                    Analyze
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {isAiLoadingC && (
+                    <div className="w-full mb-4">
+                      <div className="text-sm text-gray-600 mb-1">Analyzing...</div>
+
+                    </div>
+                  )}
+                  {aiSuggestionC && (
+                    <div className="mt-4">
+                      <Accordion type="single" collapsible>
+                        <AccordionItem value="reliability-suggestion">
+                          <AccordionTrigger className="text-sm font-medium">
+                            View AI Suggestions
+                          </AccordionTrigger>
+                          <AccordionContent className="p-4 bg-gray-50 rounded-lg mt-2">
+                            <div className="prose prose-sm max-w-none">
+                              {aiSuggestionC.split('\n').map((paragraph, i) => (
+                                <p key={i}>{paragraph}</p>
+                              ))}
+                            </div>
+                            <Button
+                              size="sm"
+                              className="mt-4 bg-red-500 text-white hover:bg-red-700 transition-colors"
+                              onClick={() => handleDownloadRi(aiSuggestionC)}
+                            >
+                              Download Analysis
+                            </Button>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Report Card (stays the same) */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl flex items-center">
+                      <FileText className="h-6 w-6 mr-3 text-primary" />
+                      Report
+                    </CardTitle>
+                    <CardDescription>Generate and download comprehensive reports</CardDescription>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filter
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {reportTemplates.map((report) => (
+                    <div
+                      key={report.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-all duration-200"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="p-2 bg-primary/10 rounded-full">
+                          <FileText className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">{report.name}</h3>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <span>{report.type}</span>
+                            <span>•</span>
+                            <span>Last generated: {report.lastGenerated}</span>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      <div className="flex items-center space-x-3">
+                        <Badge className={getStatusColor(report.status)}>{report.status}</Badge>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => downloadReport(report.id)}
+                            disabled={report.status !== "Ready"}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
             </Card>
           </TabsContent>
-
-
-
         </Tabs>
       </div>
       <Chatbot />

@@ -55,7 +55,8 @@ export default function Home() {
         {/* 1. Explore Header */}
         <div className="text-center space-y-4 mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            Explore Products & Suppliers
+             <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text "> Explore Products & Suppliers</span>
+           
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400">
             Gain product insights, evaluate supplier risks, and optimize

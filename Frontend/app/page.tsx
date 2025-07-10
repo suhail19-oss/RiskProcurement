@@ -213,8 +213,8 @@ const faqs = [
 const values = [
   {
     icon: Heart,
-    title: "Sustainability First",
-    description: "Every decision we make is guided by our commitment to environmental and social responsibility.",
+    title: "Impact ",
+    description: "Creating measurable, lasting impact through every decision we make.",
     color: "text-green-600",
     bgColor: "bg-green-100 dark:bg-green-900/20",
   },
@@ -241,10 +241,18 @@ const team = [
     bio: "Operations expert in scaling businesses, streamlining processes, and leading cross-functional teams.",
   },
   {
-    name: "Ayush Kumar",
-    role: "CEO & Founder",
-    bio: "Former sustainability director at Fortune 500 companies with 15+ years of experience.",
+    name: "Hemanth Sankhla",
+    role: "CPO",
+    bio: "Operations expert in scaling businesses, streamlining processes, and leading cross-functional teams.",
   },
+ 
+  {
+    name: "Ayush Kumar",
+    role: "CFO",
+    bio: "Seasoned operations and product leader with deep expertise in scaling businesses, operational workflows."
+  }
+
+  ,
   {
     name: "Hafeez Muhammed",
     role: "CTO",
@@ -255,6 +263,22 @@ const team = [
     role: "Head of ESG",
     bio: "Environmental scientist and ESG expert with PhD in Procurement related Business Practices.",
   },
+  {
+    name: "Mohd Sohail Khan",
+    role: "Head of Risk Procurement",
+    bio: " Leader in procurement risk management, combining expertise in environmental science and risk frameworks."
+  },
+  {
+    name: "Vayun",
+    role: "Head of Cloud & DevOps",
+    bio: "Expert in cloud architecture and DevOps strategy, with a track record of deploying scalable infrastructure solutions."
+  },
+  {
+    name: "Aiswarya",
+    role: "Head of ML & Data Science",
+    bio: "Data-driven innovator leading initiatives at the intersection of machine learning and real world usecases."
+  }
+
 ]
 
 const suppliers = [
@@ -516,19 +540,19 @@ export default function Dashboard() {
   const userPersona = getUserPersona()
   const [activeTab, setActiveTab] = useState("overview")
 
-  return (
+   return (
     <div className="relative min-h-screen w-full">
       <div className="w-full px-8">
 
         {/* Enhanced Hero Section */}
-        < Hero /> 
+        <Hero />
 
         {/* About Section */}
-        <section id="about" className="w-full px-10 pt-10 space-y-10 md:space-y-16" >
+        <section id="about" className="w-full px-10 pt-10 space-y-10 md:space-y-16">
           {/* Vision & Mission */}
-          <div className="w-full grid lg:grid-cols-2 gap-8 lg:gap-10 items-start">
+          <div className="w-full grid lg:grid-cols-2 gap-4 lg:gap-6 items-start">
             {/* Vision */}
-            <div className="space-y-4 w-full">
+            <div className="space-y-4 w-full pl-8">
               <div>
                 <Badge variant="outline" className="mb-4 border-[#E2142D] text-[#E2142D] bg-white/80 dark:bg-black/80 font-semibold">
                   <Target className="h-3 w-3 mr-2" />
@@ -544,7 +568,7 @@ export default function Dashboard() {
                   We envision a future where every procurement decision is a step toward a more resilient, responsible, and high-performing supply chain.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 justify-items-center">
-                  <CircularProgress value={85} label="Sustainable Sourcing"  />
+                  <CircularProgress value={85} label="Sustainable Sourcing" />
                   <CircularProgress value={88} label="Social Responsibility Compliance" />
                   <CircularProgress value={83} label="Ethical & Regulatory Governance" />
                 </div>
@@ -552,7 +576,7 @@ export default function Dashboard() {
             </div>
 
             {/* Mission */}
-            <div className="space-y-4 w-full">
+            <div className="space-y-4 w-full pr-4">
               <div>
                 <Badge variant="outline" className="mb-4 border-[#2563eb] text-[#2563eb] bg-white/80 dark:bg-black/80 font-semibold">
                   <Lightbulb className="h-3 w-3 mr-2" />
@@ -743,13 +767,13 @@ export default function Dashboard() {
                 Visualize supplier risk and connectivity across your entire supply chain in real time.
               </p>
             </div>
-            
             <div className="grid grid-cols-2 px-8 ">
-              <Metrics/>
-              <Chart/>
+              <Metrics />
+              <Chart />
             </div>
           </div>
         </section>
+
         <section id="features" className="w-full py-0">
           <div className="pt-20 space-y-8 lg:space-y-12">
             <div className="text-center mb-16">
@@ -871,73 +895,72 @@ export default function Dashboard() {
                 </div>
               </TabsContent>
 
-           <TabsContent value="features" className="space-y-8 w-full">
-  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-    {[
-      {
-        icon: BarChart3,
-        title: "Advanced Analytics",
-        description: "Deep insights with AI-powered analysis",
-      },
-      {
-        icon: Shield,
-        title: "Risk Assessment",
-        description: "Proactive risk identification and mitigation",
-      },
-      {
-        icon: FileText,
-        title: "Automated Reporting",
-        description: "Generate comprehensive reports instantly",
-      },
-      {
-        icon: TrendingUp,
-        title: "Performance Tracking",
-        description: "Monitor improvements over time",
-      },
-      {
-        icon: Users,
-        title: "Supplier Ranking",
-        description: "Ranking amongst other suppliers",
-      },
-      {
-        icon: Globe,
-        title: "Global Benchmarking",
-        description: "Comparison with international suppliers",
-      },
-    ].map((feature, index) => {
-      const Icon = feature.icon
+              <TabsContent value="features" className="space-y-8 w-full">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                  {[
+                    {
+                      icon: BarChart3,
+                      title: "Advanced Analytics",
+                      description: "Deep insights with AI-powered analysis",
+                    },
+                    {
+                      icon: Shield,
+                      title: "Risk Assessment",
+                      description: "Proactive risk identification and mitigation",
+                    },
+                    {
+                      icon: FileText,
+                      title: "Automated Reporting",
+                      description: "Generate comprehensive reports instantly",
+                    },
+                    {
+                      icon: TrendingUp,
+                      title: "Performance Tracking",
+                      description: "Monitor improvements over time",
+                    },
+                    {
+                      icon: Users,
+                      title: "Supplier Ranking",
+                      description: "Ranking amongst other suppliers",
+                    },
+                    {
+                      icon: Globe,
+                      title: "Global Benchmarking",
+                      description: "Comparison with international suppliers",
+                    },
+                  ].map((feature, index) => {
+                    const Icon = feature.icon
 
-      // Light pastel background classes (Tailwind-friendly)
-      const bgColors = [
-        "bg-blue-50",
-        "bg-green-50",
-        "bg-purple-50",
-        "bg-yellow-50",
-        "bg-pink-50",
-        "bg-indigo-50",
-      ]
-      const bgColor = bgColors[index % bgColors.length]
+                    // Light pastel background classes (Tailwind-friendly)
+                    const bgColors = [
+                      "bg-blue-50",
+                      "bg-green-50",
+                      "bg-purple-50",
+                      "bg-yellow-50",
+                      "bg-pink-50",
+                      "bg-indigo-50",
+                    ]
+                    const bgColor = bgColors[index % bgColors.length]
 
-      return (
-        <Card
-          key={index}
-          className={`w-full hover:shadow-lg transition-all duration-300 border-0 ${bgColor} dark:bg-white/5 backdrop-blur-sm`}
-        >
-          <CardHeader>
-            <Icon className="h-8 w-8 text-primary mb-2" />
-            <CardTitle className="text-lg">{feature.title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="text-base">
-              {feature.description}
-            </CardDescription>
-          </CardContent>
-        </Card>
-      )
-    })}
-  </div>
-</TabsContent>
-
+                    return (
+                      <Card
+                        key={index}
+                        className={`w-full hover:shadow-lg transition-all duration-300 border-0 ${bgColor} dark:bg-white/5 backdrop-blur-sm`}
+                      >
+                        <CardHeader>
+                          <Icon className="h-8 w-8 text-primary mb-2" />
+                          <CardTitle className="text-lg">{feature.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <CardDescription className="text-base">
+                            {feature.description}
+                          </CardDescription>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </TabsContent>
 
               <TabsContent value="benefits" className="space-y-8 w-full">
                 <div className="grid lg:grid-cols-2 gap-8 w-full">
@@ -1061,8 +1084,8 @@ export default function Dashboard() {
                             <span className="text-sm">{feature}</span>
                           </div>
                         ))}
-                        <Button className={`w-full ${plan.popular 
-                          ? "bg-gradient-to-r from-primary/90 via-primary/70 to-blue-600/70" 
+                        <Button className={`w-full ${plan.popular
+                          ? "bg-gradient-to-r from-primary/90 via-primary/70 to-blue-600/70"
                           : ""}`}>
                           Get Started
                         </Button>
@@ -1074,8 +1097,6 @@ export default function Dashboard() {
             </Tabs>
           </div>
         </section>
-
-
       </div>
       <Chatbot />
     </div>

@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+import { useRouter } from "next/navigation";
 import {
   PieChart,
   Pie,
@@ -94,6 +94,7 @@ function getTrendIcon(trend: string) {
 
 export default function ESGAnalysis() {
   const [selectedSupplier, setSelectedSupplier] = useState("")
+  const [selectedSupplierC, setSelectedSupplierC] = useState("")
   const [activeTab, setActiveTab] = useState("esg-analysis")
 
 
@@ -223,12 +224,14 @@ export default function ESGAnalysis() {
       Social?: Record<string, number>;
       Governance?: Record<string, number>;
     };
-    esg_subfactor_scores?: string; // JSON string
+    esg_subfactor_scores?: string; 
+    esg_score?: number;// JSON string
     // Add other fields as needed
   };
 
   //fetchins suppliers
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliersC, setSuppliersC] = useState<Supplier[]>([]);
   useEffect(() => {
     const fetchSuppliers = async () => {
       const res = await fetch("http://localhost:8000/api/suppliers");
@@ -241,63 +244,63 @@ export default function ESGAnalysis() {
   }, []);
 
   // for Overall score 
- useEffect(() => {
-            const fetchProfileAndSetCompany = async () => {
-                try {
-                    const token = localStorage.getItem("token");
-                    if (!token) {
-                        throw new Error("No authentication token found");
-                    }
-    
-                    const response = await fetch("http://localhost:8000/profile/me", {
-                        headers: {
-                            "Authorization": `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
-                    });
-    
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch profile");
-                    }
-    
-                    const data = await response.json();
-    
-                    // Just get company_name
-                    const companyName = data.data.company_name;
-                  
-                    if (companyName) {
-                        // Set selectedSupplier
-                        setSelectedSupplier(companyName);
-                        // Optionally store in localStorage
-                        localStorage.setItem("company_name", companyName);
-    
-                        // Find supplier with this name
-                        const supplierWithScore = suppliers.find(
-                            (s) => s.company_name === companyName
-                        );
-    
-                        setESGScore(supplierWithScore?.esg_final_score  ?? 0);
-                    } else {
-                        // Fallback if company_name missing
-                        setSelectedSupplier("");
-                       setESGScore(0);
+  useEffect(() => {
+    const fetchProfileAndSetCompany = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
 
-                    }
-                } catch (error) {
-                    console.error("Error fetching profile:", error);
-                   
-                    // Fallback in case of error
-                    setSelectedSupplier("");
-                    setESGScore(0);
-                } finally {
-    
-                }
-            };
-    
-            // Call the async function
-            fetchProfileAndSetCompany();
-        }, [suppliers]);
-    
+        const response = await fetch("http://localhost:8000/profile/me", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+
+        const data = await response.json();
+
+        // Just get company_name
+        const companyName = data.data.company_name;
+
+        if (companyName) {
+          // Set selectedSupplier
+          setSelectedSupplier(companyName);
+          // Optionally store in localStorage
+          localStorage.setItem("company_name", companyName);
+
+          // Find supplier with this name
+          const supplierWithScore = suppliers.find(
+            (s) => s.company_name === companyName
+          );
+
+          setESGScore(supplierWithScore?.esg_final_score ?? 0);
+        } else {
+          // Fallback if company_name missing
+          setSelectedSupplier("");
+          setESGScore(0);
+
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+
+        // Fallback in case of error
+        setSelectedSupplier("");
+        setESGScore(0);
+      } finally {
+
+      }
+    };
+
+    // Call the async function
+    fetchProfileAndSetCompany();
+  }, [suppliers]);
+
 
 
 
@@ -384,7 +387,7 @@ export default function ESGAnalysis() {
       return;
     }
 
-    const supplier = suppliers.find(s => s.company_name === selectedSupplier);
+    const supplier = suppliers.find(s => s.company_name === selectedSupplierC);
 
     if (!supplier) {
       resetAllScores();
@@ -460,6 +463,96 @@ export default function ESGAnalysis() {
     if (score >= 50) return "fair"
     return "poor"
   }
+  const router = useRouter();
+
+  // Tab value to route mapping
+  const tabToRoute: Record<string, string> = {
+    ESG: "/esg-analysis",
+    Risk: "/risk-analysis",
+    "Cost Efficiency": "/costEfficiency-analysis",
+    Reliability: "/reliability-analysis",
+  };
+
+  // Handler for tab change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tabToRoute[tab]) {
+      router.push(tabToRoute[tab]);
+    }
+  };
+
+  //company
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+
+    if (userData.role === "Supplier") return;
+
+    const fetchSuppliers = async () => {
+      const res = await fetch("http://localhost:8000/api/suppliers");
+      const data = await res.json();
+
+      setSuppliersC(data.suppliers);
+    };
+
+    fetchSuppliers();
+  }, []);
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+    if (userData.role === "Supplier") return;
+
+    const supplier = suppliersC.find(s => s.company_name === selectedSupplierC);
+    if (!supplier) return;
+    // Set main ESG scores
+   
+    // Parse subfactor scores if they exist
+    try {
+      const data = supplier.esg_subfactor_scores
+        ? typeof supplier.esg_subfactor_scores === 'string'
+          ? JSON.parse(supplier.esg_subfactor_scores)
+          : supplier.esg_subfactor_scores
+        : null;
+
+      if (data) {
+        if (data.Environmental) {
+          setGhgScore(data.Environmental["GHG Score"] ?? "");
+          setEnergyEfficiencyScore(data.Environmental["Energy Score"] ?? ""); // Fixed
+          setWaterEfficiencyScore(data.Environmental["Water Score"] ?? ""); // Fixed
+          setWasteRecyclingScore(data.Environmental["Waste Score"] ?? ""); // Fixed
+          setComplianceScore(data.Environmental["Compliance Score"] ?? "");
+          setRenewableEnergyScore(data.Environmental["Renewable Score"] ?? ""); // Fixed
+          setBiodiversityScore(data.Environmental["Biodiversity Score"] ?? "");
+          setClimateRiskManagementScore(data.Environmental["Climate Risk Score"] ?? ""); // Fixed
+        }
+
+        // 👥 Social
+        if (data.Social) {
+          setRetentionScore(data.Social["Retention Score"] ?? "");
+          setSafetyScore(data.Social["Safety Score"] ?? "");
+          setDiversityScore(data.Social["Diversity Score"] ?? "");
+          setCommunityInvestmentScore(data.Social["Community Score"] ?? ""); // Fixed
+          setCustomerSatisfactionScore(data.Social["Customer Score"] ?? ""); // Fixed
+          setHumanRightsScore(data.Social["Human Rights Score"] ?? "");
+          setTrainingScore(data.Social["Training Score"] ?? "");
+        }
+
+        // 🏛 Governance
+        if (data.Governance) {
+          setBoardIndependenceScore(data.Governance["Board Independence"] ?? ""); // Fixed
+          setCompensationAlignmentScore(data.Governance["Compensation Score"] ?? ""); // Fixed
+          setAuditCommitteeScore(data.Governance["Audit Score"] ?? ""); // Fixed
+          setShareholderRightsScore(data.Governance["Shareholder Score"] ?? ""); // Fixed
+          setTransparencyScore(data.Governance["Transparency Score"] ?? "");
+          setAntiCorruptionScore(data.Governance["Anti-Corruption"] ?? ""); // Fixed
+          setTaxTransparencyScore(data.Governance["Tax Transparency"] ?? "");
+        }
+      }
+    } catch (err) {
+      console.error("Error parsing subfactor scores:", err);
+    }
+
+  }, [selectedSupplierC, suppliersC]);
 
 
   return (
@@ -472,16 +565,66 @@ export default function ESGAnalysis() {
           transition={{ duration: 0.5 }}
           className="text-center space-y-4"
         >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
-            ESG Factor Analysis & Supplier Ranking
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient">
+            <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text ">ESG Factor Analysis & Supplier Ranking</span>
           </h1>
           <p className="text-xl text-muted-foreground">
             Comprehensive Environmental, Social & Governance evaluation with intelligent supplier recommendations
           </p>
         </motion.div>
 
-       
 
+        {JSON.parse(localStorage.getItem("userData") || "{}")?.role !== "Supplier" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex justify-center"
+          >
+            {activeTab === "esg-analysis" && (
+              <Select value={selectedSupplierC} onValueChange={setSelectedSupplierC}>
+                <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
+                  <SelectValue placeholder="Select a supplier">
+                    {selectedSupplierC || "Select a supplier"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {suppliersC.map((supplier) => (
+                    <SelectItem
+                      key={`${supplier.company_name}_${Math.random()}`}
+                      value={String(supplier.company_name)}
+                      disabled={supplier.esg_upload_status !== "success"}
+                    >
+                      {supplier.company_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </motion.div>
+        )}
+
+
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full mb-10"
+        >
+          <TabsList className="w-full overflow-x-auto whitespace-nowrap flex gap-2 sm:justify-center">
+            <TabsTrigger value="ESG" className="px-4 py-2 text-sm sm:text-base">
+              ESG
+            </TabsTrigger>
+            <TabsTrigger value="Risk" className="px-4 py-2 text-sm sm:text-base">
+              Risk
+            </TabsTrigger>
+            <TabsTrigger value="Cost Efficiency" className="px-4 py-2 text-sm sm:text-base">
+              Cost Efficiency
+            </TabsTrigger>
+            <TabsTrigger value="Reliability" className="px-4 py-2 text-sm sm:text-base">
+              Reliability
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="">
 
 
@@ -970,195 +1113,6 @@ export default function ESGAnalysis() {
 
           </TabsContent>
 
-          <TabsContent value="supplier-ranking" className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="grid lg:grid-cols-3 gap-6"
-            >
-              <div className="lg:col-span-2">
-                <Card className="transition-all duration-300 hover:shadow-lg">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-2xl flex items-center">
-                          <Award className="h-6 w-6 mr-3 text-primary animate-pulse" />
-                          Supplier Rankings
-                        </CardTitle>
-                        <CardDescription>Comprehensive supplier evaluation and ranking</CardDescription>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="transition-all duration-300 hover:scale-105 hover:shadow-md"
-                        >
-                          <Filter className="h-4 w-4 mr-2" />
-                          Filter
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="transition-all duration-300 hover:scale-105 hover:shadow-md"
-                        >
-                          <Search className="h-4 w-4 mr-2" />
-                          Search
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Sort suppliers by esg_final_score in descending order and then map */}
-                      {suppliers
-                        .filter(supplier => supplier.esg_upload_status === "success")
-                        .sort((a, b) => (b.esg_final_score || 0) - (a.esg_final_score || 0))
-                        .map((supplier, index) => (
-                          <motion.div
-                            key={supplier._id || index}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                          >
-                            <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
-                              <CardContent className="p-6">
-                                <div className="flex items-center justify-between mb-4">
-                                  <div className="flex items-center space-x-4">
-                                    <div className="flex items-center space-x-2">
-                                      <div className="text-3xl font-bold text-primary">#{index + 1}</div>
-                                      {/* getTrendIcon(supplier.trend) */}
-                                    </div>
-                                    <div>
-                                      <h3 className="text-xl font-semibold">{supplier.company_name}</h3>
-                                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                        {/* Optional: Add location/category if available */}
-                                        {/* <span>{supplier.location}</span>
-                      <span>•</span>
-                      <span>{supplier.category}</span> */}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="text-right">
-                                    <div className="text-3xl font-bold text-green-600">
-                                      {supplier.esg_final_score?.toFixed(1) || 'N/A'}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">Overall Score</div>
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-4 mb-4">
-                                  <div className="text-center">
-                                    <div className="text-lg font-semibold">
-                                      {supplier.esg_final_score?.toFixed(1) || 'N/A'}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">ESG Score</div>
-                                    <Progress
-                                      value={supplier.esg_final_score || 0}
-                                      className="mt-1"
-                                    />
-                                  </div>
-                                  {/* Add other score columns if needed */}
-                                </div>
-
-                                <Accordion type="single" collapsible className="space-y-4">
-                                  <AccordionItem value={`recommendations-${index}`} className="border-none">
-                                    <AccordionTrigger
-                                      className="text-sm font-medium hover:no-underline"
-                                      onClick={async () => {
-                                        if (!recAccordionOpen) {
-                                          await fetchRecommendations(supplier.company_name); // Pass supplier ID
-                                          setRecAccordionOpen(true);
-                                        } else {
-                                          setRecAccordionOpen(false);
-                                        }
-                                      }}
-                                    >
-                                      View Improvement Recommendations
-                                    </AccordionTrigger>
-                                    <AccordionContent>
-                                      {loadingRecommendations ? (
-                                        <div className="text-sm text-muted-foreground mb-2">
-                                          Loading recommendations...
-                                        </div>
-                                      ) : (
-                                        recommendations.length > 0 && (
-                                          <ul className="list-disc pl-5 space-y-1 mb-2">
-                                            {recommendations.map((rec, idx) => (
-                                              <li key={idx} className="text-sm">{rec}</li>
-                                            ))}
-                                          </ul>
-                                        )
-                                      )}
-                                    </AccordionContent>
-                                  </AccordionItem>
-                                </Accordion>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="space-y-6">
-                <Card className="transition-all duration-300 hover:shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center">
-                      <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
-                      Suggested Better Suppliers
-                    </CardTitle>
-                    <CardDescription>Alternative suppliers with higher scores</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {betterSuppliers.map((supplier, index) => (
-                      <div key={index} className="p-4 border rounded-lg hover:shadow-md transition-all duration-200">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-sm">{supplier.name}</h4>
-                          <Badge variant="default" className="text-xs">
-                            {supplier.score}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-2">{supplier.reason}</p>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-green-600 font-medium">Save {supplier.savings}</span>
-                          <span className="text-muted-foreground">{supplier.location}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card className="transition-all duration-300 hover:shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center">
-                      <AlertCircle className="h-5 w-5 mr-2 text-red-600" />
-                      Risk Alerts
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                        <span className="font-medium text-sm">High Risk Detected</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        SustainableParts Inc shows declining ESG performance
-                      </p>
-                    </div>
-                    <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <AlertCircle className="h-4 w-4 text-yellow-600" />
-                        <span className="font-medium text-sm">Compliance Review</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">CleanEnergy Corp requires updated certifications</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </motion.div>
-          </TabsContent>
         </Tabs>
       </div>
       <Chatbot />

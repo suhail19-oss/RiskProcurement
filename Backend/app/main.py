@@ -16,6 +16,8 @@ from fastapi import Path
 from app.routes import profile
 from app.schemas.actions_schemas import ActionDocument
 from fastapi import Body
+from fastapi import HTTPException
+from fastapi import HTTPException
 
 # Google Gemini
 import google.generativeai as genai
@@ -115,11 +117,32 @@ async def ping_db():
     return {"msg": "Pretend MongoDB is connected (DB removed in this version)"}
 
 # ------------------- Supplier Endpoint -------------------
+
 @app.get("/api/suppliers")
 async def get_all_suppliers():
     try:
-        cursor = db.suppliers.find({}, {"_id": 0})
-        suppliers = await cursor.to_list(length=None)
+        # First, get all suppliers
+        suppliers_cursor = db.suppliers.find({}, {"_id": 0})
+        suppliers = await suppliers_cursor.to_list(length=None)
+        
+        # Get all products for lookup
+        products_cursor = db.products.find({}, {"_id": 0})
+        products = await products_cursor.to_list(length=None)
+        
+        # Create a product lookup dictionary
+        product_lookup = {product['id']: product['product'] for product in products}
+        
+        # Remove duplicates and add product names
+        unique_suppliers = {}
+        for supplier in suppliers:
+            key = f"{supplier.get('company_name', '')}_{supplier.get('email_domain', '')}"
+            if key not in unique_suppliers:
+                # Add product name from lookup
+                product_id = supplier.get('product_id')
+                supplier['product_name'] = product_lookup.get(product_id, '')
+                unique_suppliers[key] = supplier
+        
+        suppliers_list = list(unique_suppliers.values())
 
         # Sanitize: replace NaN/Infinity with None
         def sanitize(d):
@@ -134,7 +157,7 @@ async def get_all_suppliers():
             else:
                 return d
 
-        sanitized_suppliers = [sanitize(s) for s in suppliers]
+        sanitized_suppliers = [sanitize(s) for s in suppliers_list]
 
         return {"suppliers": sanitized_suppliers}
     except Exception as e:
@@ -143,8 +166,76 @@ async def get_all_suppliers():
             status_code=500,
             content={"error": str(e)},
         )
-
+    
 @app.get("/api/suppliers-status")
+async def get_suppliers_with_products():
+    try:
+        # Use MongoDB aggregation to join suppliers with products
+        pipeline = [
+            {
+                "$lookup": {
+                    "from": "products",
+                    "localField": "product_id", 
+                    "foreignField": "id",
+                    "as": "product_info"
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$product_info",
+                    "preserveNullAndEmptyArrays": True
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "company_name": 1,
+                    "email_domain": 1,
+                    "industry": 1,
+                    "product_id": 1,
+                    "product_name": "$product_info.product",
+                    "risk_upload_status": 1,
+                    "cost_upload_status": 1,
+                    "reliability_upload_status": 1,
+                    "esg_upload_status": 1
+                }
+            }
+        ]
+        
+        suppliers = await db.suppliers.aggregate(pipeline).to_list(length=None)
+        
+        # Clean NaN values
+        cleaned_suppliers = clean_nan_values(suppliers)
+        
+        # Calculate document status for each supplier
+        for supplier in cleaned_suppliers:
+            # Ensure all status fields exist
+            supplier["risk_upload_status"] = supplier.get("risk_upload_status")
+            supplier["cost_upload_status"] = supplier.get("cost_upload_status") 
+            supplier["reliability_upload_status"] = supplier.get("reliability_upload_status")
+            supplier["esg_upload_status"] = supplier.get("esg_upload_status")
+            
+            # Count missing documents
+            missing_count = 0
+            if supplier.get("risk_upload_status") != "success":
+                missing_count += 1
+            if supplier.get("cost_upload_status") != "success":
+                missing_count += 1
+            if supplier.get("reliability_upload_status") != "success":
+                missing_count += 1
+            if supplier.get("esg_upload_status") != "success":
+                missing_count += 1
+            
+            supplier["missing_documents_count"] = missing_count
+        
+        return {"suppliers": cleaned_suppliers}
+        
+    except Exception as e:
+        logger.exception("Error fetching suppliers with products")
+        return {"error": str(e)}
+    
+
+@app.get("/api/suppliers-with-products")
 async def get_suppliers_with_products():
     try:
         # Use MongoDB aggregation to join suppliers with products

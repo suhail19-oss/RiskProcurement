@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+import { useRouter } from "next/navigation";
 import {
     PieChart,
     Pie,
@@ -77,6 +77,8 @@ function getStatusColor(score: number) {
 
 export default function ReliabilityAnalysis() {
     const [selectedSupplier, setSelectedSupplier] = useState("")
+    const [selectedSupplierC, setSelectedSupplierC] = useState("")
+
     const [activeTab, setActiveTab] = useState("reliability-analysis")
     const [adjustedOnTimeDeliveryRate, setAdjustedOnTimeDeliveryRate] = useState("");
     const [averageLeadTimeDaysScore, setAverageLeadTimeDaysScore] = useState("");
@@ -118,12 +120,24 @@ export default function ReliabilityAnalysis() {
 
     //fetchins suppliers
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+    const [suppliersC, setSuppliersC] = useState<Supplier[]>([]);
     useEffect(() => {
         const fetchSuppliers = async () => {
             const res = await fetch("http://localhost:8000/api/suppliers");
             const data = await res.json();
             console.log("Fetched suppliers:", data.suppliers);
             setSuppliers(data.suppliers);
+        };
+
+        fetchSuppliers();
+    }, []);
+
+    useEffect(() => {
+        const fetchSuppliers = async () => {
+            const res = await fetch("http://localhost:8000/api/suppliers");
+            const data = await res.json();
+            console.log("Fetched suppliers:", data.suppliers);
+            setSuppliersC(data.suppliers);
         };
 
         fetchSuppliers();
@@ -152,7 +166,7 @@ export default function ReliabilityAnalysis() {
 
                 // Just get company_name
                 const companyName = data.data.company_name;
-              
+
                 if (companyName) {
                     // Set selectedSupplier
                     setSelectedSupplier(companyName);
@@ -249,14 +263,14 @@ export default function ReliabilityAnalysis() {
 
         // R6
         const r6Score = (1 - combinedDisruptionValue) * 100;
-        
+
         const reliabilityScoreCal =
-        (r1Score * 0.25) +
-        (r2Score * 0.15) +
-        (r3Score * 0.15) +
-        (r4Score * 0.15) +
-        (r5Score * 0.15) +
-        (r6Score * 0.15);
+            (r1Score * 0.25) +
+            (r2Score * 0.15) +
+            (r3Score * 0.15) +
+            (r4Score * 0.15) +
+            (r5Score * 0.15) +
+            (r6Score * 0.15);
         // ✅ SET SCORES INTO YOUR STATE HOOKS:
         setAdjustedOnTimeDeliveryRate(r1Score.toFixed(2));
         setAverageLeadTimeDaysScore(r2Score.toFixed(2));
@@ -307,6 +321,100 @@ export default function ReliabilityAnalysis() {
     };
 
     const [open, setOpen] = useState(false);
+    const router = useRouter();
+
+    // Tab value to route mapping
+    const tabToRoute: Record<string, string> = {
+        ESG: "/esg-analysis",
+        Risk: "/risk-analysis",
+        "Cost Efficiency": "/costEfficiency-analysis",
+        Reliability: "/reliability-analysis",
+    };
+
+    // Handler for tab change
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+        if (tabToRoute[tab]) {
+            router.push(tabToRoute[tab]);
+        }
+    };
+
+    //company
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+
+        if (userData.role === "Supplier") return;
+
+        const fetchSuppliers = async () => {
+            const res = await fetch("http://localhost:8000/api/suppliers");
+            const data = await res.json();
+
+            setSuppliersC(data.suppliers);
+        };
+
+        fetchSuppliers();
+    }, []);
+
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+        if (userData.role === "Supplier") return;
+
+        const supplier = suppliersC.find(s => s.company_name === selectedSupplierC);
+        if (!supplier || !supplier.reliability_subfactors) return;
+
+        const reliability = supplier.reliability_subfactors;
+
+        // Convert to numbers safely
+        const adjustedOnTimeDeliveryRateNum = Number(reliability.adjusted_on_time_delivery_rate) || 0;
+        const averageLeadTimeDaysNum = Number(reliability.average_lead_time_days) || 0;
+        const productDefectRateNum = Number(reliability.product_defect_rate) || 0;
+        const isoCertificationScoreNum = Number(reliability.iso_certification_score) || 0;
+        const infrastructureDisruptionSeverityNum = Number(reliability.infrastructure_disruption_severity) || 0;
+        const strikeDaysNum = Number(reliability.strike_days) || 0;
+        const naturalDisasterFrequencyNum = Number(reliability.natural_disaster_frequency) || 0;
+
+        // R1
+        const r1Score = adjustedOnTimeDeliveryRateNum;
+
+        // R2
+        const r2Score = Math.max(0, 100 - (averageLeadTimeDaysNum * 3.33));
+
+        // R3
+        const defectRatePercent = productDefectRateNum < 1 ? productDefectRateNum * 100 : productDefectRateNum;
+        const r3Score = Math.max(0, 100 - (defectRatePercent * 20));
+
+        // R4
+        const r4Score = isoCertificationScoreNum * 100;
+
+        // R5
+        const r5Score = (1 - infrastructureDisruptionSeverityNum) * 100;
+
+        // Combined Disruption
+        const combinedDisruptionValue = Math.min(1.0, (strikeDaysNum / 30) + (naturalDisasterFrequencyNum / 5));
+
+        // R6
+        const r6Score = (1 - combinedDisruptionValue) * 100;
+
+        const reliabilityScoreCal =
+            (r1Score * 0.25) +
+            (r2Score * 0.15) +
+            (r3Score * 0.15) +
+            (r4Score * 0.15) +
+            (r5Score * 0.15) +
+            (r6Score * 0.15);
+        // ✅ SET SCORES INTO YOUR STATE HOOKS:
+        setAdjustedOnTimeDeliveryRate(r1Score.toFixed(2));
+        setAverageLeadTimeDaysScore(r2Score.toFixed(2));
+        setProductDefectRate(r3Score.toFixed(2));
+        setIsoCertificationScore(r4Score.toFixed(2));
+        setInfrastructureDisruptionSeverityScore(r5Score.toFixed(2));
+        setCombinedDisruption(combinedDisruptionValue.toFixed(2));
+        setReliabilityScoreC(parseFloat(reliabilityScoreCal.toFixed(2)));
+    }, [selectedSupplierC, suppliersC]);
+
+
+
 
     return (
         <div className="relative pt-20 min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -317,13 +425,65 @@ export default function ReliabilityAnalysis() {
                     transition={{ duration: 0.5 }}
                     className="text-center space-y-4"
                 >
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
-                        Reliability Analysis
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient">
+                        <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text ">Reliability Analysis</span>
                     </h1>
                     <p className="text-xl text-muted-foreground">
                         Comprehensive reliability evaluation of the supplier
                     </p>
                 </motion.div>
+
+                {JSON.parse(localStorage.getItem("userData") || "{}")?.role !== "Supplier" && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="flex justify-center"
+                    >
+                        {activeTab === "reliability-analysis" && (
+                            <Select value={selectedSupplierC} onValueChange={setSelectedSupplierC}>
+                                <SelectTrigger className="w-64 transition-all duration-300 hover:shadow-lg">
+                                    <SelectValue placeholder="Select a supplier">
+                                        {selectedSupplierC || "Select a supplier"}
+                                    </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {suppliersC.map((supplier) => (
+                                        <SelectItem
+                                            key={`${supplier.company_name}_${supplier.email_domain}_${supplier.product_id}`}
+                                            value={String(supplier.company_name)}
+                                            disabled={supplier.reliability_upload_status !== "success"}
+                                        >
+                                            {supplier.company_name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </motion.div>
+                )}
+
+
+                <Tabs
+                    value={activeTab}
+                    onValueChange={handleTabChange}
+                    className="w-full mb-10"
+                >
+                    <TabsList className="w-full overflow-x-auto whitespace-nowrap flex gap-2 sm:justify-center">
+                        <TabsTrigger value="ESG" className="px-4 py-2 text-sm sm:text-base">
+                            ESG
+                        </TabsTrigger>
+                        <TabsTrigger value="Risk" className="px-4 py-2 text-sm sm:text-base">
+                            Risk
+                        </TabsTrigger>
+                        <TabsTrigger value="Cost Efficiency" className="px-4 py-2 text-sm sm:text-base">
+                            Cost Efficiency
+                        </TabsTrigger>
+                        <TabsTrigger value="Reliability" className="px-4 py-2 text-sm sm:text-base">
+                            Reliability
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="">
                     <TabsContent value="reliability-analysis" className="space-y-6">
@@ -415,38 +575,7 @@ export default function ReliabilityAnalysis() {
                                                     animationBegin={500}
                                                     animationDuration={1000}
                                                     animationEasing="ease-out"
-                                                    label={({
-                                                        cx,
-                                                        cy,
-                                                        midAngle,
-                                                        innerRadius,
-                                                        outerRadius,
-                                                        percent,
-                                                        index,
-                                                        name
-                                                    }) => {
-                                                        const RADIAN = Math.PI / 180;
-                                                        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                                                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                                                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-                                                        return (
-                                                            <text
-                                                                x={x}
-                                                                y={y}
-                                                                fill="black"
-                                                                textAnchor="middle"
-                                                                dominantBaseline="central"
-                                                                style={{
-                                                                    fontSize: '12px',
-                                                                    fontWeight: 'bold',
-
-                                                                }}
-                                                            >
-                                                                {`${name}`}
-                                                            </text>
-                                                        );
-                                                    }}
                                                     labelLine={false}
                                                 >
                                                     {[
@@ -488,6 +617,30 @@ export default function ReliabilityAnalysis() {
                                             </PieChart>
                                         </ResponsiveContainer>
 
+                                        <div className="flex justify-center space-x-4 mt-4">
+                                            {[
+                                                { name: "Adjusted On time Delivery Rate", color: "#22c55e" },
+                                                { name: "Average Lead Time Delay Score", color: "#3b82f6" },
+                                                { name: "Product Defect rate", color: "#f59e0b" },
+                                                { name: "ISO Certification Score", color: "#ec4899" },
+                                                { name: "Infrastructure Disruption Severity Score", color: "#8b5cf6" },
+                                                { name: "Combined Disruption Score", color: "#ef4444" },
+                                            ].map((entry, index) => (
+                                                <motion.div
+                                                    key={index}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                                                    className="flex items-center space-x-2"
+                                                >
+                                                    <div
+                                                        className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
+                                                        style={{ backgroundColor: entry.color, minWidth: "1rem", minHeight: "1rem" }}
+                                                    />
+                                                    <span className="text-sm">{entry.name}</span>
+                                                </motion.div>
+                                            ))}
+                                        </div>
                                     </motion.div>
                                 </CardContent>
                             </Card>

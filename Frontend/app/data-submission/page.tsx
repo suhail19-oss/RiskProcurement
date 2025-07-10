@@ -18,7 +18,7 @@ export default function DataSubmissionPage() {
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in px-2">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading leading-tight mb-6 max-w-3xl mx-auto">
-            Data <span className="gradient-text">Submission Portal</span>
+             <span className="bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] gradient-text"> Data Submission Portal</span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             Submit your metrics for comprehensive scoring
@@ -26,9 +26,9 @@ export default function DataSubmissionPage() {
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-10">
-          <TabsList className="w-full overflow-x-auto whitespace-nowrap flex gap-2 sm:justify-center">
-            <TabsTrigger value="ESG" className="px-4 py-2 text-sm sm:text-base">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-10 ">
+          <TabsList className="w-full  overflow-x-auto whitespace-nowrap flex gap-2 sm:justify-center">
+            <TabsTrigger value="ESG" className=" px-4 py-2 text-sm sm:text-base">
               ESG
             </TabsTrigger>
             <TabsTrigger value="Risk" className="px-4 py-2 text-sm sm:text-base">

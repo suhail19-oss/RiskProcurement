@@ -98,9 +98,9 @@ export default function ProductDetails() {
                     {product.category}
                   </span>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                  {product.name}
-                </h1>
+                 <span className="text-2xl font-bold bg-gradient-to-r from-[#E2142D] via-[#2563eb] to-[#a21caf] bg-clip-text text-transparent animate-gradient-text "> {product.name}</span>
+           
+               
                 <p className="text-lg text-gray-700 dark:text-gray-400 leading-relaxed">
                   {product.description}
                 </p>
@@ -141,6 +141,7 @@ export default function ProductDetails() {
                 >
                   <div className="flex items-start justify-between mb-6">
                     <div>
+                      
                       <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                         {supplier.company_name}
                       </h3>
