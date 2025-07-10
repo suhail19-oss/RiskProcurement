@@ -302,8 +302,6 @@ export default function ESGAnalysis() {
   }, [suppliers]);
 
 
-
-
   // For the pei chart 
   useEffect(() => {
     const fetchCompanyESGData = () => {

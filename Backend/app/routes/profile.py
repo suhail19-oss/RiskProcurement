@@ -8,6 +8,7 @@ from typing import Dict, Any
 
 router = APIRouter(prefix="/profile", tags=["Profile"])
 
+# get esg data from prfile 
 @router.get("/me")
 async def get_profile(current_user: Dict = Depends(get_current_user_from_token)):
     """Get current user profile with company information"""
